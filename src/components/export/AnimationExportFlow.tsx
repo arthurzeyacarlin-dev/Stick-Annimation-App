@@ -554,7 +554,7 @@ export function AnimationExportFlow({ origin, onBack, preferredProjectId = null 
             width, and a plain column on the right that says what you can export. Phones stack it. */}
         <div className={styles.chooseHeader}>
           <BackButton onClick={onBack}>Back</BackButton>
-          <div className={styles.chooseHeading}><div className={styles.eyebrow}>Export</div><h1 className={styles.chooseTitle}>Choose an animation</h1><p className={styles.chooseLead}>Click an animation to preview it and pick a format.</p></div>
+          <div className={styles.chooseHeading}><div className={styles.eyebrow}>Export</div><h1 className={styles.chooseTitle}>Choose an animation</h1><p className={`${styles.chooseLead} ${styles.computerOnly}`}>Click an animation to preview it and pick a format.</p><p className={`${styles.chooseLead} ${styles.touchOnly}`}>Tap an animation to preview it and pick a format.</p></div>
         </div>
         {origin === "workspace" && preferredProjectId === null ? <div role="note" className={styles.statusWarning}>Your latest changes couldn&apos;t be saved, so Export uses your last save.</div> : null}
         {message ? <div role="status" aria-live="polite" className={styles.statusInfo}>{message}</div> : null}

@@ -211,6 +211,7 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
             id={panelId}
             ref={panelRef}
             className={styles.panel}
+            data-phone-sheet=""
             role={compact ? "dialog" : "region"}
             aria-modal={compact || undefined}
             aria-label={`${view === "assistant" ? "Assistant " : ""}notifications`}

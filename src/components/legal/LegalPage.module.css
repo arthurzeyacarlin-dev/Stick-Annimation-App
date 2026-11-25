@@ -25,3 +25,11 @@
   .card { padding: 4px 18px; }
   .head h1 { font-size: 26px; }
 }
+
+/* ===== PHONE + TABLET ONLY (phone plan, Nov 24): one clean reading column, clear of the notch and the home bar. ===== */
+:global(html[data-device="phone"]) .page { padding: calc(16px + var(--phone-safe-top)) var(--phone-pad) calc(40px + var(--phone-safe-bottom)); font-size: 16.5px; }
+:global(html[data-device="phone"]) .head h1 { font-size: 30px; }
+:global(html[data-device="phone"]) .card { padding: 4px 18px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .section h2 { font-size: 20px; }
+:global(html[data-device="phone"]) .top a, :global(html[data-device="phone"]) .foot a { display: inline-flex; align-items: center; min-height: 44px; }
+:global(html[data-device="tablet"]) .top a, :global(html[data-device="tablet"]) .foot a { display: inline-flex; align-items: center; min-height: 44px; }

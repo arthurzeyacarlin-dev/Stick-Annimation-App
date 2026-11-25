@@ -52,3 +52,34 @@
 .section { padding: 16px 22px 8px; border: 1px solid var(--da-line); border-radius: 12px; background: var(--da-card-fill); box-shadow: var(--da-card-shadow); }
 .sectionTitle { margin-bottom: 2px; color: var(--da-text); font-size: 15px; font-weight: 600; letter-spacing: -.01em; text-transform: none; }
 .row + .row { border-top: 1px solid var(--da-line); }
+
+/* ===== PHONE + TABLET ONLY (phone plan, Nov 24): Settings like a phone's own settings app — grouped cards, big rows,
+   big switches, full-width choice bars. A computer never reads these rules. ===== */
+:global(html[data-device="phone"]) .main { padding: 22px var(--phone-pad) calc(32px + var(--phone-tabbar-space)); }
+:global(html[data-device="phone"]) .frame { gap: 14px; }
+:global(html[data-device="phone"]) .frame > :first-child { margin-bottom: 2px; }
+:global(html[data-device="phone"]) .title { margin-bottom: 4px; font-size: 36px; }
+:global(html[data-device="phone"]) .section { padding: 14px 16px 4px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .sectionTitle { font-size: 13px; color: var(--da-label, #85858e); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+:global(html[data-device="phone"]) .row { min-height: 60px; gap: 14px; padding: 14px 0; }
+:global(html[data-device="phone"]) .text strong { font-size: 16.5px; }
+:global(html[data-device="phone"]) .text small { font-size: 14px; }
+:global(html[data-device="phone"]) .switch { width: 52px; height: 32px; }
+:global(html[data-device="phone"]) .switch::after { top: 2px; left: 2px; width: 26px; height: 26px; }
+:global(html[data-device="phone"]) .switch:checked::after { transform: translateX(20px); }
+:global(html[data-device="phone"]) .choiceRow { align-items: stretch; flex-direction: column; gap: 12px; }
+:global(html[data-device="phone"]) .choiceRow .segmented { width: 100%; padding: 4px; border-radius: 12px; }
+:global(html[data-device="phone"]) .choiceRow .segmented button { flex: 1 1 0; height: 44px; min-width: 0; padding-inline: 6px; border-radius: 9px; font-size: 14.5px; }
+:global(html[data-device="phone"]) .segmented button:hover:not(:disabled):not([aria-pressed="true"]) { background: transparent; color: var(--da-text-3, #b8b8bf); box-shadow: none; }
+:global(html[data-device="phone"]) .choiceRow :global(.da-plain-button) { align-self: stretch; min-height: 50px; justify-content: center; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .test { min-height: 44px; padding: 0 16px; font-size: 14.5px; }
+:global(html[data-device="phone"]) .swatch { width: 40px; height: 40px; }
+:global(html[data-device="phone"]) .swatches { gap: 12px; }
+:global(html[data-device="phone"]) .ok, :global(html[data-device="phone"]) .error { font-size: 15px; }
+:global(html[data-device="tablet"]) .main { padding-bottom: calc(40px + var(--phone-tabbar-space)); }
+:global(html[data-device="tablet"]) .row { min-height: 56px; }
+:global(html[data-device="tablet"]) .switch { width: 52px; height: 32px; }
+:global(html[data-device="tablet"]) .switch::after { top: 2px; left: 2px; width: 26px; height: 26px; }
+:global(html[data-device="tablet"]) .switch:checked::after { transform: translateX(20px); }
+:global(html[data-device="tablet"]) .segmented button { height: 44px; }
+:global(html[data-device="tablet"]) .choiceRow :global(.da-plain-button), :global(html[data-device="tablet"]) .test { min-height: 48px; }

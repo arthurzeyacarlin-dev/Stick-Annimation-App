@@ -1,0 +1,649 @@
+/* PHONE + TABLET ONLY: the editor and the AI Animator panels (builder A). Every rule starts with html[data-device="phone"] or html[data-device="tablet"]. */
+/* ============================================================================================================
+   The editor on phones and tablets (Arthur, Nov 24: "it looks like it was made for the phone").
+   Computers read none of this: every rule below starts with html[data-device="phone"] / html[data-device="tablet"],
+   except the one line that hides the phone-only top strip (it never shows on a computer).
+   Shapes:
+     STACK  = phone upright and tablet upright: thin top strip, the canvas anchored at the top (never resized, never
+              covered by Properties / Library / Assets), then Play + the timeline, the panel chips and the tools at the
+              very bottom where the thumb is. Panels are sheets that slide up OVER the timeline, never over the canvas.
+              The AI Animator opens as a tall chat sheet (messaging app look).
+     RAIL   = phone sideways: tools down the left edge, panel chips down the right edge, the canvas as big as it can be
+              in the middle, Play + the timeline as one thin strip at the bottom, panels slide in from the right.
+     TABLET SIDEWAYS = the computer editor with finger-sized controls (nothing hover-only).
+   Only where things sit and how big they are; no drawing, saving, timeline or AI behaviour is touched.
+   ============================================================================================================ */
+
+/* The phone-only top strip: hidden everywhere until a phone/tablet rule shows it. */
+.pe-strip { display: none; }
+
+/* ---------- shared: phones and tablets ---------- */
+html[data-device="phone"] body:has(.drawing-right-panel), html[data-device="tablet"] body:has(.drawing-right-panel) { height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .app [class*="workspaceTheme_workspace"]:has(> .drawing-topbar) {
+  height: 100dvh !important; max-height: 100dvh !important; overflow: hidden !important; overscroll-behavior: none;
+}
+/* The canvas area is never pushed sideways or made wider than the screen (the bug after turning the phone: the
+   computer's panel maths still moved it). */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-canvas-area { transform: none !important; }
+/* The AI Animator panel lives in its sheet; it never floats as its own box over the timeline (that old phone style
+   escaped the sheet once the panel moved into its host, so it sat under the play bar). */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .workspace-ai-panel-shell {
+  position: static !important; inset: auto !important; height: auto !important; min-height: 0 !important; z-index: auto !important;
+  border: 0 !important; border-radius: 0 !important; box-shadow: none !important; flex: 1 1 0 !important;
+}
+/* No tooltips that need a mouse. */
+:is(html[data-device="phone"], html[data-device="tablet"]) :is(.drawing-toolbar, .drawing-timeline-controls, .drawing-topbar) [data-tooltip]::before,
+:is(html[data-device="phone"], html[data-device="tablet"]) :is(.drawing-toolbar, .drawing-timeline-controls, .drawing-topbar) [data-tooltip]::after { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) :is(.drawing-toolbar, .drawing-timeline, .da-sheet-tabs) { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+/* ============================================================================================================
+   STACK (phone upright + tablet upright)
+   ============================================================================================================ */
+html[data-device="phone"][data-orient="portrait"], html[data-device="tablet"][data-orient="portrait"] {
+  --pe-strip-h: 52px;
+  --pe-tools-h: calc(66px + var(--phone-safe-bottom));
+  --pe-chips-h: 60px;
+  --pe-tlc-h: 56px;                              /* the Play row */
+  --pe-tl-h: calc(var(--pe-tlc-h) + 64px);       /* Play row + one frame row (numbers 18 + frames 38 + scroll line 6) + its 2 edges */
+  --pe-canvas-pad: 8px;
+  --pe-canvas-h: calc((100vw - var(--phone-safe-left) - var(--phone-safe-right) - 2 * var(--pe-canvas-pad)) * 9 / 16);
+}
+html[data-device="tablet"][data-orient="portrait"] { --pe-strip-h: 60px; --pe-canvas-pad: 16px; }
+
+/* --- the thin top strip: back, project name, undo, redo, "…", Export --- */
+:is(html[data-device="phone"], html[data-device="tablet"][data-orient="portrait"]) .drawing-topbar.drawing-topbar {
+  height: calc(var(--pe-strip-h, 52px) + var(--phone-safe-top)) !important; min-height: 0 !important;
+  padding: var(--phone-safe-top) calc(8px + var(--phone-safe-right)) 0 calc(6px + var(--phone-safe-left)) !important;
+  gap: 4px !important; overflow: visible !important; flex-shrink: 0;
+}
+:is(html[data-device="phone"], html[data-device="tablet"][data-orient="portrait"]) .drawing-topbar > .drawing-topbar-menus,
+:is(html[data-device="phone"], html[data-device="tablet"][data-orient="portrait"]) .drawing-topbar > [data-project-recovery-state],
+:is(html[data-device="phone"], html[data-device="tablet"][data-orient="portrait"]) .drawing-topbar > .drawing-topbar-title:not(:has(.ai-top-wrap)) { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"][data-orient="portrait"]) .pe-strip { display: contents; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-back { order: 1; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-title { order: 2; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-topbar > .drawing-topbar-title { order: 3; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-undo { order: 4; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-redo { order: 5; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-more { order: 6; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-export { order: 7; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-btn {
+  flex: 0 0 auto; min-width: var(--phone-tap); height: var(--phone-tap); display: inline-grid; place-items: center; padding: 0;
+  border: 0; border-radius: 12px; background: transparent; color: var(--da-text, #f5f5f6); font: inherit; cursor: pointer;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-more svg { fill: currentColor; stroke: none; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-btn:disabled { opacity: .35; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-btn:active:not(:disabled) { background: var(--da-hover, #3a3a41); filter: none; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-btn[aria-expanded="true"] { background: var(--da-selected-bg, #3a3a41); }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-btn.pe-strip-export {
+  margin-left: 4px; padding: 0 16px; border-radius: 12px; background: var(--da-accent, #0066ff); color: #ffffff; font-size: 15px; font-weight: 650;
+  box-shadow: var(--da-glow-primary);
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-btn.pe-strip-export:active { background: var(--da-accent-hover, #1a75ff); }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-title { flex: 1 1 auto; min-width: 0; display: grid; gap: 1px; padding: 0 4px; line-height: 1.2; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-name { font-size: 15px; font-weight: 650; letter-spacing: -.01em; color: var(--da-text, #f5f5f6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-saved { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; color: var(--da-muted, #a3a3ab); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-saved > span { flex: 0 0 auto; width: 6px; height: 6px; border-radius: 50%; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-strip-saved[data-problem] { color: var(--da-danger, #ff8a95); }
+
+/* --- the "…" sheet: File · Edit · View · Window · Help as big rows (phones get the shared sheet look from phone.css) --- */
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-sheet { color: var(--da-text, #f5f5f6); text-align: left; }
+html[data-device="tablet"] .pe-menu-scrim { position: fixed; inset: 0; z-index: 125; background: rgba(0, 0, 0, .55); animation: phone-fade-in 200ms ease; }
+html[data-device="tablet"] .pe-menu-sheet {
+  position: fixed; left: 50%; bottom: 0; z-index: 130; width: min(560px, 100vw); max-height: calc(100dvh - 80px); transform: translateX(-50%);
+  overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--da-line, #2c2c32); border-bottom: 0;
+  border-radius: var(--phone-sheet-radius) var(--phone-sheet-radius) 0 0; background: #161618; box-shadow: 0 -18px 48px rgba(0, 0, 0, .55);
+  padding: 22px var(--phone-pad) calc(16px + var(--phone-safe-bottom)); animation: pe-sheet-up-centered 260ms cubic-bezier(.2, .8, .2, 1);
+}
+html[data-device="tablet"] .pe-menu-sheet::before { content: ""; position: absolute; top: 8px; left: 50%; width: 38px; height: 5px; margin-left: -19px; border-radius: 3px; background: rgba(255, 255, 255, .22); }
+@keyframes pe-sheet-up-centered { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-head { display: flex; align-items: center; gap: 12px; padding: 4px 0 2px; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-head-text { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-head-text strong { font-size: 20px; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-head-text span { font-size: 13px; color: var(--da-muted, #a3a3ab); }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-done {
+  flex: 0 0 auto; min-width: 72px; height: var(--phone-tap); padding: 0 16px; border: 1px solid var(--da-border, #2c2c32); border-radius: 12px;
+  background: var(--da-panel, #1a1a1e); color: #ffffff; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-group { display: grid; margin-top: 14px; border: 1px solid var(--da-line, #2c2c32); border-radius: var(--phone-radius); background: var(--da-panel, #1a1a1e); overflow: hidden; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-group h3 { margin: 0; padding: 12px 16px 6px; font-size: 13px; font-weight: 600; color: var(--da-muted, #a3a3ab); letter-spacing: 0; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 50px; padding: 0 16px;
+  border: 0; border-top: 1px solid var(--da-line, #2c2c32); background: transparent; color: var(--da-text, #f5f5f6);
+  font: inherit; font-size: 16px; font-weight: 500; text-align: left; cursor: pointer;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-group h3 + .pe-menu-row { border-top: 0; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-row:active:not(:disabled) { background: var(--da-hover, #3a3a41); filter: none; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-row:disabled { color: var(--da-muted, #a3a3ab); opacity: .5; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-sep { height: 6px; border-top: 1px solid var(--da-line, #2c2c32); background: rgba(0, 0, 0, .18); }
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-menu-check { width: 20px; height: 20px; fill: none; stroke: var(--da-focus, #4d94ff); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+/* A phone has no keyboard: the keyboard shortcuts list is left out on phones (tablets may have one). */
+html[data-device="phone"] .pe-menu-row[data-pe-item="Keyboard Shortcuts"] { display: none; }
+
+/* --- the body, top to bottom: the canvas (anchored, never resized, never covered by a panel), Play + the timeline right
+   under it, then the panel (chips + the chosen panel, docked in the space that is left), the tools at the very bottom.
+   Tapping the chosen chip slides its panel up OVER the timeline (up to the canvas's bottom edge, never further);
+   tapping it again docks it back. The AI Animator opens as a tall chat sheet. --- */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] {
+  --pe-canvas-block: calc(var(--pe-canvas-h) + 2 * var(--pe-canvas-pad));
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] [class*="workspaceTheme_workspace"]:has(> .drawing-topbar) { position: relative; display: flex !important; flex-direction: column !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] [data-unified-workspace-area="true"] { flex: 1 1 0 !important; min-height: 0 !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] div:has(> .da-sheet) { position: relative !important; display: block !important; overflow: hidden !important; flex: 1 1 0 !important; height: 100% !important; }
+/* The canvas: anchored at the top, as big as the width allows, the same size whatever opens. */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] div:has(> .da-sheet) > .drawing-canvas-area.drawing-canvas-area.drawing-canvas-area.drawing-canvas-area {
+  position: absolute !important; inset: 0 var(--phone-safe-right) auto var(--phone-safe-left) !important; height: var(--pe-canvas-block) !important;
+  width: auto !important; min-height: 0 !important; flex: none !important;
+  display: flex !important; align-items: flex-start !important; justify-content: center !important; padding: var(--pe-canvas-pad) !important;
+  container-type: size;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-canvas-area > [data-workspace-canvas-host="true"] {
+  flex: 0 0 auto !important; width: min(100cqw, 100cqh * 16 / 9) !important; height: min(100cqh, 100cqw * 9 / 16) !important; aspect-ratio: auto !important;
+}
+/* Play + the timeline: right under the canvas. */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] [class*="workspaceTheme_workspace"]:has(.da-sheet) > .drawing-timeline {
+  position: absolute !important; top: calc(var(--pe-strip-h) + var(--phone-safe-top) + var(--pe-canvas-block)) !important; bottom: auto !important; left: 0 !important; right: 0 !important;
+  z-index: 28 !important; display: grid !important; grid-template-columns: minmax(0, 1fr) !important; grid-template-rows: var(--pe-tlc-h) var(--timeline-panel-height) !important;
+  height: auto !important; min-height: 0 !important; max-height: none !important; padding: 0 var(--phone-safe-right) 0 var(--phone-safe-left) !important; overflow: visible !important;
+  background: var(--da-panel, #1a1a1e) !important; border-top: 1px solid var(--da-line, #2c2c32) !important; border-bottom: 1px solid var(--da-line, #2c2c32) !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-timeline .drawing-timeline-frames {
+  grid-column: 1 !important; grid-row: 2; margin-left: 0 !important; height: var(--timeline-panel-height) !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-timeline .drawing-timeline-controls {
+  grid-column: 1 !important; grid-row: 1; height: var(--pe-tlc-h) !important; min-height: 0 !important; min-width: 0;
+  display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 8px !important; padding: 0 12px !important; overflow: visible !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-timeline-controls > div { display: contents !important; }
+/* The panel: chips (Properties · Library · Assets · AI) on top, the chosen panel under them, docked in the space left. */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet.da-sheet {
+  display: flex !important; flex-direction: column; position: absolute !important; left: 0; right: 0; bottom: 0; top: auto !important; z-index: 30;
+  height: calc(100% - var(--pe-canvas-block) - var(--pe-tl-h)) !important; min-height: 0 !important; max-height: none !important;
+  background: var(--da-page, #111113); padding: 0 var(--phone-safe-right) 0 var(--phone-safe-left);
+  transition: height 240ms cubic-bezier(.2, .8, .2, 1), border-radius 240ms ease;
+}
+/* chosen chip tapped again: it slides up over the timeline, to just under the canvas (never over it) */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet.da-sheet:not([data-sheet-size="small"]) {
+  height: calc(100% - var(--pe-canvas-block)) !important;
+  border-radius: var(--phone-sheet-radius) var(--phone-sheet-radius) 0 0; box-shadow: 0 -18px 48px rgba(0, 0, 0, .55) !important; background: #161618;
+}
+/* while the finger drags the top edge, the panel follows it (between docked and just under the canvas) */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet.da-sheet[data-sheet-dragging] {
+  transition: none; height: clamp(calc(100% - var(--pe-canvas-block) - var(--pe-tl-h)), var(--da-sheet-px), calc(100% - var(--pe-canvas-block))) !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet > .da-sheet-tabs.da-sheet-tabs {
+  display: flex !important; flex-direction: column; flex: 0 0 auto !important; height: var(--pe-chips-h) !important; justify-content: center;
+  position: relative !important; inset: auto !important; background: transparent !important; border-top: 0 !important; touch-action: none;
+}
+/* the grab bar on the panel's top edge (drag it, or tap the chosen chip) */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet > .da-sheet-tabs::before {
+  content: ""; position: absolute; top: 4px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 3px; background: rgba(255, 255, 255, .2); pointer-events: none;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tabs .da-sheet-handle { top: 0 !important; height: 14px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .da-sheet-tab-row.da-sheet-tab-row {
+  display: grid !important; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 0 !important; height: auto !important;
+  margin: 4px 12px 0 !important; padding: 3px !important; border: 1px solid var(--da-border, #2c2c32) !important; border-radius: 14px !important; background: var(--da-page, #111113) !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .da-sheet-tab-row.da-sheet-tab-row button {
+  height: var(--phone-tap) !important; border: 0 !important; border-radius: 11px !important; font-size: 15px !important; font-weight: 600 !important; box-shadow: none !important;
+  background: transparent !important; color: var(--da-text-3, #b8b8bf) !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .da-sheet-tab-row .da-choice-pill { display: none !important; }
+/* the chosen chip is always lit: its panel is showing (docked or slid up) */
+:is(html[data-device="phone"], html[data-device="tablet"]) .da-sheet-tab-row.da-sheet-tab-row button[aria-selected="true"] { background: var(--da-selected-bg, #3a3a41) !important; color: #ffffff !important; }
+/* Where the AI Animator is not a chip (it is the top strip's field), its chip is left out (it would open an empty tab). */
+:is(html[data-device="phone"], html[data-device="tablet"]) .da-sheet:not([data-ai-in-tab]) .da-sheet-tab-row button:last-child { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet > .drawing-right-panel.drawing-right-panel.drawing-right-panel {
+  position: relative !important; inset: auto !important; width: 100% !important; flex: 1 1 0 !important; height: auto !important; min-height: 0 !important; max-height: none !important;
+  overflow: hidden !important; border: 0 !important; background: transparent !important; transform: none !important; visibility: visible !important;
+}
+/* While the panel is slid up it is above the timeline (it slides over it), never above the canvas. */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] [class*="workspaceTheme_workspace"]:has(.da-sheet:not([data-sheet-size="small"])) > [data-unified-workspace-area="true"],
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] [class*="workspaceTheme_workspace"]:has(.da-sheet[data-sheet-dragging]) > [data-unified-workspace-area="true"] { z-index: 40 !important; }
+/* The panel's content: comfortable rows and fields. */
+:is(html[data-device="phone"], html[data-device="tablet"]) .workspace-properties-scroll { padding: 12px var(--phone-pad) 28px !important; font-size: 14px !important; overscroll-behavior: contain; background: transparent !important; border-bottom: 0 !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .workspace-properties-scroll button:not([role="switch"]) { min-height: var(--phone-tap); }
+/* The AI Animator (phone upright, where it is the fourth chip): opened, it is a tall chat sheet like a messaging app,
+   over everything under the strip, its message box at the very bottom above the home bar. */
+html[data-device="phone"][data-orient="portrait"] .da-sheet.da-sheet[data-sheet-tab="ai"]:not([data-sheet-size="small"]) {
+  height: calc(100% + var(--pe-tools-h)) !important; bottom: calc(-1 * var(--pe-tools-h)) !important; padding-bottom: var(--phone-safe-bottom);
+}
+html[data-device="phone"][data-orient="portrait"] div:has(> .da-sheet[data-sheet-tab="ai"]:not([data-sheet-size="small"])) { overflow: visible !important; }
+html[data-device="phone"][data-orient="portrait"] .da-sheet.da-sheet[data-sheet-tab="ai"][data-sheet-dragging] {
+  height: clamp(calc(100% - var(--pe-canvas-block) - var(--pe-tl-h)), calc(var(--da-sheet-px) + var(--pe-tools-h)), calc(100% + var(--pe-tools-h))) !important;
+}
+
+/* --- the tools: one row at the very bottom, finger-sized, names under the icons, slides sideways when it must --- */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar.drawing-toolbar {
+  position: relative !important; display: flex !important; grid-template-columns: none !important; align-items: center; justify-content: safe center; gap: 4px !important;
+  width: 100% !important; height: var(--pe-tools-h) !important; margin: 0 !important; flex: 0 0 auto !important; inset: auto !important;
+  padding: 6px calc(4px + var(--phone-safe-right)) calc(6px + var(--phone-safe-bottom)) calc(4px + var(--phone-safe-left)) !important;
+  overflow: hidden !important; touch-action: manipulation;
+  background: var(--da-panel, #1a1a1e) !important; border-top: 1px solid var(--da-line, #2c2c32) !important; border-right: 0 !important; gap: 0 !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar::-webkit-scrollbar { display: none; }
+/* (all eight always share the one row: it never slides, so a finger on the tools only ever picks a tool) */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar.drawing-toolbar > div { flex: 1 1 0; min-width: 0 !important; max-width: 72px; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar .drawing-tool-button.drawing-tool-button { width: 100% !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-toolbar .drawing-tool-button.drawing-tool-button {
+  width: 54px; height: 52px !important; border-radius: 12px !important; gap: 4px !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-toolbar .drawing-tool-label { display: block !important; font-size: 10.5px; font-weight: 600; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-toolbar > .da-choice-pill { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-toolbar .drawing-tool-button[data-selected].drawing-tool-button[data-selected] {
+  background: var(--da-text, #f5f5f6) !important; border-color: var(--da-text, #f5f5f6) !important; color: var(--da-page, #111113) !important; box-shadow: 0 0 18px rgba(255, 255, 255, .22) !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-toolbar .drawing-tool-button:not([data-selected]):hover { background: transparent !important; border-color: transparent !important; box-shadow: none !important; color: var(--da-muted, #a3a3ab) !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-toolbar .drawing-tool-button.drawing-tool-button:not([data-selected]):active { background: var(--da-hover, #3a3a41) !important; color: #ffffff !important; }
+
+/* --- the Play row: Play first and biggest, onion skin, add layer, FPS at the end; all finger-sized --- */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-timeline-controls button {
+  flex: 0 0 auto !important; width: var(--phone-tap) !important; min-width: var(--phone-tap) !important; height: var(--phone-tap) !important; min-height: var(--phone-tap) !important;
+  border-radius: 12px !important; display: inline-grid !important; place-items: center !important; margin: 0 !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-timeline-controls button svg { transform: scale(1.2); }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-timeline-controls .drawing-play.drawing-play {
+  order: -1; width: 64px !important; min-width: 64px !important; border-radius: 14px !important;
+  background: var(--da-text, #f5f5f6) !important; border: 1px solid var(--da-text, #f5f5f6) !important; color: var(--da-page, #111113) !important; box-shadow: none !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-timeline-controls .drawing-play.drawing-play:active { background: #ffffff !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-timeline-controls [aria-label^="Onion"] { order: 0; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-timeline-controls [aria-label="Add layer"] { order: 1; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-timeline-controls button:not(.drawing-play):hover { background: transparent !important; box-shadow: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-timeline-controls [data-hover="icon"][aria-pressed="true"] { background: var(--da-hover, #3a3a41) !important; border: 1px solid var(--da-hover, #3a3a41) !important; color: #ffffff !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-fps.drawing-fps {
+  order: 9; margin-left: auto !important; height: var(--phone-tap) !important; padding: 0 12px !important; gap: 8px !important; border-radius: 12px !important;
+  border: 1px solid var(--da-line, #2c2c32) !important; background: var(--da-page, #111113) !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .drawing-fps input { width: 40px !important; height: 36px !important; font-size: 16px !important; }
+/* The frames slide sideways under a finger; cells are the computer's 17 px on every device (DrawingTimelineRow). */
+:is(html[data-device="phone"], html[data-device="tablet"]) .timeline-frame-main-scroll { touch-action: pan-x; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+
+/* --- the frame menu (press and hold a frame; a right-click on a computer): a sheet with big rows on phones --- */
+.pe-frame-menu-scrim { display: none; }
+html[data-device="phone"] .pe-frame-menu-scrim { display: block; }
+html[data-device="phone"] .pe-frame-menu.pe-frame-menu { gap: 2px !important; padding-top: 44px !important; }
+html[data-device="phone"] .pe-frame-menu::after {
+  content: attr(aria-label); position: absolute; top: 18px; left: var(--phone-pad); font-size: 13px; font-weight: 600; color: var(--da-muted, #a3a3ab);
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .pe-frame-menu button {
+  min-height: 50px !important; padding: 0 14px !important; border-radius: 12px !important; font-size: 16px !important; font-weight: 500 !important;
+}
+html[data-device="tablet"] .pe-frame-menu.pe-frame-menu { width: 240px !important; }
+
+/* ============================================================================================================
+   The AI Animator on phones: the SAME command-window look as the computer's AI window (Arthur, Nov 24: "it doesn't look
+   like the terminal tab compared to the computer"): the dark window, monospace type, his commands as "›" prompt lines,
+   the answers in the same type with no bubbles, the "›" prompt in the message box. Only arranged for a phone: the
+   prompt line on top of the box and its buttons under it, everything finger-sized.
+   Looks only: what it sends, makes, edits and places is untouched.
+   ============================================================================================================ */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab { --ai-mono: var(--font-geist-mono, ui-monospace, "SF Mono", Menlo, monospace); }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab,
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .workspace-ai-panel-shell,
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .workspace-ai-panel-shell > *,
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .workspace-ai-messages-scroll { background: #141417 !important; }
+html[data-device="phone"][data-orient="portrait"] .da-sheet[data-sheet-tab="ai"] { background: #141417 !important; }
+/* a new conversation: the command line's welcome (left-aligned, no logo, ideas as "›" command lines) */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-empty {
+  max-width: 560px !important; width: 100%; margin: auto 0 !important; padding: 14px 0 6px !important; gap: 10px !important;
+  display: flex !important; flex-direction: column !important; align-items: flex-start !important; text-align: left !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-empty > * { text-align: left !important; align-self: stretch; margin-left: 0 !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-empty .drawing-ai-logo { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-empty > strong { font-size: 22px !important; font-weight: 650 !important; letter-spacing: -.02em; line-height: 1.25; color: #ffffff !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-empty-text { font-size: 14.5px !important; line-height: 1.5 !important; color: var(--da-muted, #a3a3ab) !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-examples.drawing-ai-examples { display: grid !important; grid-template-columns: minmax(0, 1fr); gap: 8px !important; width: 100%; margin-top: 4px; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-examples.drawing-ai-examples button {
+  display: flex !important; align-items: flex-start; gap: 8px; width: 100%; height: auto !important; min-height: 48px !important; padding: 12px 14px !important;
+  border: 1px solid var(--da-border, #2c2c32) !important; border-radius: 10px !important; background: var(--da-page, #111113) !important; color: var(--da-text-2, #d2d2d7) !important;
+  font-family: var(--ai-mono) !important; font-size: 13.5px !important; font-weight: 500 !important; line-height: 1.45; text-align: left; white-space: normal; box-shadow: none !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-examples.drawing-ai-examples button::before { content: "›"; flex: 0 0 auto; font-weight: 600; color: var(--da-muted, #a3a3ab); }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-examples.drawing-ai-examples button:active:enabled { background: var(--da-hover, #3a3a41) !important; color: #ffffff !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-cost { font-family: var(--ai-mono); font-size: 12px !important; line-height: 1.5 !important; color: var(--da-muted, #a3a3ab) !important; }
+/* "Press Esc" means nothing without a keyboard */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-esc { display: none !important; }
+/* the conversation: one session in one type, no bubbles */
+:is(html[data-device="phone"], html[data-device="tablet"]) .workspace-ai-messages-scroll { padding: 14px var(--phone-pad) 12px !important; gap: 12px !important; -webkit-overflow-scrolling: touch; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .drawing-ai-thread-head { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .v1-user {
+  align-self: stretch !important; max-width: none !important; padding: 2px 0 !important; border-radius: 0 !important; background: transparent !important; border: 0 !important;
+  font-family: var(--ai-mono); font-size: 14.5px !important; line-height: 1.55 !important; color: #ffffff !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .v1-user::before { content: "› "; color: var(--da-muted, #a3a3ab); font-weight: 600; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .v1-copy { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .v1-reply { font-family: var(--ai-mono); font-size: 13.5px !important; line-height: 1.65 !important; color: #c8c8ce !important; max-width: 100% !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .v1-reply :is(strong, h4) { color: #ffffff !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab :is(.v1-note, .v1-error, .v1-activity, .v1-work, .v1-result) { font-family: var(--ai-mono); font-size: 12.5px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .workspace-ai-messages-scroll .v1-reply { font-size: 13.5px !important; max-width: 100% !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .workspace-ai-messages-scroll .v1-reply h4 { font-size: 14.5px !important; }
+/* the plan card (gate): full width, the credits clearly shown, one big Animate button */
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-card.v1-gate { padding: 14px !important; gap: 12px !important; border-radius: var(--phone-radius) !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-gate .v1-gate-head { font-size: 17px !important; padding-bottom: 12px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-gate .v1-gate-cost { padding: 6px 12px !important; font-size: 15px !important; font-weight: 700 !important; color: #ffffff !important; background: rgba(0, 102, 255, .18) !important; box-shadow: inset 0 0 0 1px rgba(77, 148, 255, .45); }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-gate .v1-gate-steps li { font-size: 15px !important; line-height: 1.5 !important; grid-template-columns: 24px minmax(0, 1fr) auto !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-gate :is(.v1-gate-meta, .v1-gate-note, .v1-gate-not, .v1-gate-exact, .v1-gate-pic-note) { font-size: 13.5px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-gate .v1-gate-exact summary { min-height: var(--phone-tap); display: flex; align-items: center; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-gate-pic-say { font-size: 14px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-versions .v1-actions { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-versions .v1-actions button { min-height: 48px !important; font-size: 15px !important; border-radius: 12px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-versions .v1-actions button.v1-primary {
+  grid-column: 1 / -1; order: -1; min-height: 54px !important; font-size: 17px !important; font-weight: 700 !important; border-radius: 14px !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-versions .v1-actions button.v1-primary svg { width: 16px !important; height: 16px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-q-text { font-size: 15px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-q-options button { min-height: var(--phone-tap) !important; padding: 8px 14px !important; font-size: 15px !important; border-radius: 12px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-x { width: var(--phone-tap) !important; height: var(--phone-tap) !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-card-time, :is(html[data-device="phone"], html[data-device="tablet"]) .v1-pct { font-size: 13px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-copy { min-width: var(--phone-tap); min-height: 36px; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .v1-gate-big-close { width: var(--phone-tap) !important; height: var(--phone-tap) !important; }
+/* the message box: one prompt line ("›" + what he types) on top, its buttons under it, at the very bottom above the home bar */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .workspace-ai-composer-slot {
+  padding: 0 0 var(--phone-safe-bottom) !important; border-top: 1px solid var(--da-line, #2c2c32); background: #111113 !important;
+}
+html[data-device="phone"][data-orient="portrait"] .da-sheet[data-sheet-size="small"] .drawing-ai-tab .workspace-ai-composer-slot { padding-bottom: 0 !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab .workspace-ai-composer-slot > :not(form) { margin: 12px var(--phone-pad) 0; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab form[aria-label="AI Animator message composer"] {
+  display: grid !important; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-items: start;
+  border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; padding: 12px 10px 8px var(--phone-pad) !important; min-height: 0 !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab form[aria-label="AI Animator message composer"]::before {
+  content: "›"; grid-column: 1; font-family: var(--ai-mono); font-size: 19px; line-height: 24px; font-weight: 600; color: var(--da-muted, #a3a3ab);
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab form[aria-label="AI Animator message composer"]:focus-within::before { color: #ffffff; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab form[aria-label="AI Animator message composer"] textarea {
+  grid-column: 2; width: 100% !important; min-width: 0; padding: 0 !important; border: 0 !important; outline: none !important; box-shadow: none !important; background: transparent !important;
+  font-family: var(--ai-mono) !important; font-size: 16px !important; line-height: 24px !important; min-height: 48px !important; height: auto; max-height: 30dvh !important; caret-color: #ffffff;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab form[aria-label="AI Animator message composer"] textarea::placeholder { color: #6e6e76; opacity: 1; }
+/* the buttons row (Effort, credits, Dictate, Send) and the dictation row span the whole width under the prompt line */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab form[aria-label="AI Animator message composer"] > :not(textarea) { grid-column: 1 / -1; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-ai-tab form[aria-label="AI Animator message composer"] [class*="effortButton"] { font-family: var(--ai-mono); }
+
+/* (the shared typing box's phone look lives in src/components/ui/chatComposer.module.css) */
+
+/* ---------- the AI Animator window (phone sideways and tablets, where it opens from the top strip's field) ----------
+   A full-height sheet from the bottom, like a messaging app; the keyboard hints are left out (no keyboard). */
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot-scrim { padding: var(--phone-safe-top) 0 0 !important; align-items: flex-end !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot {
+  width: 100% !important; height: calc(100dvh - var(--phone-safe-top) - 8px) !important; border-radius: var(--phone-sheet-radius) var(--phone-sheet-radius) 0 0 !important;
+  border-bottom: 0 !important; transform: translateY(100%) !important; transition: transform 260ms cubic-bezier(.2, .8, .2, 1) !important;
+  padding: 0 var(--phone-safe-right) var(--phone-safe-bottom) var(--phone-safe-left);
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot-scrim[data-open] .ai-spot { transform: none !important; }
+html[data-device="tablet"] .ai-spot { width: min(780px, 100%) !important; height: min(92dvh, calc(100dvh - var(--phone-safe-top) - 24px)) !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot-head { position: relative; padding: 14px 8px 6px 18px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot-head::before { content: ""; position: absolute; top: 6px; left: 50%; width: 38px; height: 5px; margin-left: -19px; border-radius: 3px; background: rgba(255, 255, 255, .22); }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot-head .ai-spot-close { width: var(--phone-tap) !important; height: var(--phone-tap) !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot-status { font-size: 13px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot-hints { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot .workspace-ai-messages-scroll { padding: 14px var(--phone-pad) 12px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot .drawing-ai-empty { padding: 12px 0 8px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot .drawing-ai-empty > strong { font-size: 22px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot .drawing-ai-empty-text { font-size: 14.5px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot .drawing-ai-examples button { font-size: 14px !important; min-height: 44px !important; height: auto !important; white-space: normal; text-align: left; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot .v1-reply { font-size: 14.5px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot .v1-user { font-size: 15px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot form[aria-label="AI Animator message composer"] { padding: 12px 10px calc(10px + var(--phone-safe-bottom)) 16px !important; align-items: center !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot form[aria-label="AI Animator message composer"] textarea { font-size: 16px !important; line-height: 24px !important; min-height: 48px !important; }
+html[data-device="phone"][data-orient="landscape"] .ai-spot-proof { display: none !important; }
+/* the field in the top strip that opens it: finger-sized, no keyboard shortcut */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-topbar-title:has(.ai-top-wrap) { flex: 1 1 auto !important; max-width: none !important; min-width: 0 !important; display: flex !important; justify-content: center; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-top-wrap { width: 100%; max-width: 560px; gap: 8px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-top-field { --ai-w: 100% !important; flex: 1 1 auto; width: auto !important; min-width: 0; height: var(--phone-tap) !important; border-radius: 12px !important; font-size: 15px !important; padding: 0 12px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-top-field kbd { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-top-ring { min-width: var(--phone-tap); min-height: var(--phone-tap); display: inline-grid !important; place-items: center; }
+/* "It's yours" after a new animation: finger-sized buttons */
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-landed { top: calc(var(--phone-safe-top) + 60px) !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-landed-actions button { height: var(--phone-tap) !important; font-size: 15px !important; padding: 0 16px !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-landed .ai-landed-close { width: var(--phone-tap); height: var(--phone-tap); }
+
+/* ============================================================================================================
+   RAIL (phone sideways): the strip on top; the tools in two columns down the left edge; the panel chips down the
+   right edge; the canvas as big as the height allows in the middle (never resized); Play + the timeline as one thin
+   strip along the bottom; a chosen panel slides in from the right, next to its chips.
+   ============================================================================================================ */
+html[data-device="phone"][data-orient="landscape"] {
+  --pe-strip-h: 48px;
+  --pe-rail-w: calc(118px + var(--phone-safe-left));
+  --pe-chiprail-w: calc(84px + var(--phone-safe-right));
+  --pe-tl-h: 64px;
+  --pe-panel-w: min(360px, 46vw);
+}
+html[data-device="phone"][data-orient="landscape"] [class*="workspaceTheme_workspace"]:has(> .drawing-topbar) { position: relative !important; display: flex !important; flex-direction: column !important; padding: 0 !important; }
+html[data-device="phone"][data-orient="landscape"] [class*="workspaceTheme_workspace"]:has(> .drawing-topbar) > [data-unified-workspace-area="true"] { flex: 1 1 0 !important; min-height: 0 !important; position: relative !important; }
+html[data-device="phone"][data-orient="landscape"] div:has(> .da-sheet) { position: absolute !important; inset: 0 !important; display: block !important; overflow: hidden !important; }
+/* the canvas: between the two rails, above the timeline, centred, as big as the height allows */
+html[data-device="phone"][data-orient="landscape"] div:has(> .da-sheet) > .drawing-canvas-area.drawing-canvas-area.drawing-canvas-area.drawing-canvas-area {
+  position: absolute !important; inset: 0 var(--pe-chiprail-w) var(--pe-tl-h) var(--pe-rail-w) !important; width: auto !important; height: auto !important; min-height: 0 !important;
+  display: flex !important; align-items: center !important; justify-content: center !important; padding: 6px !important; container-type: size;
+}
+html[data-device="phone"][data-orient="landscape"] .drawing-canvas-area > [data-workspace-canvas-host="true"] {
+  flex: 0 0 auto !important; width: min(100cqw, 100cqh * 16 / 9) !important; height: min(100cqh, 100cqw * 9 / 16) !important; aspect-ratio: auto !important;
+}
+/* the tools: two columns down the left edge, names under the icons */
+html[data-device="phone"][data-orient="landscape"] .drawing-toolbar.drawing-toolbar {
+  position: absolute !important; left: 0 !important; top: calc(var(--pe-strip-h) + var(--phone-safe-top)) !important; bottom: 0 !important; right: auto !important;
+  width: var(--pe-rail-w) !important; height: auto !important; margin: 0 !important; z-index: 29 !important;
+  display: grid !important; grid-template-columns: repeat(2, 54px) !important; grid-template-rows: none !important; grid-auto-rows: 54px; align-content: center; justify-content: center; gap: 4px 4px !important;
+  padding: 6px 0 calc(6px + var(--phone-safe-bottom)) var(--phone-safe-left) !important; overflow: hidden !important;
+  background: var(--da-panel, #1a1a1e) !important; border: 0 !important; border-right: 1px solid var(--da-line, #2c2c32) !important;
+}
+html[data-device="phone"][data-orient="landscape"] .drawing-toolbar.drawing-toolbar > div { min-width: 0 !important; display: flex !important; justify-content: center !important; align-items: center !important; }
+html[data-device="phone"][data-orient="landscape"] .drawing-toolbar .drawing-tool-button.drawing-tool-button { width: 54px !important; height: 54px !important; }
+/* Play + the timeline: one thin strip along the bottom, right of the tools */
+html[data-device="phone"][data-orient="landscape"] [class*="workspaceTheme_workspace"]:has(.da-sheet) > .drawing-timeline.drawing-timeline {
+  position: absolute !important; top: auto !important; bottom: 0 !important; left: var(--pe-rail-w) !important; right: 0 !important; z-index: 28 !important;
+  height: var(--pe-tl-h) !important; min-height: 0 !important; max-height: none !important; overflow: visible !important;
+  grid-template-columns: max-content minmax(0, 1fr) !important; grid-template-rows: minmax(0, 1fr) !important; column-gap: 6px !important;
+  padding: 0 var(--phone-safe-right) var(--phone-safe-bottom) 8px !important;
+  background: var(--da-panel, #1a1a1e) !important; border-top: 1px solid var(--da-line, #2c2c32) !important;
+}
+html[data-device="phone"][data-orient="landscape"] .drawing-timeline .drawing-timeline-controls {
+  height: 100% !important; min-height: 0 !important; gap: 6px !important; padding: 0 6px 0 0 !important; display: flex !important; align-items: center !important; justify-content: flex-start !important;
+}
+html[data-device="phone"][data-orient="landscape"] .drawing-timeline .drawing-fps.drawing-fps { margin-left: 0 !important; order: 9; }
+html[data-device="phone"][data-orient="landscape"] .drawing-timeline .drawing-timeline-frames { margin-left: 0 !important; align-self: center !important; }
+/* the panel chips: a column down the right edge; a chosen panel slides in from the right next to them */
+html[data-device="phone"][data-orient="landscape"] .da-sheet.da-sheet {
+  position: absolute !important; top: 0 !important; right: 0 !important; bottom: var(--pe-tl-h) !important; left: auto !important; z-index: 30 !important;
+  display: flex !important; flex-direction: row-reverse !important; height: auto !important; min-height: 0 !important; max-height: none !important; width: auto !important;
+  background: transparent !important; box-shadow: none !important; border: 0 !important; transition: none;
+}
+html[data-device="phone"][data-orient="landscape"] .da-sheet > .da-sheet-tabs.da-sheet-tabs {
+  position: relative !important; inset: auto !important; display: flex !important; flex-direction: column !important; justify-content: center !important;
+  flex: 0 0 var(--pe-chiprail-w) !important; width: var(--pe-chiprail-w) !important; height: auto !important; padding: 6px var(--phone-safe-right) 6px 0 !important;
+  background: var(--da-panel, #1a1a1e) !important; border: 0 !important; border-left: 1px solid var(--da-line, #2c2c32) !important; touch-action: manipulation;
+}
+html[data-device="phone"][data-orient="landscape"] .da-sheet-tabs .da-sheet-handle { display: none !important; }
+html[data-device="phone"][data-orient="landscape"] .da-sheet-tab-row.da-sheet-tab-row {
+  grid-template-columns: minmax(0, 1fr) !important; grid-auto-rows: 52px; margin: 0 6px !important; padding: 3px !important; gap: 3px !important;
+}
+html[data-device="phone"][data-orient="landscape"] .da-sheet-tab-row.da-sheet-tab-row button { height: 52px !important; font-size: 12.5px !important; padding: 0 2px !important; white-space: nowrap; }
+html[data-device="phone"][data-orient="landscape"] .da-sheet.da-sheet > .drawing-right-panel.drawing-right-panel.drawing-right-panel {
+  position: relative !important; inset: auto !important; flex: 0 0 auto !important; width: 0 !important; height: auto !important; min-height: 0 !important; max-height: none !important;
+  overflow: hidden !important; border: 0 !important; transform: none !important; visibility: hidden;
+  background: #161618 !important; transition: width 220ms cubic-bezier(.2, .8, .2, 1), visibility 0s linear 220ms;
+}
+html[data-device="phone"][data-orient="landscape"] .da-sheet.da-sheet:not([data-sheet-size="small"]) > .drawing-right-panel.drawing-right-panel.drawing-right-panel {
+  width: var(--pe-panel-w) !important; visibility: visible; border-left: 1px solid var(--da-line, #2c2c32) !important; box-shadow: -18px 0 40px rgba(0, 0, 0, .5) !important;
+  transition: width 220ms cubic-bezier(.2, .8, .2, 1);
+}
+html[data-device="phone"][data-orient="landscape"] .da-sheet .workspace-properties-scroll { width: var(--pe-panel-w); }
+/* a chosen chip is lit only while its panel is out */
+html[data-device="phone"][data-orient="landscape"] .da-sheet[data-sheet-size="small"] .da-sheet-tab-row.da-sheet-tab-row button[aria-selected="true"] { background: transparent !important; color: var(--da-text-3, #b8b8bf) !important; }
+html[data-device="phone"][data-orient="landscape"] [class*="workspaceTheme_workspace"]:has(.da-sheet:not([data-sheet-size="small"])) > [data-unified-workspace-area="true"] { z-index: 40 !important; }
+/* the strip: compact, the AI field in the middle */
+html[data-device="phone"][data-orient="landscape"] .pe-strip-title { flex: 0 1 200px; }
+
+/* ============================================================================================================
+   TABLET SIDEWAYS: the computer editor, with finger-sized controls (44 px) and nothing that needs a mouse.
+   ============================================================================================================ */
+html[data-device="tablet"][data-orient="landscape"] .drawing-topbar.drawing-topbar { height: 56px !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-topbar-menus button,
+html[data-device="tablet"][data-orient="landscape"] .drawing-topbar [aria-label="Undo"], html[data-device="tablet"][data-orient="landscape"] .drawing-topbar [aria-label="Redo"] { min-height: var(--phone-tap) !important; height: var(--phone-tap) !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-topbar [aria-label="Undo"], html[data-device="tablet"][data-orient="landscape"] .drawing-topbar [aria-label="Redo"] { width: var(--phone-tap) !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-topbar-menus [role="menu"] { min-width: 260px !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-topbar-menus [role="menu"] button { min-height: var(--phone-tap) !important; height: auto !important; font-size: 15px !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-topbar .drawing-topbar-export { height: var(--phone-tap) !important; padding: 0 18px !important; font-size: 15px !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-topbar [role="status"] { height: 32px !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-toolbar.drawing-toolbar { top: 56px !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-toolbar .drawing-tool-button.drawing-tool-button { width: 48px !important; height: 48px !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-toolbar .drawing-tool-label { display: none !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-right-panel [role="group"][aria-label="Right panel"] button { height: var(--phone-tap) !important; font-size: 14px !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-timeline .drawing-timeline-controls { gap: 8px !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-timeline .drawing-fps.drawing-fps { order: 0; margin-left: 0 !important; }
+html[data-device="tablet"][data-orient="landscape"] .drawing-timeline .drawing-timeline-controls .drawing-play.drawing-play { order: 2; }
+/* the chips are the panel's tabs on phones and upright tablets: the panel's own tab group is not shown twice */
+:is(html[data-device="phone"], html[data-device="tablet"][data-orient="portrait"]) .drawing-right-panel > div:has(> [role="group"][aria-label="Right panel"]) { display: none !important; }
+/* the frame menu sits on top of everything while it is open (it lives inside the timeline, which an open panel covers) */
+:is(html[data-device="phone"], html[data-device="tablet"]) [class*="workspaceTheme_workspace"]:has(.pe-frame-menu) > .drawing-timeline.drawing-timeline { z-index: 600 !important; }
+
+/* ============================================================================================================
+   ONE SOLID SCREEN (Arthur on his iPhone, Nov 24: "my fingers were clicking, scrolling, swiping, doing a million
+   actions"). While the editor is open on a phone or tablet the page itself never moves: no page scroll, no bounce or
+   rubber band, no pull-to-refresh, no pinch or double-tap zoom. A finger on the canvas only draws. Only these scroll,
+   each inside itself: the open panel (up and down), the frames (sideways only), the AI chat (up and down).
+   (touch-action: none on the page; a scrolling box inside it still scrolls in its own direction.)
+   ============================================================================================================ */
+:is(html[data-device="phone"], html[data-device="tablet"]):has(.drawing-topbar) {
+  height: 100% !important; overflow: hidden !important; overscroll-behavior: none !important; touch-action: none;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]):has(.drawing-topbar) body {
+  position: fixed !important; inset: 0 !important; width: 100% !important; height: 100% !important; overflow: hidden !important;
+  overscroll-behavior: none !important; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]):has(.drawing-topbar) :is(.app, [class*="workspaceTheme_workspace"]) { touch-action: none; overscroll-behavior: none; }
+/* typing stays possible everywhere it was (names, numbers, the AI box) */
+:is(html[data-device="phone"], html[data-device="tablet"]):has(.drawing-topbar) :is(input, textarea, select, [contenteditable="true"]) { -webkit-user-select: text; user-select: text; }
+/* the places that scroll, each only in its own direction and never handing the swipe on to the page */
+:is(html[data-device="phone"], html[data-device="tablet"]) :is(.workspace-properties-scroll, .workspace-ai-messages-scroll, .pe-menu-sheet, .pe-frame-menu, .ai-spot .workspace-ai-messages-scroll) {
+  touch-action: pan-y; overscroll-behavior: contain;
+}
+:is(html[data-device="phone"], html[data-device="tablet"]) .timeline-frame-main-scroll { touch-action: pan-x !important; overscroll-behavior: contain !important; }
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline [data-timeline-cell] { touch-action: pan-x; }
+/* the AI window on phones sideways / tablets sits outside the editor box: the same rule */
+:is(html[data-device="phone"], html[data-device="tablet"]) .ai-spot-scrim { touch-action: none; overscroll-behavior: none; }
+/* the frames' thin scroll line is a second, tiny way to do what a finger on the frames already does: left out */
+:is(html[data-device="phone"], html[data-device="tablet"]) .drawing-timeline .timeline-bottom-scrollbar-slider { visibility: hidden; pointer-events: none; }
+
+/* The Tools tab and the tab icons of the phone's bottom bar: never shown on a computer. */
+.pe-draw-tab, .pe-tab-icon { display: none; }
+
+/* ============================================================================================================
+   THE PHONE EDITOR (Nov 24 night). Arthur, after three rounds of moving the computer's strips around: "you're just
+   repeating mistakes... what is psychologically better for the user?... it needs to look like the editor was made not for
+   a computer, but for a phone."
+   What is decided, and why (phone upright + tablet upright):
+   1. The loop of animating is: draw, next frame, draw. So the CANVAS and the FRAMES are always in view, and they never move.
+   2. The TOOLS are what the thumb hits most, so they are BIG (two rows of four) and sit in the open space under the frames,
+      where the thumb rests, instead of eight small ones squeezed into one row.
+   3. Everything else is ONE bottom bar with five tabs, the same kind of bar as the app's Home bar: Draw, Properties,
+      Library, Assets, AI. A tab swaps what is shown in the space under the frames. Nothing slides, nothing is dragged,
+      nothing covers the canvas or the frames, and a tap always does the same one thing.
+   4. AI is the one tab that needs the whole screen (a chat and a keyboard), so it takes it, with the bar still at the bottom.
+   Only where things sit and how big they are. Computers and sideways screens read none of this.
+   ============================================================================================================ */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] {
+  --pe-bar-h: calc(62px + var(--phone-safe-bottom));
+  --pe-chips-h: var(--pe-bar-h);
+  --pe-tools-h: 0px;                 /* the tools no longer take a row of their own: they sit in the open space */
+  --pe-canvas-pad: 12px;
+  --pe-tray-top: calc(var(--pe-strip-h) + var(--phone-safe-top) + var(--pe-canvas-block) + var(--pe-tl-h));
+}
+html[data-device="tablet"][data-orient="portrait"] { --pe-canvas-pad: 20px; }
+
+/* --- the bottom bar: five tabs, always there, always in the same place --- */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet.da-sheet { transition: none !important; flex-direction: column-reverse !important; border-radius: 0 !important; box-shadow: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet.da-sheet[data-sheet-size="small"] { height: var(--pe-bar-h) !important; overflow: hidden !important; background: transparent !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet.da-sheet[data-sheet-size="small"] > .drawing-right-panel.drawing-right-panel.drawing-right-panel { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet > .da-sheet-tabs.da-sheet-tabs {
+  flex: 0 0 var(--pe-bar-h) !important; height: var(--pe-bar-h) !important; padding: 0 6px var(--phone-safe-bottom) !important;
+  background: rgba(17, 17, 19, .82) !important; -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+  border-top: 1px solid var(--da-line, #2c2c32) !important; touch-action: manipulation; justify-content: center;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet > .da-sheet-tabs::before { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tabs .da-sheet-handle { display: none !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tab-row.da-sheet-tab-row {
+  display: grid !important; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)) !important; gap: 2px !important;
+  margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: transparent !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .pe-draw-tab { display: grid; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tab-row.da-sheet-tab-row button {
+  display: grid !important; justify-items: center; align-content: center; gap: 3px; height: 54px !important; min-width: 44px; padding: 4px 0 2px !important;
+  border: 0 !important; border-radius: 12px !important; background: transparent !important; box-shadow: none !important; filter: none !important;
+  color: var(--da-muted, #a3a3ab) !important; font-size: 11px !important; font-weight: 600 !important; letter-spacing: .01em; white-space: nowrap;
+  transition: transform 90ms ease, color 120ms ease;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tab-row.da-sheet-tab-row button::before, :is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tab-row.da-sheet-tab-row button::after { content: none !important; }
+/* the icons: the same thin line drawings as the Home bar (one colour, no pictures, no emoji) */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tab-row .pe-tab-icon { display: block; width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tab-row.da-sheet-tab-row button:active { transform: scale(.92); color: #ffffff !important; }
+/* the tab you are on is white, exactly like the Home bar; with no panel open that is Tools */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tab-row.da-sheet-tab-row button[aria-selected="true"] { background: transparent !important; color: #ffffff !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet-tab-row.da-sheet-tab-row button[aria-selected="true"] .pe-tab-icon { stroke-width: 2.1; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet[data-sheet-size="small"] .da-sheet-tab-row.da-sheet-tab-row button:not(.pe-draw-tab)[aria-selected="true"] { color: var(--da-muted, #a3a3ab) !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet[data-sheet-size="small"] .da-sheet-tab-row.da-sheet-tab-row button:not(.pe-draw-tab)[aria-selected="true"] .pe-tab-icon { stroke-width: 1.8; }
+
+/* --- Draw: the tools, big, in the open space under the frames (two rows of four) --- */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar.drawing-toolbar.drawing-toolbar {
+  position: absolute !important; inset: var(--pe-tray-top) 0 var(--pe-bar-h) 0 !important; width: auto !important; height: auto !important; margin: 0 !important; z-index: 20 !important;
+  display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; grid-auto-rows: minmax(56px, 68px); align-content: center; justify-content: stretch;
+  gap: 10px !important; padding: 10px max(16px, var(--phone-safe-right)) 10px max(16px, var(--phone-safe-left)) !important;
+  overflow: hidden !important; background: transparent !important; border: 0 !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar.drawing-toolbar.drawing-toolbar > div { width: 100% !important; height: 100% !important; max-width: none !important; min-width: 0 !important; justify-self: stretch !important; align-self: stretch !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar .drawing-tool-button.drawing-tool-button.drawing-tool-button {
+  width: 100% !important; height: 100% !important; min-height: 56px; border-radius: 16px !important; gap: 6px !important;
+  background: var(--da-panel, #1a1a1e) !important; border: 1px solid var(--da-line, #2c2c32) !important; color: var(--da-text-2, #d2d2d7) !important;
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar .drawing-tool-button svg { transform: scale(1.15); }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar .drawing-tool-label { font-size: 12px; font-weight: 600; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-toolbar .drawing-tool-button[data-selected].drawing-tool-button[data-selected].drawing-tool-button {
+  background: var(--da-text, #f5f5f6) !important; border-color: var(--da-text, #f5f5f6) !important; color: var(--da-page, #111113) !important; box-shadow: none !important;
+}
+/* a short phone: the tools go back to one row of eight so they always fit */
+@media (max-height: 600px) {
+  html[data-device="phone"][data-orient="portrait"]:not([data-kb]) .drawing-toolbar.drawing-toolbar.drawing-toolbar { grid-template-columns: repeat(8, minmax(0, 1fr)) !important; gap: 4px !important; padding: 6px 8px !important; }
+  html[data-device="phone"][data-orient="portrait"]:not([data-kb]) .drawing-toolbar .drawing-tool-label { font-size: 10px; }
+}
+
+/* --- Properties / Library / Assets: the panel shows in that same space, above the bar (never over the frames) --- */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .da-sheet.da-sheet:not([data-sheet-size="small"]) {
+  height: calc(100% - var(--pe-canvas-block) - var(--pe-tl-h)) !important; background: #161618 !important;
+  border-top: 1px solid var(--da-line, #2c2c32);
+}
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .workspace-properties-scroll { padding: 14px var(--phone-pad) 28px !important; font-size: 15px !important; }
+
+/* --- AI: the one tab that takes the whole screen under the top strip. It is pinned to the part of the screen you can really
+   see, so when the keyboard comes up the chat and its message box stay whole above it and nothing shows through. --- */
+html[data-device="phone"][data-orient="portrait"] .da-sheet.da-sheet[data-sheet-tab="ai"]:not([data-sheet-size="small"]) {
+  position: fixed !important; left: 0 !important; right: 0 !important; bottom: auto !important;
+  top: calc(var(--vv-top, 0px) + var(--pe-strip-h) + var(--phone-safe-top)) !important;
+  height: calc(var(--vv-h, 100dvh) - var(--pe-strip-h) - var(--phone-safe-top)) !important;
+  z-index: 300 !important; background: #141417 !important; padding-bottom: 0 !important;
+}
+/* typing: the keyboard takes half the screen, so the chat takes all that is left (no top strip, no bar) */
+html[data-device="phone"][data-orient="portrait"][data-typing] .da-sheet.da-sheet[data-sheet-tab="ai"]:not([data-sheet-size="small"]) {
+  top: var(--vv-top, 0px) !important; height: var(--vv-h, 100dvh) !important; padding-top: var(--phone-safe-top);
+}
+html[data-device="phone"][data-orient="portrait"][data-typing] .da-sheet[data-sheet-tab="ai"]:not([data-sheet-size="small"]) > .da-sheet-tabs.da-sheet-tabs { display: none !important; }
+html[data-device="phone"][data-orient="portrait"] .da-sheet[data-sheet-tab="ai"] .drawing-ai-tab .workspace-ai-composer-slot { padding-bottom: 0 !important; }
+html[data-device="phone"][data-orient="portrait"] [class*="workspaceTheme_workspace"]:has(.da-sheet[data-sheet-tab="ai"]:not([data-sheet-size="small"])) > [data-unified-workspace-area="true"] { z-index: 700 !important; }
+/* the same for the AI window of sideways phones and tablets: whole above the keyboard */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-typing] .ai-spot-scrim { padding-top: 0 !important; }
+:is(html[data-device="phone"], html[data-device="tablet"])[data-typing] .ai-spot {
+  position: fixed !important; left: 0; right: 0; top: var(--vv-top, 0px) !important; height: var(--vv-h, 100dvh) !important; border-radius: 0 !important;
+}
+/* the AI welcome starts at the top of its screen and fits a phone whole */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-ai-tab .drawing-ai-empty { margin: 0 !important; padding-top: 6px !important; gap: 8px !important; }
+html[data-device="phone"][data-orient="portrait"] .drawing-ai-tab .drawing-ai-empty > strong { font-size: 20px !important; }
+html[data-device="phone"][data-orient="portrait"] .drawing-ai-tab .drawing-ai-empty-text { font-size: 14px !important; line-height: 1.42 !important; }
+html[data-device="phone"][data-orient="portrait"] .drawing-ai-tab .drawing-ai-examples.drawing-ai-examples { gap: 6px !important; margin-top: 2px; }
+html[data-device="phone"][data-orient="portrait"] .drawing-ai-tab .drawing-ai-examples.drawing-ai-examples button { min-height: 44px !important; padding: 9px 12px !important; font-size: 13px !important; line-height: 1.38; }
+html[data-device="phone"][data-orient="portrait"] .workspace-ai-messages-scroll { padding-top: 10px !important; padding-bottom: 8px !important; }
+
+/* --- the Play row: a little more air on its sides --- */
+:is(html[data-device="phone"], html[data-device="tablet"])[data-orient="portrait"] .drawing-timeline .drawing-timeline-controls { padding: 0 var(--phone-pad) !important; gap: 10px !important; }

@@ -1,0 +1,14 @@
+/* PHONE + TABLET ONLY: every page outside the editor (builder B). Every rule starts with html[data-device="phone"] or html[data-device="tablet"]. */
+
+/* On/off switches (their phone size lives in phone-pages-2.css): an invisible tap area around each one, so the whole
+   finger-sized space (44 px or more tall) flips it, not just the visible pill. */
+html[data-device="phone"] button.da-switch,
+html[data-device="tablet"] button.da-switch { overflow: visible; }
+html[data-device="phone"] button.da-switch::after,
+html[data-device="tablet"] button.da-switch::after { content: ""; position: absolute; inset: -8px -6px; }
+
+/* Home's page box (ExistingHome, inline height 100vh): on a phone use the screen that is really visible (the browser bars
+   come and go), and lift Home's small status note above the bottom bar. */
+html[data-device="phone"] .app, html[data-device="tablet"] .app { height: 100dvh !important; }
+html[data-device="phone"] [data-phone-home-note], html[data-device="tablet"] [data-phone-home-note] {
+  left: var(--phone-pad) !important; right: var(--phone-pad) !important; bottom: calc(12px + var(--phone-tabbar-space)) !important; z-index: 85; }

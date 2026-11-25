@@ -34,3 +34,15 @@
 /* Redesign (Arthur 2026-10-26): the main action is a special button: bright blue at rest and on hover. */
 .button.primary:not(:disabled) { border-color: var(--da-accent) !important; background: var(--da-accent) !important; color: #ffffff !important; box-shadow: var(--da-glow-primary); }
 .button.primary:hover:not(:disabled) { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; box-shadow: var(--da-glow-primary-hover); }
+
+/* ===== PHONE + TABLET ONLY (phone plan, Nov 24): finger-sized fields and a full-width Send. ===== */
+:global(html[data-device="phone"]) .dialog { max-width: none; }
+:global(html[data-device="phone"]) .label { font-size: 15.5px; }
+:global(html[data-device="phone"]) .textarea { min-height: 150px; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .select { min-height: 50px; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .button { min-height: 48px; padding: 0 18px; border-radius: 12px; font-size: 15.5px; }
+:global(html[data-device="phone"]) .actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+:global(html[data-device="phone"]) .actions .button { min-height: 52px; font-size: 16.5px; }
+:global(html[data-device="phone"]) .hint, :global(html[data-device="phone"]) .counter { font-size: 13.5px; }
+:global(html[data-device="tablet"]) .select { min-height: 48px; }
+:global(html[data-device="tablet"]) .button { min-height: 48px; }

@@ -265,6 +265,8 @@ export function AuthDemo() {
         <div className={s.panel}>
           <div className={s.panelTop}>
             <DiamondLogo size={14} />
+            {/* phone only: the panel sits under the film there, so it says what it is */}
+            <span className={s.panelName}>AI Animator</span>
             <span className={s.state} data-busy={status ? "true" : undefined}>
               {status ? (status.pct !== undefined ? `${status.word} · ${status.pct}%` : `${status.word}…`) : lines.length ? "on your canvas" : "ready"}
             </span>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { CreditRingView } from "@/src/components/account/CreditRing";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
@@ -13,6 +14,7 @@ import { runAccountProjectLogout } from "@/src/lib/account/projectPending";
 import { subscribeProblemReportSummaryV1, type ProblemReportSummaryStateV1 } from "@/src/lib/notifications/problemReportObserver";
 import { AboutBody, TermsBody } from "./InfoBodies";
 import { creditsText } from "@/src/lib/account/credits";
+import { OPEN_ACCOUNT_EVENT, PHONE_TAB_PAGES } from "@/src/components/phone/PhoneTabBar";
 import styles from "./AppHeader.module.css";
 
 // Redesign (Arthur 2026-10-26): one header for every screen. Everything the old header had is here — AI Dashboard (or
@@ -34,6 +36,12 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
   const [logoutBusy, setLogoutBusy] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
   const accountRef = useRef<HTMLDivElement | null>(null);
+  const bellRef = useRef<HTMLSpanElement | null>(null);
+  // Phone plan (Arthur, Nov 24, on his iPhone: "the header is just useless"): on a phone, pages with the bottom bar show no
+  // header strip. The bell moves to Home's title row, and the bell + the menu's items become rows in the "You" sheet.
+  // Pages without the bottom bar (Dashboard over an open project, Problem reports) keep the strip: it is their way back.
+  const pathname = usePathname() ?? "/";
+  const phoneBare = !back?.onClick && PHONE_TAB_PAGES.has(pathname);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") { setMenuOpen(false); setAccountOpen(false); setDialog(null); } };
@@ -41,6 +49,13 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
     window.addEventListener("keydown", onKey); document.addEventListener("pointerdown", onDown);
     return () => { window.removeEventListener("keydown", onKey); document.removeEventListener("pointerdown", onDown); };
   }, [accountOpen]);
+
+  // Phone plan (Nov 24): the phone's bottom bar "You" button opens this same account menu (as a sheet on a phone).
+  useEffect(() => {
+    const open = (event: Event) => { event.preventDefault(); setMenuOpen(false); setLogoutError(null); setAccountOpen(true); };
+    window.addEventListener(OPEN_ACCOUNT_EVENT, open);
+    return () => window.removeEventListener(OPEN_ACCOUNT_EVENT, open);
+  }, []);
 
   const closeReport = useCallback(() => setReportOpen(false), []);
 
@@ -70,7 +85,7 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
 
   return (
     <>
-      <header className={styles.bar}>
+      <header className={styles.bar} data-page={page} data-phone-bare={phoneBare ? "" : undefined}>
         <Link href="/" className={styles.brand} aria-label="Diamond Animator, main screen"><span className={styles.brandMark}><DiamondLogo size={30} /></span><span className={styles.brandName}>Diamond Animator</span></Link>
         <div className={styles.actions}>
           {page === "dashboard" && back ? (
@@ -96,7 +111,7 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
             </Link>
           )}
           <div className={styles.group} data-tour="bell-menu">
-            <span className={styles.bell}><NotificationTrigger view={bellView} /></span>
+            <span className={styles.bell} ref={bellRef}><NotificationTrigger view={bellView} /></span>
             <span className={styles.groupLine} aria-hidden="true" />
             <button type="button" className={styles.icon} aria-label="Menu" aria-expanded={menuOpen} aria-controls="app-menu" onClick={() => { setMenuOpen((open) => !open); setAccountOpen(false); }}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
@@ -114,6 +129,8 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
               <span className={styles.label}>Export</span>
             </Link>
           )}
+          {/* phone only: the dim background behind the account sheet (tapping it closes the menu, like any tap outside) */}
+          {account && accountOpen && <div className={styles.accountScrim} data-phone-scrim="" aria-hidden="true" />}
           {account && (
             <div className={styles.accountShell} ref={accountRef}>
               <button type="button" className={styles.avatar} data-tour="account" data-has-image={account.image ? "true" : undefined} aria-label={`Account for ${account.name || account.email}`} aria-expanded={accountOpen}
@@ -121,7 +138,7 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
                 <AccountAvatarContent account={account} imageClassName={styles.avatarImage} />
               </button>
               {accountOpen && (
-                <div role="dialog" aria-label="Account actions" className={styles.popover}>
+                <div role="dialog" aria-label="Account actions" className={styles.popover} data-phone-sheet="">
                   <div className={styles.popHead}>
                     <span className={styles.popAvatar} aria-hidden="true"><AccountAvatarContent account={account} imageClassName={styles.avatarImage} /></span>
                     <span className={styles.popText}><strong>{account.name || account.email}</strong><span>{account.email}</span></span>
@@ -137,6 +154,19 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
                     <Link href="/settings" className={styles.popLink}><SettingsIcon />Settings</Link>
                     <Link href="/plans" className={styles.popLink}><PlanIcon />Plans</Link>
                   </nav>
+                  {/* phone only (no header strip there): the bell and everything the menu had, as rows in this sheet */}
+                  <div className={styles.phoneMore}>
+                    <button type="button" className={styles.popLink} onClick={() => { setAccountOpen(false); bellRef.current?.querySelector<HTMLButtonElement>("[data-notification-trigger]")?.click(); }}><BellIcon />Notifications</button>
+                    <p className={styles.popLabel}>About Diamond Animator</p>
+                    <button type="button" className={styles.popLink} onClick={() => { setAccountOpen(false); setDialog("about"); }}><InfoIcon />Description</button>
+                    <button type="button" className={styles.popLink} onClick={() => { setAccountOpen(false); setDialog("terms"); }}><TermsIcon />Terms of Service</button>
+                    <p className={styles.popLabel}>Support</p>
+                    <Link href="/assistant" className={styles.popLink}><HelpIcon />Help · Ask the Assistant</Link>
+                    <button type="button" className={styles.popLink} onClick={() => { setAccountOpen(false); setReportOpen(true); }}><FlagIcon />Report a Problem</button>
+                    {problemReports.owner && (
+                      <Link href="/reports" className={styles.popLink}><ReportsIcon />{`Problem reports${problemReports.newCount > 0 ? ` (${problemReports.newCount} new)` : ""}`}</Link>
+                    )}
+                  </div>
                   <button type="button" className={styles.logout} onClick={() => void logOut()} disabled={logoutBusy}><LogoutIcon />{logoutBusy ? "Logging out…" : "Log out"}</button>
                   {logoutError && <div role="alert" className={styles.popError}>{logoutError}</div>}
                 </div>
@@ -171,8 +201,8 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
 
       {reportOpen && <ReportProblemDialog onClose={closeReport} />}
       {dialog && (
-        <div className={styles.dialogScrim} onClick={() => setDialog(null)}>
-          <div className={styles.dialog} role="dialog" aria-modal="true" aria-labelledby="info-dialog-title" onClick={(event) => event.stopPropagation()}>
+        <div className={styles.dialogScrim} data-phone-scrim="" onClick={() => setDialog(null)}>
+          <div className={styles.dialog} data-phone-sheet="tall" role="dialog" aria-modal="true" aria-labelledby="info-dialog-title" onClick={(event) => event.stopPropagation()}>
             <div className={styles.dialogHead}>
               <div><p className={styles.drawerLabel}>About Diamond Animator</p><h2 id="info-dialog-title">{dialog === "about" ? "Description" : "Terms of Service"}</h2></div>
               <button type="button" className={styles.icon} aria-label={dialog === "about" ? "Close description" : "Close terms"} onClick={() => setDialog(null)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg></button>
@@ -189,4 +219,10 @@ const Chevron = () => <svg className={styles.chevron} viewBox="0 0 24 24" aria-h
 const ProfileIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" /><path d="M5 19.5c1.2-3.4 3.9-5 7-5s5.8 1.6 7 5" /></svg>;
 const SettingsIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" /></svg>;
 const PlanIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4l-5.2 2.7 1-5.8L3.5 9.2l5.9-.9Z" /></svg>;
+const BellIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.5 2h-15Z" /><path d="M10 20.5a2 2 0 0 0 4 0" /></svg>;
+const InfoIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5.5M12 7.6v.01" /></svg>;
+const TermsIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4 4v13H7Z" /><path d="M14 3.5v4h4M10 12h5M10 15.5h5" /></svg>;
+const HelpIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18.5V6.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9Z" /><path d="M10 9.2a2.1 2.1 0 1 1 3 1.9c-.6.3-1 .8-1 1.4" /><path d="M12 14.4h.01" /></svg>;
+const FlagIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 21V4.5M5.5 4.5h11l-2 4 2 4h-11" /></svg>;
+const ReportsIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v13H4Z" /><path d="M4 9.5h16M8 13h8M8 16h5" /></svg>;
 const LogoutIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4" /></svg>;

@@ -88,6 +88,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
   const queuedEntryIdsRef = useRef(new Set<string>());
   const libraryRef = useRef<HTMLElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const menuOpenedAtRef = useRef(0);   // (Nov 25, phone) when the "•••" sheet opened: taps made before it was on screen never close it
   const menuInvokerRef = useRef<HTMLElement | null>(null);
   const dialogInitialRef = useRef<HTMLInputElement | HTMLButtonElement | null>(null);
   const pendingFocusIdRef = useRef<string | null>(null);
@@ -237,6 +238,9 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
       const target = event.target as Node;
       if (menuRef.current?.contains(target)) return;
       if (overflowRefs.current.get(menu.entryId)?.contains(target)) return;
+      // (Nov 25, Arthur on his phone: "it's so hard to delete a project, I keep clicking other buttons") the dim background of
+      // the phone sheet closes it on its own tap (below), so the tap is used up there and never lands on the bar underneath.
+      if (target instanceof Element && target.closest("[data-phone-scrim]")) return;
       setMenu(null);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -288,6 +292,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
   const openMenu = (entry: ProjectCollectionEntry, x: number, y: number, invoker: HTMLElement) => {
     if (readOnly) return;
     menuInvokerRef.current = invoker;
+    menuOpenedAtRef.current = performance.now();
     setMenu({ entryId: entry.id, x: Math.max(232, Math.min(x, window.innerWidth - 12)), y: Math.max(12, Math.min(y, window.innerHeight - 210)) });
     window.setTimeout(() => {
       const target = menuRef.current?.querySelector<HTMLButtonElement>('button:not([disabled])') ?? menuRef.current;
@@ -473,8 +478,13 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
         </div>
       </Root>
 
+      {/* phone only: the dim background behind the "•••" sheet (a tap on it closes the menu, like any tap outside) */}
+      {menu && menuEntry && !readOnly ? <div className={styles.menuScrim} data-phone-scrim="" aria-hidden="true"
+        onClick={(event) => { if (event.timeStamp >= menuOpenedAtRef.current + 400) setMenu(null); }} /> : null}
       {menu && menuEntry && !readOnly ? (
-        <div ref={menuRef} className={styles.contextMenu} role="menu" tabIndex={-1} aria-label={`Manage ${menuEntry.title}`} style={{ left: menu.x, top: menu.y }} onKeyDown={handleMenuKeys}>
+        <div ref={menuRef} className={styles.contextMenu} data-phone-sheet="" role="menu" tabIndex={-1} aria-label={`Manage ${menuEntry.title}`} style={{ left: menu.x, top: menu.y }} onKeyDown={handleMenuKeys}>
+          {/* phone only: the sheet says which project it manages */}
+          <p className={styles.menuSheetTitle} aria-hidden="true">{menuEntry.title}</p>
           <button type="button" role="menuitem" disabled={!nativeManageable} onClick={() => beginCommand("rename", menuEntry)}>Rename</button>
           <button type="button" role="menuitem" disabled={!canDuplicate} onClick={() => beginCommand("duplicate", menuEntry)}>Duplicate</button>
           <button type="button" role="menuitem" className={styles.destructiveMenuItem} disabled={!nativeManageable} onClick={() => beginCommand("delete", menuEntry)}>Delete</button>
@@ -483,8 +493,8 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
       ) : null}
 
       {dialog && !readOnly ? (
-        <div className={styles.dialogBackdrop} onPointerDown={event => { if (event.target === event.currentTarget) closeDialog(); }}>
-          <div className={`${styles.managementDialog}${dialog.kind === "delete" ? " da-danger-dialog" : ""}`} role="dialog" aria-modal="true" aria-labelledby="management-dialog-title" aria-describedby="management-dialog-description" onKeyDown={handleDialogKeys}>
+        <div className={styles.dialogBackdrop} data-phone-scrim="" onPointerDown={event => { if (event.target === event.currentTarget) closeDialog(); }}>
+          <div className={`${styles.managementDialog}${dialog.kind === "delete" ? " da-danger-dialog" : ""}`} data-phone-sheet="" role="dialog" aria-modal="true" aria-labelledby="management-dialog-title" aria-describedby="management-dialog-description" onKeyDown={handleDialogKeys}>
             <h2 id="management-dialog-title">{dialog.kind === "rename" ? "Rename project" : dialog.kind === "duplicate" ? "Duplicate project" : "Delete project?"}</h2>
             {dialog.kind === "delete" ? (
               <><p id="management-dialog-description">Delete <strong>{dialog.entry.title}</strong>? It will be removed from your account for good. This can&apos;t be undone.</p>

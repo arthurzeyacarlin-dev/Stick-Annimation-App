@@ -177,7 +177,10 @@ const contextMenuItemStyle = (enabled: boolean, tone: "default" | "danger" = "de
   cursor: enabled ? "pointer" : "not-allowed",
 });
 
-const FRAME_CELL_WIDTH = 17;
+// Phone plan (Nov 24): finger-sized frames on phones and tablets (touch, no mouse: <html data-device> is set before the app
+// starts, see src/components/phone/deviceMode.ts). Computers keep 17 px. Every position on the timeline is worked out from
+// this one width, so only the size changes; what a tap or a drag does is the same.
+const FRAME_CELL_WIDTH = 17;   // (Nov 24 night, Arthur: "why are the frames fatter on the phone? They are both the same size") one frame size on every device
 // Workspace makeover (Arthur 2026-10-26): a taller, pro ruler — ticks rise from a baseline, numbers sit above.
 const TIMELINE_RULER_HEIGHT = 18;
 const TIMELINE_RULER_INTERVAL = 5;
@@ -1259,6 +1262,38 @@ export function DrawingTimelineRow({
     });
   };
 
+  // Phone plan (Nov 24): on a touch screen, pressing and holding a frame opens the same menu a right-click opens on a computer
+  // (iPhones never send a right-click). A finger that moves (the timeline sliding sideways) is not a press-and-hold.
+  const longPressRef = useRef<(() => void) | null>(null);
+  const startTouchLongPress = (event: React.PointerEvent<HTMLElement>) => {
+    longPressRef.current?.();
+    if (event.pointerType !== "touch") return;
+    const cell = (event.target as Element | null)?.closest<HTMLElement>("[data-timeline-cell]");
+    const layerId = cell?.dataset.layerId;
+    const index = Number(cell?.dataset.frameIndex);
+    if (!layerId || !Number.isFinite(index)) return;
+    const { clientX, clientY, pointerId } = event;
+    const onMove = (moveEvent: PointerEvent) => { if (moveEvent.pointerId === pointerId && Math.hypot(moveEvent.clientX - clientX, moveEvent.clientY - clientY) > 8) stop(); };
+    const stop = () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", stop);
+      window.removeEventListener("pointercancel", stop);
+      window.removeEventListener("contextmenu", stop);
+      if (longPressRef.current === stop) longPressRef.current = null;
+    };
+    const timer = window.setTimeout(() => {
+      stop();
+      openContextMenu({ clientX, clientY, preventDefault() {}, stopPropagation() {} } as unknown as MouseEvent, index, layerId);
+    }, 480);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", stop);
+    window.addEventListener("pointercancel", stop);
+    window.addEventListener("contextmenu", stop);   // (Android sends its own right-click: that one opens the menu)
+    longPressRef.current = stop;
+  };
+  useEffect(() => () => longPressRef.current?.(), []);
+
   const runMenuAction = (action: () => void) => {
     action();
     setContextMenu(null);
@@ -2098,6 +2133,7 @@ export function DrawingTimelineRow({
       <div
         className="drawing-timeline-frames"
         data-tour="timeline"
+        onPointerDownCapture={startTouchLongPress}
         style={{
           gridColumn: 2,
           flex: 1,
@@ -2141,8 +2177,13 @@ export function DrawingTimelineRow({
             {moveUi.count} {moveUi.count === 1 ? "frame" : "frames"}
           </div>
         )}
+        {/* (phones: the menu is a sheet from the bottom with a dim background; computers: nothing here shows) */}
+        {contextMenu && <div className="pe-frame-menu-scrim" data-phone-scrim="" aria-hidden="true" />}
         {contextMenu && (
           <div
+            className="pe-frame-menu"
+            data-phone-sheet=""
+            aria-label={`Frame ${contextMenu.targetIndex + 1}`}
             onPointerDown={(event) => event.stopPropagation()}
             style={{
               position: "fixed",

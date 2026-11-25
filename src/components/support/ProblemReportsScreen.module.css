@@ -43,3 +43,15 @@
 .viewer { display: flex; flex-direction: column; gap: 12px; max-width: calc(100vw - 36px); max-height: calc(100vh - 36px); padding: 16px; border: 1px solid var(--da-line); border-radius: var(--da-radius-card); background: var(--da-panel); box-shadow: var(--da-shadow-pop); }
 .viewerHead { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--da-text-2); font-size: 14px; font-weight: 600; }
 .full { display: block; max-width: 100%; max-height: calc(100vh - 120px); object-fit: contain; border-radius: 6px; }
+
+/* ===== PHONE + TABLET ONLY (phone plan, Nov 24): reports as a phone list; finger-sized filters and buttons. ===== */
+:global(html[data-device="phone"]) .main { padding: 22px var(--phone-pad) calc(32px + var(--phone-tabbar-space) + var(--phone-safe-bottom)); }
+:global(html[data-device="phone"]) .title { font-size: 34px; }
+:global(html[data-device="phone"]) .lead, :global(html[data-device="phone"]) .muted { font-size: 15px; }
+:global(html[data-device="phone"]) .segmented { display: flex; align-self: stretch; padding: 4px; border-radius: 12px; }
+:global(html[data-device="phone"]) .segmented button { flex: 1 1 0; height: 44px; min-width: 0; font-size: 14.5px; }
+:global(html[data-device="phone"]) .who strong { font-size: 16px; }
+:global(html[data-device="phone"]) .text { font-size: 15.5px; }
+:global(html[data-device="phone"]) .actions button, :global(html[data-device="phone"]) .actions a { min-height: 44px; }
+:global(html[data-device="tablet"]) .segmented button { height: 44px; }
+:global(html[data-device="tablet"]) .actions button, :global(html[data-device="tablet"]) .actions a { min-height: 44px; }

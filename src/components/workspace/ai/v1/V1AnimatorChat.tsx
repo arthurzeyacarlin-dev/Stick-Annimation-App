@@ -53,6 +53,12 @@ const V1_EXAMPLES = ["A robot does a funny dance, then takes a bow", "A cat snea
 // (the browser's storage for the remembered Effort level; reading it can throw when site data is blocked)
 const effortStorage = () => { try { return typeof window === "undefined" ? null : window.localStorage; } catch { return null; } };
 
+// Resolves once the screen has been painted (two frames at most ~50 ms; a hidden tab falls back to a short timer).
+const shownOnScreen = () => new Promise<void>((done) => {
+  let ended = false; const end = () => { if (!ended) { ended = true; done(); } };
+  if (typeof requestAnimationFrame === "function") requestAnimationFrame(() => setTimeout(end, 0));
+  setTimeout(end, 120);
+});
 export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply, input, onInputChange, composerRef, dictation, onDictateStart, onDictateStop, onDictateCancel, onSent, extraTop }: Props) {
   const [state, setState] = useState<V1PanelState>(emptyV1PanelState);
   // (Nov 3) the account's credits: under one chat message's cost (and not locked) = the out-of-credits card above the box
@@ -106,7 +112,13 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
     const controller = new V1AnimatorController({ projectId, copiedFrom, canvasFps: () => bridgeRef.current.info()?.fps ?? null, page: () => bridgeRef.current.pageSize?.() ?? null, fetch: (url, init) => fetch(url, init), place: placer, holds: (layerId) => (bridgeRef.current.hasLayer ? bridgeRef.current.hasLayer(layerId) : null), savedAt: () => bridgeRef.current.savedAt?.() ?? null, kept: {
       read: () => { try { const v = JSON.parse(window.localStorage.getItem(`diamond-ai-saved-version:${projectId}`) ?? "null"); return v && Number.isFinite(v.n) && Number.isFinite(v.at) ? { n: Number(v.n), at: Number(v.at) } : null; } catch { return null; } },
       write: (note) => { try { window.localStorage.setItem(`diamond-ai-saved-version:${projectId}`, JSON.stringify(note)); } catch { /* a blocked store: as before */ } },
-    }, clear: (scope, layer) => placer.clearCanvas(scope, layer), picture, sheet, ground, onChange: setState, onCreditsRefused: () => announceAccountPlanChanged(),
+    }, clear: (scope, layer) => placer.clearCanvas(scope, layer),
+      // (Nov 25, Arthur: "a long delay when I tap send") his message and "thinking" are shown FIRST; only then are the pictures
+      // of his drawing read for the AI (on a phone that reading froze the page for almost a second before anything showed).
+      // The pictures themselves are read exactly as before.
+      picture: async (limits, aiLayerId) => { await shownOnScreen(); return picture(limits, aiLayerId); },
+      sheet: async (limits) => { await shownOnScreen(); return sheet(limits); },
+      ground, onChange: setState, onCreditsRefused: () => announceAccountPlanChanged(),
       live: { everyMs: 600 } });   // (Nov 17, Part 2) his words show as he writes them
     controllerRef.current = controller;
     setState(controller.current);

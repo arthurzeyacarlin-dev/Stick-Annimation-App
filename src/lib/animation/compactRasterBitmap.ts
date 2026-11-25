@@ -39,6 +39,18 @@ const centeredLength = (full: number, start: number, end: number) => {
   return Math.min(full, half * 2);
 };
 
+// (Nov 24, lag) The same, for a picture that carries brush history: the box also STARTS on the brush history's 32-pixel
+// grid (it gets at most 31 clear pixels bigger on each side). Brush history is kept in 32-pixel tiles; with the box on
+// that grid the tiles are carried over as they are. Off the grid, every stroke had to rebuild the brush history of the
+// whole picture pixel by pixel, several times (measured: 0.35 s of frozen page per stroke on a full drawing).
+const TILE = 32;
+const centeredLengthOnGrid = (full: number, start: number, end: number) => {
+  const middle = Math.floor(full / 2);
+  const needed = Math.max(1, middle - start, end - middle);
+  const half = needed + (((middle - needed) % TILE) + TILE) % TILE;
+  return half * 2 >= full ? full : half * 2;
+};
+
 // The alpha byte of a pixel read as one 32-bit word (whatever the computer's byte order).
 const ALPHA_MASK = new Uint32Array(new Uint8Array([0, 0, 0, 255]).buffer)[0];
 
@@ -84,8 +96,9 @@ export function compactRasterFromCrop(source: CropSource): ImageData {
     left = Math.min(left, tile.x); top = Math.min(top, tile.y);
     right = Math.max(right, Math.min(reference.width, tile.x + 32)); bottom = Math.max(bottom, Math.min(reference.height, tile.y + 32));
   }
-  const width = centeredLength(reference.width, left, right);
-  const height = centeredLength(reference.height, top, bottom);
+  const length = source.paintCoverage ? centeredLengthOnGrid : centeredLength;
+  const width = length(reference.width, left, right);
+  const height = length(reference.height, top, bottom);
   const originX = compactOrigin(reference.width, width), originY = compactOrigin(reference.height, height);
   const out = new ImageData(width, height);
   for (let row = 0; row < source.height; row += 1) {
@@ -377,8 +390,11 @@ export function mergeRasterReferencePatch(
   const top = Math.min(sourceTop, rect.top);
   const right = Math.max(sourceRight, rect.left + rect.width);
   const bottom = Math.max(sourceBottom, rect.top + rect.height);
-  const width = centeredLength(reference.width, left, right);
-  const height = centeredLength(reference.height, top, bottom);
+  const sourceCoverage = bitmap ? getBitmapPaintCoverage(bitmap) : null;
+  const patchCoverage = getBitmapPaintCoverage(patch);
+  const length = sourceCoverage || patchCoverage ? centeredLengthOnGrid : centeredLength;
+  const width = length(reference.width, left, right);
+  const height = length(reference.height, top, bottom);
   const originX = compactOrigin(reference.width, width);
   const originY = compactOrigin(reference.height, height);
   const out = new ImageData(width, height);
@@ -397,8 +413,6 @@ export function mergeRasterReferencePatch(
       ((rect.top - originY + y) * width + rect.left - originX) * 4,
     );
   }
-  const sourceCoverage = bitmap ? getBitmapPaintCoverage(bitmap) : null;
-  const patchCoverage = getBitmapPaintCoverage(patch);
   const referenceCoverage = patchPaintCoverage(
     sourceCoverage ? cropPaintCoverage(sourceCoverage, -sourceLeft, -sourceTop, reference.width, reference.height) : null,
     patchCoverage,

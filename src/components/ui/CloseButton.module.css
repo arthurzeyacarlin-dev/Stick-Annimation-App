@@ -3,3 +3,7 @@
 .close.close svg { width: 20px; height: 20px; }
 .close.close:hover { border: 0; background: transparent; color: #ffffff; filter: var(--da-icon-glow); }
 .close.close:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
+/* PHONE + TABLET ONLY (phone plan, Nov 24): the close X is a full finger target. */
+:global(html[data-device="phone"]) .close.close, :global(html[data-device="tablet"]) .close.close { width: 44px; height: 44px; min-height: 44px; }
+:global(html[data-device="phone"]) .close.close svg { width: 22px; height: 22px; }
+:global(html[data-device="phone"]) .close.close:active { background: var(--da-hover); color: #ffffff; }

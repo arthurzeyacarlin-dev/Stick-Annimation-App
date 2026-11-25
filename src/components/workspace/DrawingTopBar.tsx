@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
+import { isTouchDevice } from "@/src/components/phone/deviceMode";
 
 type DrawingTopBarProps = {
   projectTitle?: string;
@@ -123,6 +124,9 @@ export function DrawingTopBar({
   const menuBarRef = useRef<HTMLDivElement | null>(null);
   const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
   const fileMenuRef = useRef<HTMLDivElement | null>(null);
+  // Phone plan (Nov 24): on phones and upright tablets File / Edit / View / Window / Help are ONE "…" button that opens a
+  // sheet with big rows (the same items and the same handlers; no keyboard shortcuts). Computers never show it.
+  const [isPhoneMenuOpen, setIsPhoneMenuOpen] = useState(false);
   const hasFileMenu = typeof onSave === "function" || typeof onSaveAs === "function" || typeof onExport === "function" || typeof onSaveAndExit === "function";
   const hasHistoryControls = typeof onUndo === "function" || typeof onRedo === "function";
 
@@ -160,6 +164,26 @@ export function DrawingTopBar({
       document.removeEventListener("keydown", handleKeyDown, true);
     };
   }, [openMenu]);
+
+  // Phone plan (Nov 24, Arthur on his iPhone): the editor is one solid screen; two fingers never zoom the page (Safari's own
+  // pinch gesture). Phones and tablets only, only while the editor is open; nothing in the editor uses a pinch.
+  useEffect(() => {
+    if (!isTouchDevice()) return;
+    const stopPageZoom = (event: Event) => event.preventDefault();
+    document.addEventListener("gesturestart", stopPageZoom, { passive: false });
+    document.addEventListener("gesturechange", stopPageZoom, { passive: false });
+    return () => {
+      document.removeEventListener("gesturestart", stopPageZoom);
+      document.removeEventListener("gesturechange", stopPageZoom);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isPhoneMenuOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setIsPhoneMenuOpen(false); };
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [isPhoneMenuOpen]);
 
   const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
   const fileShortcut = { save: isMac ? "⌘S" : "Ctrl+S", saveAs: isMac ? "⇧⌘S" : "Ctrl+Shift+S", export: isMac ? "⌘E" : "Ctrl+E", exit: isMac ? "⌥⌘S" : "Ctrl+Alt+S" };
@@ -424,6 +448,78 @@ export function DrawingTopBar({
           </button>
         ) : null}
       </div>
+
+      {/* Phone plan (Nov 24): the phone's thin top strip (back, project name, undo, redo, "…", Export). Hidden on computers
+          (phone-editor.css); every button calls the handler the computer bar already uses. */}
+      <div className="pe-strip">
+        {onSaveAndExit ? (
+          <button type="button" className="pe-strip-btn pe-strip-back" aria-label="Back to Home" title="Back to Home" disabled={isSaving} onClick={() => runFileAction(onSaveAndExit)}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+          </button>
+        ) : null}
+        <span className="pe-strip-title" title={`${projectTitle} · ${saveStateLabel}`}>
+          <span className="pe-strip-name">{projectTitle}</span>
+          <span className="pe-strip-saved" data-problem={hasRecoveryWarning || hasSaveProblem ? "true" : undefined}><span aria-hidden="true" style={{ background: statusDotColor }} />{hasRecoveryWarning ? recoveryStateLabel : saveStateLabel}</span>
+        </span>
+        {hasHistoryControls ? (
+          <>
+            <button type="button" className="pe-strip-btn pe-strip-undo" aria-label="Undo" title="Undo" disabled={!onUndo || !canUndo} onClick={onUndo}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" /></svg>
+            </button>
+            <button type="button" className="pe-strip-btn pe-strip-redo" aria-label="Redo" title="Redo" disabled={!onRedo || !canRedo} onClick={onRedo}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5" /><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" /></svg>
+            </button>
+          </>
+        ) : null}
+        <button type="button" className="pe-strip-btn pe-strip-more" aria-label="More: File, Edit, View, Window, Help" title="More" aria-haspopup="dialog" aria-expanded={isPhoneMenuOpen}
+          onClick={() => { setIsFileMenuOpen(false); setOpenMenu(null); setIsPhoneMenuOpen((open) => !open); }}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.7" /><circle cx="12" cy="12" r="1.7" /><circle cx="19" cy="12" r="1.7" /></svg>
+        </button>
+        {onExport ? (
+          <button type="button" className="pe-strip-btn pe-strip-export" onClick={() => runFileAction(onExport)}>Export</button>
+        ) : null}
+      </div>
+      {isPhoneMenuOpen ? (
+        <>
+          <div className="pe-menu-scrim" data-phone-scrim="" onClick={() => setIsPhoneMenuOpen(false)} />
+          <div className="pe-menu-sheet" data-phone-sheet="tall" role="dialog" aria-modal="true" aria-label="More">
+            <div className="pe-menu-head">
+              <span className="pe-menu-head-text"><strong>{projectTitle}</strong><span>{saveStateLabel}</span></span>
+              <button type="button" className="pe-menu-done" onClick={() => setIsPhoneMenuOpen(false)}>Done</button>
+            </div>
+            {hasFileMenu ? (
+              <section className="pe-menu-group" aria-label="File">
+                <h3>File</h3>
+                <button type="button" className="pe-menu-row" disabled={isSaving} onClick={() => { setIsPhoneMenuOpen(false); void onSaveAs?.(); }}>Save As</button>
+                {onExport ? <button type="button" className="pe-menu-row" onClick={() => { setIsPhoneMenuOpen(false); onExport(); }}>Export</button> : null}
+                {onSaveAndExit ? <button type="button" className="pe-menu-row" disabled={isSaving} onClick={() => { setIsPhoneMenuOpen(false); void onSaveAndExit(); }}>Back to Home</button> : null}
+              </section>
+            ) : null}
+            {menus.map((menu) => (
+              <section key={menu.label} className="pe-menu-group" aria-label={menu.label}>
+                <h3>{menu.label}</h3>
+                {menu.items.map((item, index) => item.kind === "separator"
+                  ? <div key={`sep-${index}`} className="pe-menu-sep" aria-hidden="true" />
+                  : (
+                    <button
+                      key={item.label}
+                      type="button"
+                      className="pe-menu-row"
+                      data-pe-item={item.label}
+                      role={item.checked === undefined ? undefined : "menuitemcheckbox"}
+                      aria-checked={item.checked}
+                      disabled={item.disabled}
+                      onClick={() => { setIsPhoneMenuOpen(false); item.onSelect(); }}
+                    >
+                      <span>{item.label}</span>
+                      {item.checked ? <svg className="pe-menu-check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg> : null}
+                    </button>
+                  ))}
+              </section>
+            ))}
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

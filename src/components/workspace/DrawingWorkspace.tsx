@@ -2260,7 +2260,10 @@ const pageBreath = () => typeof document !== "undefined" && document.visibilityS
   : yieldToPage();
 // true = the user pressed, dragged, scrolled or typed a moment ago: background work that takes the page for a tenth of a second
 // waits. A Save the user asked for does not wait (storedPreviewsWanted).
-const USER_WORKING_MS = 600;
+// (Nov 24, Arthur on his iPhone: drawing lags) measured: making these small preview pictures freezes the page about 0.08 s four
+// times after a stroke, longer on a phone, so the next stroke starts late. On phones and tablets they now wait 1.5 s after the
+// last touch instead of 0.6 s. Only the preview pictures wait; saving the drawing itself is not changed.
+const USER_WORKING_MS = typeof document !== "undefined" && /^(phone|tablet)$/.test(document.documentElement.getAttribute("data-device") ?? "") ? 1500 : 600;
 let lastUserInputAt = -Infinity, userInputWatched = false, storedPreviewsWanted = 0;
 const watchUserInput = () => {
   if (userInputWatched || typeof window === "undefined") return;

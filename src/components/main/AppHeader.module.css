@@ -117,3 +117,125 @@
 /* Nov 21: the credits circle in the top bar (same circle as the chat boxes and the AI Dashboard). */
 .ringLink { height: 38px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 10px; }
 .ringBadge { height: 22px; padding: 0 2px 0 4px; }
+
+/* ============================================================================================================
+   PHONE + TABLET ONLY (phone plan, Nov 24). Every rule starts with html[data-device="phone"|"tablet"], so a computer
+   never reads any of it. Phone: a thin strip clear of the notch, logo left, credits ring + bell + menu right, 44 px
+   targets. Export and the account circle step aside while the bottom bar shows (Home has its own Export row; the
+   bar's "You" opens this same account menu as a sheet). The menu and the Description/Terms dialogs slide up as sheets.
+   ============================================================================================================ */
+.accountScrim { display: none; }
+:global(html[data-device="phone"]) .bar {
+  height: calc(56px + var(--phone-safe-top)); padding: var(--phone-safe-top) calc(var(--phone-pad) - 4px + var(--phone-safe-right)) 0 calc(var(--phone-pad) - 6px + var(--phone-safe-left));
+}
+/* the header's blur pins pop-ups inside its 56 px strip: while a sheet is open from it, drop the blur and lift it over the bottom bar */
+:global(html[data-device="phone"]) .bar:has(.popover, [data-notification-panel]) { z-index: 140; -webkit-backdrop-filter: none; backdrop-filter: none; background: #111113; }
+:global(html[data-device="phone"]) .brand { min-width: 44px; min-height: 44px; }
+:global(html[data-device="phone"]) .brandMark svg { width: 34px; height: 34px; }
+:global(html[data-device="phone"]) .brandName,
+:global(html[data-device="phone"]) .label { display: none; }
+:global(html[data-device="phone"]) .actions { gap: 8px; }
+:global(html[data-device="phone"]) .ghost { height: 44px; min-width: 44px; padding: 0 11px; justify-content: center; border-radius: 12px; }
+/* the AI Dashboard button becomes the credits ring (the bottom bar has Dashboard; this still opens it) */
+:global(html[data-device="phone"]) .ghost[data-tour="ai-dashboard"] > svg { display: none; }
+:global(html[data-device="phone"]) .ghost[data-tour="ai-dashboard"] { padding: 0 10px 0 8px; }
+:global(html[data-device="phone"]) .ringBadge { height: 26px; }
+:global(html[data-device="phone"]) .group { height: 44px; padding: 0; border-radius: 12px; }
+:global(html[data-device="phone"]) .groupLine { margin: 0; height: 22px; }
+:global(html[data-device="phone"]) .icon,
+:global(html[data-device="phone"]) .bell > div > button { width: 44px; height: 44px; border-radius: 11px; }
+:global(html[data-device="phone"]) .icon svg { width: 21px; height: 21px; }
+:global(html[data-device="phone"]) .avatar { width: 44px; height: 44px; }
+:global(html[data-device="phone"][data-tabbar]) .special,
+:global(html[data-device="phone"][data-tabbar]) .avatar { display: none; }
+:global(html[data-device="phone"]) .ghost:active, :global(html[data-device="phone"]) .icon:active { background: var(--da-hover); }
+
+/* account menu = a bottom sheet with big rows (the shared sheet look comes from data-phone-sheet) */
+:global(html[data-device="phone"]) .accountScrim { display: block; }
+:global(html[data-device="phone"]) .popover { gap: 6px; }
+:global(html[data-device="phone"]) .popHead { padding: 8px 4px 12px; }
+:global(html[data-device="phone"]) .popAvatar { width: 52px; height: 52px; font-size: 18px; }
+:global(html[data-device="phone"]) .popText strong { font-size: 17px; }
+:global(html[data-device="phone"]) .popText span { font-size: 14px; }
+:global(html[data-device="phone"]) .popPlan { min-height: 64px; margin: 0 0 6px; padding: 12px 14px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .popPlan strong { font-size: 16px; }
+:global(html[data-device="phone"]) .popPlan small, :global(html[data-device="phone"]) .popPlanCta { font-size: 14px; }
+:global(html[data-device="phone"]) .popLinks { gap: 4px; padding-top: 6px; }
+:global(html[data-device="phone"]) .popLink,
+:global(html[data-device="phone"]) .logout { height: 52px; padding: 0 14px; gap: 14px; border-radius: 12px; font-size: 16.5px; }
+:global(html[data-device="phone"]) .popLink svg, :global(html[data-device="phone"]) .logout svg { width: 22px; height: 22px; }
+:global(html[data-device="phone"]) .logout { margin-top: 4px; border-radius: 12px; color: var(--da-danger, #ff8a95); }
+:global(html[data-device="phone"]) .popLink:active, :global(html[data-device="phone"]) .logout:active:enabled { background: var(--da-hover); }
+
+/* menu drawer = a bottom sheet (slides up instead of in from the right) */
+:global(html[data-device="phone"]) .drawer {
+  top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: min(86dvh, calc(100dvh - var(--phone-safe-top) - 48px));
+  gap: 16px; padding: 26px calc(var(--phone-pad) + var(--phone-safe-right)) calc(18px + var(--phone-safe-bottom)) calc(var(--phone-pad) + var(--phone-safe-left));
+  border-left: 0; border-top: 1px solid var(--line); border-radius: var(--phone-sheet-radius) var(--phone-sheet-radius) 0 0; background: #161618;
+  transform: translateY(100%); overscroll-behavior: contain;
+}
+:global(html[data-device="phone"]) .drawer[data-open] { transform: none; }
+:global(html[data-device="phone"]) .drawer::before { content: ""; position: absolute; top: 8px; left: 50%; width: 38px; height: 5px; margin-left: -19px; border-radius: 3px; background: rgba(255, 255, 255, .22); }
+:global(html[data-device="phone"]) .drawerHead { padding: 0 0 10px 4px; }
+:global(html[data-device="phone"]) .drawerHead strong { font-size: 20px; }
+:global(html[data-device="phone"]) .drawerItem { height: 54px; padding: 0 16px; border-radius: var(--phone-radius); font-size: 16.5px; }
+:global(html[data-device="phone"]) .drawerItem:active { background: var(--da-hover); border-color: var(--da-hover); }
+:global(html[data-device="phone"]) .drawerLabel { font-size: 12px; }
+
+/* Description / Terms = a tall sheet */
+:global(html[data-device="phone"]) .dialogHead { align-items: center; padding-bottom: 12px; }
+:global(html[data-device="phone"]) .dialogHead h2 { font-size: 22px; }
+:global(html[data-device="phone"]) .dialogBody { font-size: 16px; line-height: 1.6; }
+:global(html[data-device="phone"]) .dialogBody h3 { font-size: 19px; }
+:global(html[data-device="phone"]) .dialogBody h4 { font-size: 17px; }
+:global(html[data-device="phone"]) .dialogMuted { font-size: 14.5px; }
+
+/* tablet: the computer header with finger-sized buttons */
+:global(html[data-device="tablet"]) .bar { padding-top: var(--phone-safe-top); height: calc(64px + var(--phone-safe-top)); }
+:global(html[data-device="tablet"]) .ghost { height: 44px; border-radius: 12px; }
+:global(html[data-device="tablet"]) .group { height: 44px; padding: 0; }
+:global(html[data-device="tablet"]) .icon,
+:global(html[data-device="tablet"]) .bell > div > button { width: 44px; height: 44px; }
+:global(html[data-device="tablet"]) .avatar { width: 44px; height: 44px; }
+:global(html[data-device="tablet"]) .popLink,
+:global(html[data-device="tablet"]) .logout { height: 48px; font-size: 15.5px; }
+:global(html[data-device="tablet"]) .drawerItem { height: 54px; font-size: 16px; }
+:global(html[data-device="tablet"]) .brand { min-height: 44px; }
+
+/* (PM, phone) when the bottom bar is showing it already has Home, so the header's own Home button steps aside on phones */
+:global(html[data-device="phone"][data-tabbar]) a.ghost[href="/"] { display: none; }
+
+/* ============================================================================================================
+   PHONE ONLY, pages with the bottom bar (Arthur on his iPhone, Nov 24: "the header is just useless"): no header strip.
+   The header shrinks to an invisible spacer that only clears the notch. The bell sits at the top-right of Home's title
+   row (with its count dots); everywhere else the bell and the menu's items are rows in the "You" sheet. The credits
+   ring is the Dashboard tab. Tablets and computers keep the header exactly as before.
+   ============================================================================================================ */
+.phoneMore { display: none; }
+:global(html[data-device="phone"]) .bar[data-phone-bare] {
+  position: static; z-index: auto; height: calc(var(--phone-safe-top) + 10px); min-height: 0; padding: 0; border: 0; background: transparent;
+  -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none;
+}
+:global(html[data-device="phone"]) .bar[data-phone-bare] .brand,
+:global(html[data-device="phone"]) .bar[data-phone-bare] .actions > a,
+:global(html[data-device="phone"]) .bar[data-phone-bare] .actions > button,
+:global(html[data-device="phone"]) .bar[data-phone-bare] .avatar,
+:global(html[data-device="phone"]) .bar[data-phone-bare] .groupLine,
+:global(html[data-device="phone"]) .bar[data-phone-bare] .group > .icon { display: none; }
+/* the bell: a clean round button at the top-right of Home's title row (it scrolls with the page) */
+:global(html[data-device="phone"]) .bar[data-phone-bare] .group {
+  position: absolute; z-index: 6; top: calc(var(--phone-safe-top) + 18px); right: calc(var(--phone-pad) + var(--phone-safe-right));
+  height: 44px; padding: 0; border: 0; border-radius: 50%;
+}
+:global(html[data-device="phone"]) .bar[data-phone-bare] .bell > div > button {
+  width: 44px; height: 44px; border: 1px solid var(--da-line, #2c2c32); border-radius: 50%; background: rgba(255, 255, 255, .04); color: var(--da-text-2, #d2d2d7);
+}
+:global(html[data-device="phone"]) .bar[data-phone-bare] .bell > div > button:active { background: var(--da-hover); color: #ffffff; }
+/* off Home the bell button steps aside (its panel still opens from the "You" sheet's Notifications row) */
+:global(html[data-device="phone"]) .bar[data-phone-bare]:not([data-page="home"]) .group { width: 0; height: 0; overflow: visible; }
+:global(html[data-device="phone"]) .bar[data-phone-bare]:not([data-page="home"]) .bell > div > button { display: none; }
+/* the "You" sheet: Notifications and the menu's items as rows, under the menu's own headings */
+:global(html[data-device="phone"]) .bar[data-phone-bare] .phoneMore { display: grid; gap: 4px; padding-top: 6px; border-top: 1px solid var(--line); }
+:global(html[data-device="phone"]) .bar[data-phone-bare] .popLabel { margin: 12px 14px 4px; color: var(--da-label, #85858e); font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+:global(html[data-device="phone"]) .bar[data-phone-bare] .phoneMore .popLink { height: 50px; }
+:global(html[data-device="phone"]) .bar[data-phone-bare] .logout { margin-top: 8px; border-top: 1px solid var(--line); }

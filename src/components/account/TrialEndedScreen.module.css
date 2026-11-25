@@ -21,3 +21,18 @@
   .actions { width: 100%; }
   .actions .button { flex: 1; }
 }
+
+/* PHONE + TABLET ONLY (phone plan, Nov 24): one scrolling column clear of the notch; "Choose a plan" is the one big
+   button, Profile and Log out sit side by side under it, then the read-only library. A computer never reads these. */
+:global(html[data-device="phone"]) .page { height: auto; min-height: 100dvh; overflow: visible; }
+:global(html[data-device="phone"]) .top { gap: 16px; padding: calc(16px + var(--phone-safe-top)) calc(var(--phone-pad) + var(--phone-safe-right)) 18px calc(var(--phone-pad) + var(--phone-safe-left)); }
+:global(html[data-device="phone"]) .message { flex: 1 1 100%; gap: 12px; }
+:global(html[data-device="phone"]) .title { font-size: 26px; }
+:global(html[data-device="phone"]) .lead { font-size: 15.5px; }
+:global(html[data-device="phone"]) .actions { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+:global(html[data-device="phone"]) .actions .primary { grid-column: 1 / -1; }
+:global(html[data-device="phone"]) .button { min-height: 50px; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .button:active:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
+:global(html[data-device="phone"]) .library { flex: none; padding-bottom: var(--phone-safe-bottom); }
+:global(html[data-device="tablet"]) .top { padding-top: calc(20px + var(--phone-safe-top)); }
+:global(html[data-device="tablet"]) .button { min-height: 48px; font-size: 15px; }

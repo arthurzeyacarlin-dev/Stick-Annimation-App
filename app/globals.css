@@ -823,7 +823,10 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 }
 
 /* Sideways phones: tools become a column on the left; the frames run along the bottom. */
-@media (max-height: 500px) and (orientation: landscape) {
+/* (Nov 25, phone) "and (min-width: 500px)" on the short-window rules below: a phone held upright is never 500 px wide, but
+   with its keyboard up its page is short and wider than tall, so these rules (meant for a phone on its side and for short
+   computer windows) switched the whole editor while typing. A phone on its side is 568 px or wider, so it keeps them. */
+@media (max-height: 500px) and (orientation: landscape) and (min-width: 500px) {
   :root { --da-tl-h: 96px; --da-chips-h: 44px; --da-rail-w: 60px; }
   [class*="workspaceTheme_workspace"]:has(.da-sheet) { padding-left: var(--da-rail-w) !important; }
   .drawing-toolbar.drawing-toolbar { position: fixed !important; left: 0; top: 0; bottom: 0; width: var(--da-rail-w) !important; height: auto !important; margin: 0 !important;
@@ -832,7 +835,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   .drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: var(--da-hover) !important; color: #ffffff !important; border-radius: 12px; }
   .drawing-toolbar.drawing-toolbar > * { justify-content: center; align-items: center; }
 }
-@media (max-height: 500px) and (orientation: landscape) {
+@media (max-height: 500px) and (orientation: landscape) and (min-width: 500px) {
   [class*="workspaceTheme_workspace"]:has(.da-sheet) > .drawing-timeline { top: auto !important; bottom: var(--da-chips-h) !important; left: var(--da-rail-w) !important; z-index: 28 !important; background: var(--da-panel, #1a1a1e); border-top: 1px solid var(--da-line, #2c2c32); }
   .drawing-timeline-controls { height: 40px; min-height: 0 !important; }
   .drawing-timeline-controls .drawing-play { order: -1; width: 36px !important; height: 36px !important; min-width: 36px !important; border-radius: 50% !important; background: var(--da-hover) !important; color: #ffffff !important; }
@@ -850,13 +853,13 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 @media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
   .da-sheet[data-sheet-size="small"] .da-sheet-tab-row button[aria-selected="true"] { background: transparent !important; box-shadow: none !important; color: var(--da-text-3, #b8b8bf) !important; }
 }
-@media (max-height: 500px) and (orientation: landscape) {
+@media (max-height: 500px) and (orientation: landscape) and (min-width: 500px) {
   :root { --da-tl-h: 58px; --da-chips-h: 38px; }
   .da-sheet-tab-row button { font-size: 12.5px !important; }
   .drawing-toolbar .drawing-tool-button[data-selected="true"], .drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: var(--da-hover) !important; color: #ffffff !important; border-radius: 12px; }
 }
 @media (max-width: 600px) { :root { --da-tl-h: 126px; } }
-@media (max-height: 500px) and (orientation: landscape) { :root { --da-tl-h: 62px; } }
+@media (max-height: 500px) and (orientation: landscape) and (min-width: 500px) { :root { --da-tl-h: 62px; } }
 /* An open panel covers the timeline (it slides over everything below the top bar). */
 @media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
   [class*="workspaceTheme_workspace"]:has(.da-sheet:not([data-sheet-size="small"])) > .drawing-timeline { z-index: 1 !important; }
@@ -874,7 +877,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 /* AI Animator: the message box is see-through, so the glow behind it is never blocked; on short screens the welcome
    is compact so it shows whole without scrolling. */
 .drawing-ai-tab form[aria-label="AI Animator message composer"] { background: rgba(0, 0, 0, .35) !important; backdrop-filter: none !important; }
-@media (max-height: 560px) {
+@media (max-height: 560px) and (min-width: 500px) {
   .drawing-ai-tab .drawing-ai-logo:not(.drawing-ai-logo-small) svg { width: 30px !important; height: 30px !important; }
   .drawing-ai-tab h2, .drawing-ai-tab h3 { margin-top: 2px !important; font-size: 17px !important; }
 }
@@ -886,7 +889,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   .da-sheet:not([data-sheet-size="small"]) .da-sheet-tab-row button[aria-selected="true"] { background: var(--da-selected-bg, #3a3a41) !important; color: #ffffff !important; box-shadow: none !important; border: 0 !important; }
 }
 @media (max-width: 950px), (max-height: 500px) and (orientation: landscape) { :root { --da-chips-h: 56px; } }
-@media (max-height: 560px) {
+@media (max-height: 560px) and (min-width: 500px) {
   .drawing-ai-tab .drawing-ai-empty { padding: 6px 12px !important; gap: 4px !important; }
   .drawing-ai-tab .drawing-ai-empty::before { inset: -6px -20px !important; }
   .drawing-ai-tab .drawing-ai-empty > span:not(.drawing-ai-logo) { font-size: 12.5px; line-height: 1.4; }
@@ -895,7 +898,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   .drawing-ai-tab form[aria-label="AI Animator message composer"] { padding-top: 8px !important; padding-bottom: 8px !important; }
 }
 /* Very short windows: only the glowing logo shows (the tab already says AI Animator), so nothing is cut. */
-@media (max-height: 500px) and (orientation: landscape) {
+@media (max-height: 500px) and (orientation: landscape) and (min-width: 500px) {
   :root { --da-chips-h: 44px; }
   .da-sheet-tab-row { margin: 3px 8px !important; padding: 3px !important; }
   .da-sheet-tab-row button { height: 30px !important; }
@@ -904,7 +907,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 @media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
   .da-sheet[data-sheet-size="small"] .da-sheet-tab-row .da-choice-pill { opacity: 0 !important; }
 }
-@media (max-height: 500px) and (orientation: landscape) {
+@media (max-height: 500px) and (orientation: landscape) and (min-width: 500px) {
   [class*="workspaceTheme_workspace"] .drawing-toolbar.drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: var(--da-hover) !important; color: #ffffff !important; border-radius: 12px !important; }
 }
 /* The panel always slides OVER the timeline, also while it is being dragged up (Arthur 2026-10-28). */

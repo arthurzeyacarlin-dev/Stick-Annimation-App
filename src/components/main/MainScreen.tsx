@@ -5,6 +5,7 @@ import { useAccountSession } from "@/src/components/account/AccountSessionProvid
 import { V1_ANIMATOR_UI_ENABLED } from "@/src/lib/ai/v1Animator/v1AnimatorContract";
 import { landedCount, queueAnimateStart } from "@/src/components/workspace/ai/aiStart";
 import { useTypedPlaceholder } from "@/src/components/workspace/ai/useTypedExample";
+import { TYPED_EXAMPLES } from "@/src/components/workspace/ai/aiStart";
 import { AppHeader } from "./AppHeader";
 import styles from "./MainScreen.module.css";
 
@@ -61,7 +62,38 @@ export function MainScreen(props: Props) {
   const [idea, setIdea] = useState("");
   const [ideaFocused, setIdeaFocused] = useState(false);
   const ideaRef = useRef<HTMLInputElement | null>(null);
-  useTypedPlaceholder(ideaRef, V1_ANIMATOR_UI_ENABLED && !idea && !ideaFocused, "Type what you want to see…");
+  // only examples that fit the box's two lines are typed here, so every one can be read whole (the longest stay in the editor's AI box)
+  const [fitExamples, setFitExamples] = useState<readonly string[]>(() => TYPED_EXAMPLES.filter((text) => text.length <= 44));
+  useEffect(() => {
+    const measure = () => {
+      const field = ideaRef.current;
+      if (!field || field.clientWidth <= 0) return;
+      let letter = 9.7;
+      try { const pen = document.createElement("canvas").getContext("2d"); if (pen) { pen.font = getComputedStyle(field).font; letter = pen.measureText("m").width || letter; } } catch { /* keep the usual width */ }
+      const perLine = Math.max(8, Math.floor(field.clientWidth / letter));
+      const room = perLine * 2 - Math.min(12, Math.floor(perLine / 2));   // two lines, less the gap a wrapped word leaves
+      const fits = TYPED_EXAMPLES.filter((text) => text.length <= room);
+      const next = fits.length ? fits : [...TYPED_EXAMPLES].sort((a, b) => a.length - b.length).slice(0, 3);
+      setFitExamples((was) => was.length === next.length && was.every((text, i) => text === next[i]) ? was : next);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+  useTypedPlaceholder(ideaRef, V1_ANIMATOR_UI_ENABLED && !idea && !ideaFocused, "Type what you want to see…", fitExamples);
+  // (Nov 25, Arthur: "a long example runs out of the box to the right and you can't read it all") the example words are shown
+  // by a line of their own over the empty box, which goes onto a second line when it is long. The box itself stays the same
+  // size and the typing box underneath is untouched; its own (one-line) hint is only made see-through.
+  const ghostRef = useRef<HTMLSpanElement | null>(null);
+  useEffect(() => {
+    const field = ideaRef.current, ghost = ghostRef.current;
+    if (!field || !ghost) return;
+    const copy = () => { if (ghost.textContent !== field.placeholder) ghost.textContent = field.placeholder; };
+    copy();
+    const watch = new MutationObserver(copy);
+    watch.observe(field, { attributes: true, attributeFilter: ["placeholder"] });
+    return () => watch.disconnect();
+  }, []);
   const startAnimating = (event: FormEvent) => {
     event.preventDefault();
     if (props.creating) return;
@@ -88,8 +120,11 @@ export function MainScreen(props: Props) {
             {V1_ANIMATOR_UI_ENABLED && (
               <form className={styles.prompt} onSubmit={startAnimating} aria-label="Animate with AI" data-tour="animate-home">
                 <span className={styles.promptMark} aria-hidden="true">›</span>
-                <input ref={ideaRef} className={styles.promptInput} value={idea} onChange={(event) => setIdea(event.target.value)} onFocus={() => setIdeaFocused(true)} onBlur={() => setIdeaFocused(false)}
+                <span className={styles.promptField} data-empty={idea ? undefined : ""}>
+                  <input ref={ideaRef} className={styles.promptInput} value={idea} onChange={(event) => setIdea(event.target.value)} onFocus={() => setIdeaFocused(true)} onBlur={() => setIdeaFocused(false)}
                   placeholder="Type what you want to see…" aria-label="What do you want to animate?" maxLength={2000} autoComplete="off" spellCheck />
+                  <span ref={ghostRef} className={styles.promptGhost} aria-hidden="true" />
+                </span>
                 <button type="submit" className={styles.promptGo} disabled={props.creating}>
                   {props.creating ? "Opening…" : "Animate"}
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -109,6 +144,8 @@ export function MainScreen(props: Props) {
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" /></svg>
                 <span className={styles.actionText}><strong>Open project</strong><small>All your saved animations</small></span>
               </button>
+              {/* (Nov 25, Arthur: the computer's Home has no Export card, so the phone's has none either) Export is on every project
+                  in Open project and inside the editor, the same on every device. */}
             </section>
 
             <section aria-labelledby="recent-heading" data-tour="recent">

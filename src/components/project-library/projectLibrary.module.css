@@ -783,3 +783,70 @@
 .library { padding-bottom: 24px; }
 .results { margin-top: 16px; }
 .grid .posterFrame { max-height: max(110px, calc(100dvh - 596px)); }
+
+/* ============================================================================================================
+   PHONE + TABLET ONLY (phone plan, Nov 24). A computer never reads these rules (the sheet title and scrim stay hidden).
+   Phone: big title, search on top, one big card per row with Watch / Export / ••• as big buttons; "•••" opens a
+   bottom sheet with big rows; rename / duplicate / delete open as sheets. Room at the bottom for the bottom bar.
+   Tablet: two cards per row, finger-sized buttons.
+   ============================================================================================================ */
+.menuScrim, .menuSheetTitle { display: none; }
+:global(html[data-device="phone"]) .menuScrim { display: block; }
+:global(html[data-device="phone"]) .library { padding: calc(10px + var(--phone-safe-top)) calc(var(--phone-pad) + var(--phone-safe-right)) calc(28px + var(--phone-tabbar-space)) calc(var(--phone-pad) + var(--phone-safe-left)); overscroll-behavior-y: contain; }
+:global(html[data-device="phone"]) .shell { gap: 18px; }
+:global(html[data-device="phone"]) .header { gap: 10px !important; }
+:global(html[data-device="phone"]) .headingGroup h1, :global(html[data-device="phone"]) .headingGroup h2 { font-size: clamp(34px, 10vw, 44px) !important; letter-spacing: -.045em !important; }
+:global(html[data-device="phone"]) .headingGroup p { font-size: 16px !important; line-height: 1.45; }
+:global(html[data-device="phone"]) .toolbar { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 132px); gap: 10px; padding-bottom: 16px !important; }
+:global(html[data-device="phone"]) .searchLabel, :global(html[data-device="phone"]) .sortLabel { max-width: none; }
+:global(html[data-device="phone"]) .searchLabel > span, :global(html[data-device="phone"]) .sortLabel > span { font-size: 14px !important; }
+:global(html[data-device="phone"]) .toolbar input, :global(html[data-device="phone"]) .toolbar select { height: 48px !important; border-radius: 12px !important; font-size: 16px !important; }
+:global(html[data-device="phone"]) .results { margin-top: 4px; }
+:global(html[data-device="phone"]) .grid { grid-template-columns: minmax(0, 1fr) !important; gap: 14px !important; }
+:global(html[data-device="phone"]) .grid .posterFrame { max-height: none; }
+:global(html[data-device="phone"]) .card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 60px !important; grid-template-rows: auto 52px; border-radius: var(--phone-radius) !important; }
+:global(html[data-device="phone"]) .card.cardReadOnly { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+:global(html[data-device="phone"]) .cardBody { padding: 12px 14px !important; gap: 4px; }
+:global(html[data-device="phone"]) .projectTitle { font-size: 17px !important; }
+:global(html[data-device="phone"]) .updatedAt, :global(html[data-device="phone"]) .metadata { font-size: 14px !important; }
+:global(html[data-device="phone"]) .rowAction, :global(html[data-device="phone"]) .overflowButton { height: 52px; min-height: 52px !important; font-size: 15px !important; gap: 8px; }
+:global(html[data-device="phone"]) .rowAction svg { width: 20px !important; height: 20px !important; }
+:global(html[data-device="phone"]) .overflowButton { font-size: 18px !important; letter-spacing: .06em; }
+:global(html[data-device="phone"]) .rowAction:active:not(:disabled), :global(html[data-device="phone"]) .overflowButton:active,
+:global(html[data-device="phone"]) .cardButton:not([aria-disabled="true"]):active { background: var(--da-hover) !important; color: #ffffff !important; }
+:global(html[data-device="phone"]) .statePanel :is(button) { min-height: 48px; }
+:global(html[data-device="phone"]) .inlineButton { min-height: 44px; }
+/* the "•••" menu = a bottom sheet */
+:global(html[data-device="phone"]) .contextMenu { gap: 4px; }
+:global(html[data-device="phone"]) .contextMenu .menuSheetTitle { display: block; margin: 0 4px 8px; overflow: hidden; color: var(--library-text); font-size: 17px; font-weight: 600; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+:global(html[data-device="phone"]) .contextMenu button { min-height: 54px; padding: 0 14px; border-radius: 12px; font-size: 17px; }
+:global(html[data-device="phone"]) .contextMenu .destructiveMenuItem:not(:disabled) { font-size: 17px; }
+:global(html[data-device="phone"]) .contextMenu button:active:not(:disabled) { background: var(--library-hover); color: #ffffff; }
+:global(html[data-device="phone"]) .contextMenu p:not(.menuSheetTitle) { margin: 6px 4px 4px; font-size: 14px; }
+/* rename / duplicate / delete = a sheet with big buttons side by side */
+:global(html[data-device="phone"]) .managementDialog { max-height: min(86dvh, calc(100dvh - var(--phone-safe-top) - 48px)) !important; }
+:global(html[data-device="phone"]) .managementDialog h2 { font-size: 22px; }
+:global(html[data-device="phone"]) .managementDialog p { font-size: 15.5px; }
+:global(html[data-device="phone"]) .managementDialog input { min-height: 50px; font-size: 16px; border-radius: 12px; }
+:global(html[data-device="phone"]) .dialogActions { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+:global(html[data-device="phone"]) .managementDialog .secondaryButton,
+:global(html[data-device="phone"]) .managementDialog .primaryButton,
+:global(html[data-device="phone"]) .managementDialog .deleteButton { min-height: 52px; border-radius: 12px; font-size: 16px; }
+/* phone sideways: two cards per row */
+:global(html[data-device="phone"][data-orient="landscape"]) .grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+:global(html[data-device="phone"][data-orient="landscape"]) .headingGroup h1 { font-size: 32px !important; }
+
+/* tablet: two cards per row (three when wide), finger-sized buttons, room for the bottom bar */
+:global(html[data-device="tablet"]) .library { padding-bottom: calc(28px + var(--phone-tabbar-space)); padding-left: calc(var(--phone-pad) + var(--phone-safe-left)); padding-right: calc(var(--phone-pad) + var(--phone-safe-right)); }
+:global(html[data-device="tablet"]) .grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)) !important; }
+:global(html[data-device="tablet"]) .grid .posterFrame { max-height: none; }
+:global(html[data-device="tablet"]) .card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 60px !important; grid-template-rows: auto 52px; }
+:global(html[data-device="tablet"]) .card.cardReadOnly { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+:global(html[data-device="tablet"]) .rowAction, :global(html[data-device="tablet"]) .overflowButton { height: 52px; min-height: 52px !important; font-size: 15px !important; }
+:global(html[data-device="tablet"]) .toolbar input, :global(html[data-device="tablet"]) .toolbar select { height: 48px !important; font-size: 16px !important; }
+:global(html[data-device="tablet"]) .contextMenu button { min-height: 48px; font-size: 16px; }
+:global(html[data-device="tablet"]) .managementDialog .secondaryButton,
+:global(html[data-device="tablet"]) .managementDialog .primaryButton,
+:global(html[data-device="tablet"]) .managementDialog .deleteButton { min-height: 48px; }
+/* (PM) with the back arrow stepping aside on phones (the bottom bar has Home), the big title gets room under the notch */
+:global(html[data-device="phone"][data-tabbar]) .library { padding-top: calc(30px + var(--phone-safe-top)); }

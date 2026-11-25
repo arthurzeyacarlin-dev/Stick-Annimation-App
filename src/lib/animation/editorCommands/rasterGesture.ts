@@ -338,7 +338,39 @@ function paperGrain(x: number, y: number, seed: number): number {
   return (paperGrainHash(ix, iy, seed) * (1 - tx) + paperGrainHash(ix + 1, iy, seed) * tx) * (1 - ty)
     + (paperGrainHash(ix, iy + 1, seed) * (1 - tx) + paperGrainHash(ix + 1, iy + 1, seed) * tx) * ty;
 }
+// (Nov 25, phone lag) A long path is stamped in short pieces. Stamping visits every pixel of the box around its path, so
+// one long slanted piece of a stroke (a fast finger, or a slow phone that hands over a long move at once) cost the whole
+// square around it: seconds on Arthur's iPhone for one finger move. Each short piece only visits the pixels near itself.
+// The result is the same picture, pixel for pixel: every pixel's paint depends only on its distance to the nearest part
+// of the path (nearer never paints less), the mask keeps the strongest paint per pixel, and each piece uses the very
+// same points and arithmetic as before.
 function stamp(mask: MaximumMask, path: RasterPoint[], options: RasterGestureOptions) {
+  const { key, size, scaleX, scaleY } = options;
+  if (key.variant === 'Pixelate' || path.length < 3) { stampWhole(mask, path, options); return; }
+  // The same reach around the path that stampWhole uses for its box.
+  const pencil = key.variant === 'Pencil', sketch = key.variant === 'Sketch', glow = key.variant === 'Glow';
+  const core = Math.max(.5, size * .5), brightness = options.brightness / 100;
+  const minimumTextureRadius = pencil || sketch ? .5 * Math.hypot(1 / scaleX, 1 / scaleY) : 0;
+  const extent = glow && brightness > 0 ? Math.min(128, Math.max(8, size * 8), core + 4 + options.radius / 100 * size * 7) : Math.max(core * (pencil ? 1.25 : sketch ? 2.1 : 1), minimumTextureRadius);
+  const reach = extent + .5 / Math.max(scaleX, scaleY), longest = Math.max(4 * reach, 8 / Math.min(scaleX, scaleY));
+  // Cut the path where a piece grows longer than a few brush widths; count the pixels each way would visit.
+  const cuts = [0];
+  let minX = path[0].x, minY = path[0].y, maxX = minX, maxY = minY, pieceArea = 0;
+  let allMinX = minX, allMinY = minY, allMaxX = maxX, allMaxY = maxY;
+  const area = (w: number, h: number) => (w + 2 * reach) * scaleX * (h + 2 * reach) * scaleY;
+  for (let i = 1; i < path.length; i++) {
+    const { x, y } = path[i];
+    minX = Math.min(minX, x); minY = Math.min(minY, y); maxX = Math.max(maxX, x); maxY = Math.max(maxY, y);
+    allMinX = Math.min(allMinX, x); allMinY = Math.min(allMinY, y); allMaxX = Math.max(allMaxX, x); allMaxY = Math.max(allMaxY, y);
+    if (i === path.length - 1 || Math.max(maxX - minX, maxY - minY) >= longest) {
+      pieceArea += area(maxX - minX, maxY - minY); cuts.push(i);
+      minX = maxX = x; minY = maxY = y;
+    }
+  }
+  if (cuts.length <= 2 || pieceArea * 1.25 >= area(allMaxX - allMinX, allMaxY - allMinY)) { stampWhole(mask, path, options); return; }
+  for (let c = 0; c < cuts.length - 1; c++) stampWhole(mask, path.slice(cuts[c], cuts[c + 1] + 1), options);
+}
+function stampWhole(mask: MaximumMask, path: RasterPoint[], options: RasterGestureOptions) {
   if (!path.length) return;
   const { key, size, scaleX, scaleY } = options;
   if (key.variant === 'Pixelate') {

@@ -178,3 +178,65 @@ a.primary { display: grid; place-items: center; color: #fff; text-decoration: no
 
 /* The form sits on the same page light as the rest of the app. */
 .card:not(.cardCompact) { background: rgba(255, 255, 255, .018); }
+
+/* ============================================================================================================
+   PHONE + TABLET ONLY (phone plan, Nov 24). A computer never reads these rules.
+   Phone: one column clear of the notch: logo, the promise, the editor film as a short strip, then the form. The main
+   button stays pinned in view at the bottom of the form while you type. Sideways: words + film left, form right.
+   ============================================================================================================ */
+:global(html[data-device="phone"]) .screen:not(.screenCenter) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
+:global(html[data-device="phone"]) .hero { grid-template-rows: auto auto auto; gap: 14px; padding: calc(14px + var(--phone-safe-top)) calc(var(--phone-pad) + var(--phone-safe-right)) 0 calc(var(--phone-pad) + var(--phone-safe-left)); }
+:global(html[data-device="phone"]) .mark { min-height: 44px; }
+:global(html[data-device="phone"]) .heroWords { gap: 8px; }
+:global(html[data-device="phone"]) .title { font-size: clamp(32px, 9.4vw, 42px); line-height: 1.02; letter-spacing: -.045em; }
+:global(html[data-device="phone"]) .subtitle { font-size: 15.5px; line-height: 1.45; }
+:global(html[data-device="phone"]) .storyStage { display: block; position: relative; left: auto; right: auto; bottom: auto; z-index: 0; min-height: 0;
+  height: auto; margin: 2px calc(-1 * var(--phone-pad)) 0; container-type: inline-size; border-top: 1px solid var(--line); }
+:global(html[data-device="phone"]) .storyFade { display: none; }
+:global(html[data-device="phone"]) .card:not(.cardCompact) { gap: 20px; padding: 22px calc(var(--phone-pad) + var(--phone-safe-right)) calc(28px + var(--phone-safe-bottom)) calc(var(--phone-pad) + var(--phone-safe-left)); border-top: 1px solid var(--line); border-left: 0; justify-content: flex-start; }
+:global(html[data-device="phone"]) .cardHead h2 { font-size: 27px; }
+:global(html[data-device="phone"]) .cardHead p { font-size: 15.5px; }
+:global(html[data-device="phone"]) .form { gap: 16px; }
+:global(html[data-device="phone"]) .field { font-size: 15px; }
+:global(html[data-device="phone"]) .field input { height: 50px; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .passwordWrap input { padding-right: 52px; }
+:global(html[data-device="phone"]) .eye { width: 44px; height: 44px; right: 3px; border-radius: 10px; }
+:global(html[data-device="phone"]) .primary { position: sticky; bottom: calc(10px + var(--phone-safe-bottom)); z-index: 2; height: 52px; border-radius: 12px; font-size: 16.5px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .55); }
+:global(html[data-device="phone"]) .primary:active:enabled { background: var(--blue-hover); border-color: var(--blue-hover); }
+/* words that are links get a finger-sized tap area without moving the text */
+:global(html[data-device="phone"]) .link, :global(html[data-device="phone"]) .inlineLink { display: inline-block; padding: 12px 4px; margin: -12px -4px; }
+:global(html[data-device="phone"]) .link { font-size: 14px; }
+:global(html[data-device="phone"]) .fine { font-size: 14.5px; line-height: 1.5; }
+:global(html[data-device="phone"]) .cardFoot { gap: 10px; }
+:global(html[data-device="phone"]) .switcher { padding: 3px; border-radius: 12px; }
+:global(html[data-device="phone"]) .switcher button { height: 44px; border-radius: 9px; font-size: 15px; }
+:global(html[data-device="phone"]) .planRow { min-height: 64px; padding: 14px; border-radius: 12px; }
+:global(html[data-device="phone"]) .planName { font-size: 16px; }
+:global(html[data-device="phone"]) .planLine { font-size: 13.5px; }
+:global(html[data-device="phone"]) .planRow:active { background: var(--hover); }
+/* reset password (one centred column) */
+:global(html[data-device="phone"]) .screenCenter { align-content: start; padding: calc(24px + var(--phone-safe-top)) calc(var(--phone-pad) + var(--phone-safe-right)) calc(28px + var(--phone-safe-bottom)) calc(var(--phone-pad) + var(--phone-safe-left)); }
+/* phone sideways: words + film on the left, the form on the right */
+:global(html[data-device="phone"][data-orient="landscape"]) .screen:not(.screenCenter) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); grid-template-rows: auto; }
+:global(html[data-device="phone"][data-orient="landscape"]) .hero { align-content: start; padding-bottom: 16px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .title { font-size: 30px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .storyStage { margin: 0; border: 1px solid var(--line); border-radius: 12px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .card:not(.cardCompact) { border-top: 0; border-left: 1px solid var(--line); padding-top: 18px; }
+/* tablet upright: the film comes back as a strip between the words and the form; inputs and buttons finger-sized */
+:global(html[data-device="tablet"][data-orient="portrait"]) .hero { grid-template-rows: auto auto auto; }
+:global(html[data-device="tablet"][data-orient="portrait"]) .storyStage { display: block; position: relative; left: auto; right: auto; bottom: auto; z-index: 0; min-height: 0; height: 340px; margin: 0 -20px; }
+:global(html[data-device="tablet"]) .field input { height: 50px; font-size: 16px; }
+:global(html[data-device="tablet"]) .eye { width: 44px; height: 44px; right: 3px; }
+:global(html[data-device="tablet"]) .primary { height: 52px; font-size: 16px; }
+:global(html[data-device="tablet"]) .switcher button { height: 44px; }
+:global(html[data-device="tablet"]) .link, :global(html[data-device="tablet"]) .inlineLink { display: inline-block; padding: 12px 4px; margin: -12px -4px; }
+
+/* PHONE UPRIGHT ONLY (Nov 24): the film now tells the whole AI story, so the form starts lower; the one main button
+   (Create account / Log in / Start free trial / Save new password) stays fixed at the bottom above the home bar, over a
+   soft fade, and the page keeps room for it. Same button, same form. Sideways it stays pinned inside the form. */
+:global(html[data-device="phone"][data-orient="portrait"]) .primary { position: fixed; z-index: 20; left: calc(var(--phone-pad) + var(--phone-safe-left)); right: calc(var(--phone-pad) + var(--phone-safe-right)); bottom: calc(12px + var(--phone-safe-bottom)); width: auto; }
+:global(html[data-device="phone"][data-orient="portrait"]) .card:has(.primary)::after { content: ""; position: fixed; z-index: 19; left: 0; right: 0; bottom: 0; height: calc(84px + var(--phone-safe-bottom)); pointer-events: none;
+  background: linear-gradient(to top, rgba(17, 17, 19, .97) 62%, rgba(17, 17, 19, 0)); }
+:global(html[data-device="phone"][data-orient="portrait"]) .card:not(.cardCompact) { padding-bottom: calc(96px + var(--phone-safe-bottom)); }
+:global(html[data-device="phone"][data-orient="portrait"]) .screenCenter { padding-bottom: calc(96px + var(--phone-safe-bottom)); }

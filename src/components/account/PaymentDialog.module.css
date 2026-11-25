@@ -36,3 +36,27 @@
 .secure { display: flex; align-items: flex-start; gap: 8px; margin: 0; color: var(--da-muted); font-size: 12.5px; line-height: 1.45; }
 .secure svg { width: 14px; height: 14px; flex: 0 0 auto; margin-top: 2px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 @media (max-width: 420px) { .row { grid-template-columns: 1fr; } }
+
+/* ===== PHONE + TABLET ONLY (phone plan, Nov 24): the pay window is a full-height sheet from the bottom; the pay button
+   stays at the bottom above the home bar. A computer never reads these rules. ===== */
+:global(html[data-device="phone"]) .backdrop { place-items: end stretch; padding: 0; animation: phoneFadeIn 200ms ease; }
+:global(html[data-device="phone"]) .dialog {
+  width: 100%; max-height: calc(100dvh - var(--phone-safe-top) - 12px); min-height: min(640px, calc(100dvh - var(--phone-safe-top) - 12px));
+  align-content: start; gap: 16px; padding: 26px var(--phone-pad) 0; border-width: 1px 0 0;
+  border-radius: var(--phone-sheet-radius) var(--phone-sheet-radius) 0 0; animation: phoneSheetUp 260ms cubic-bezier(.2, .8, .2, 1);
+}
+:global(html[data-device="phone"]) .title { font-size: 22px; }
+:global(html[data-device="phone"]) .text, :global(html[data-device="phone"]) .facts > div { font-size: 15px; }
+:global(html[data-device="phone"]) .choiceItem { min-height: 52px; border-radius: 12px; font-size: 15.5px; }
+:global(html[data-device="phone"]) .box, :global(html[data-device="phone"]) .input { height: 50px; border-radius: 12px; }
+:global(html[data-device="phone"]) .label { font-size: 14px; }
+:global(html[data-device="phone"]) .buttons {
+  position: sticky; bottom: 0; z-index: 1; margin: auto calc(-1 * var(--phone-pad)) 0; padding: 12px var(--phone-pad) calc(12px + var(--phone-safe-bottom));
+  background: linear-gradient(180deg, rgba(26, 26, 30, 0), var(--da-panel, #1a1a1e) 22%);
+}
+:global(html[data-device="phone"]) .primary, :global(html[data-device="phone"]) .plain { min-height: 52px; border-radius: 12px; font-size: 16.5px; }
+:global(html[data-device="phone"]) .secure { padding-bottom: calc(12px + var(--phone-safe-bottom)); font-size: 13px; }
+:global(html[data-device="tablet"]) .primary, :global(html[data-device="tablet"]) .plain { min-height: 50px; }
+:global(html[data-device="tablet"]) .choiceItem, :global(html[data-device="tablet"]) .box, :global(html[data-device="tablet"]) .input { min-height: 48px; }
+@keyframes phoneSheetUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes phoneFadeIn { from { opacity: 0; } to { opacity: 1; } }

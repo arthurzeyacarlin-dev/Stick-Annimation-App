@@ -128,3 +128,74 @@ button.choose:focus-visible { outline: 2px solid var(--da-focus); outline-offset
 .plan[data-tier="1"] { border-color: transparent; }
 .plan[data-tier="2"] { border-color: #55555e; background: var(--da-card-fill); box-shadow: 0 16px 44px rgba(0, 0, 0, .38); }
 .plan.current, .plan.current[data-tier] { border: 1.5px solid #ffffff; }
+
+/* ===== PHONE + TABLET ONLY (phone plan, Nov 24). A computer never reads these rules. =====
+   Phone: big title, a big Monthly/Yearly switch, the three plans side by side as cards you swipe (the next one peeks in),
+   the discount codes and the promises under the plans, every dialog a sheet from the bottom. */
+:global(html[data-device="phone"]) .main { padding: 22px 0 calc(32px + var(--phone-tabbar-space)); }
+:global(html[data-device="phone"]) .frame { display: flex; flex-direction: column; gap: 18px; }
+:global(html[data-device="phone"]) .frame > * { margin-inline: var(--phone-pad); }
+:global(html[data-device="phone"]) .head { gap: 16px; }
+:global(html[data-device="phone"]) .lead { font-size: 15px; }
+:global(html[data-device="phone"]) .title { font-size: 36px; letter-spacing: -.045em; }
+:global(html[data-device="phone"]) .facts, :global(html[data-device="phone"]) .notice { font-size: 15px; }
+:global(html[data-device="phone"]) .intervals { width: 100%; padding: 4px; border-radius: 13px; }
+:global(html[data-device="phone"]) .interval { min-height: 44px; border-radius: 10px; font-size: 15.5px; font-weight: 600; }
+:global(html[data-device="phone"]) .interval:hover:not([aria-pressed="true"]) { background: transparent; color: var(--da-muted); box-shadow: none; }
+:global(html[data-device="phone"]) .trialCard { padding: 16px 18px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .trialMakes, :global(html[data-device="phone"]) .trialFacts { font-size: 14px; }
+:global(html[data-device="phone"]) .plans {
+  margin-inline: 0; display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+  padding: 2px var(--phone-pad) 6px; scroll-padding-inline: var(--phone-pad); scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+:global(html[data-device="phone"]) .plans::-webkit-scrollbar { display: none; }
+:global(html[data-device="phone"]) .plan { flex: 0 0 calc(100% - 2 * var(--phone-pad) - 26px); scroll-snap-align: start; padding: 22px 20px 20px; border-radius: 18px; }
+:global(html[data-device="phone"]) .planName { font-size: 21px; }
+:global(html[data-device="phone"]) .planFor { font-size: 15px; }
+:global(html[data-device="phone"]) .price { margin-top: 18px; }
+:global(html[data-device="phone"]) .price strong { font-size: 44px; }
+:global(html[data-device="phone"]) .allowance strong { font-size: 16px; }
+:global(html[data-device="phone"]) .allowance small, :global(html[data-device="phone"]) .plan ul { font-size: 14.5px; }
+:global(html[data-device="phone"]) .allowance .allowanceMakes { font-size: 14px; }
+:global(html[data-device="phone"]) button.choose, :global(html[data-device="phone"]) .manage { min-height: 50px; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .manageQuiet { min-height: 44px; font-size: 15px; }
+:global(html[data-device="phone"]) .error { order: 4; }
+:global(html[data-device="phone"]) .codes { order: 5; padding: 18px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .codesTitle { font-size: 16px; }
+:global(html[data-device="phone"]) .codeRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+:global(html[data-device="phone"]) .codeField { width: auto; min-width: 0; font-size: 13.5px; }
+:global(html[data-device="phone"]) .codeField input { width: 100%; min-width: 0; }
+:global(html[data-device="phone"]) .codeField input { height: 48px; border-radius: 12px; }
+:global(html[data-device="phone"]) .note { font-size: 13.5px; }
+:global(html[data-device="phone"]) .promises { order: 6; grid-template-columns: minmax(0, 1fr); gap: 14px; padding-top: 18px; }
+:global(html[data-device="phone"]) .promises strong { font-size: 15px; }
+:global(html[data-device="phone"]) .promises span { font-size: 14px; }
+/* the switch and cancel dialogs: a sheet from the bottom, buttons big and at the bottom */
+:global(html[data-device="phone"]) .dialogBackdrop { place-items: end stretch; padding: 0; animation: phoneFadeIn 200ms ease; }
+:global(html[data-device="phone"]) .dialog {
+  width: 100%; max-height: calc(100dvh - var(--phone-safe-top) - 24px); overflow-y: auto; gap: 14px;
+  padding: 26px var(--phone-pad) calc(16px + var(--phone-safe-bottom)); border-width: 1px 0 0; border-radius: var(--phone-sheet-radius) var(--phone-sheet-radius) 0 0;
+  animation: phoneSheetUp 260ms cubic-bezier(.2, .8, .2, 1);
+}
+:global(html[data-device="phone"]) .dialogTitle { font-size: 22px; }
+:global(html[data-device="phone"]) .dialogText { font-size: 15px; }
+:global(html[data-device="phone"]) .dialogPrimary, :global(html[data-device="phone"]) .dialogPlain, :global(html[data-device="phone"]) .dialogDanger { min-height: 50px; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .dialogInput { height: 48px; }
+/* tablet: plans stay side by side, everything finger-sized */
+:global(html[data-device="tablet"]) .main { padding-bottom: calc(40px + var(--phone-tabbar-space)); }
+:global(html[data-device="tablet"]) .interval { min-height: 44px; font-size: 15px; }
+:global(html[data-device="tablet"]) button.choose, :global(html[data-device="tablet"]) .manage { min-height: 48px; }
+:global(html[data-device="tablet"]) .manageQuiet { min-height: 44px; }
+:global(html[data-device="tablet"]) .codeField input { height: 48px; }
+:global(html[data-device="tablet"]) .frame { display: flex; flex-direction: column; gap: 22px; }
+:global(html[data-device="tablet"]) .error { order: 4; }
+:global(html[data-device="tablet"]) .codes { order: 5; }
+:global(html[data-device="tablet"]) .promises { order: 6; }
+:global(html[data-device="tablet"][data-orient="portrait"]) .plans {
+  display: flex; gap: 14px; margin-inline: calc(-1 * clamp(20px, 4vw, 56px)); padding: 2px clamp(20px, 4vw, 56px) 6px; overflow-x: auto; scroll-snap-type: x mandatory;
+  scroll-padding-inline: clamp(20px, 4vw, 56px); scrollbar-width: none; overscroll-behavior-x: contain; }
+:global(html[data-device="tablet"][data-orient="portrait"]) .plans::-webkit-scrollbar { display: none; }
+:global(html[data-device="tablet"][data-orient="portrait"]) .plan { flex: 0 0 calc(50% - 40px); scroll-snap-align: start; border-radius: 18px; }
+:global(html[data-device="tablet"][data-orient="portrait"]) .promises { grid-template-columns: minmax(0, 1fr); }
+@keyframes phoneSheetUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes phoneFadeIn { from { opacity: 0; } to { opacity: 1; } }

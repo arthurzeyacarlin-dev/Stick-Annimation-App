@@ -46,3 +46,14 @@ button.packBuy:disabled { cursor: default; opacity: .5; }
 button.packBuy:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
 .pack[data-tier="1"] { border-color: transparent; }
 .pack[data-tier="2"] { border-color: #55555e; background: var(--da-card-fill); box-shadow: 0 16px 44px rgba(0, 0, 0, .38); }
+
+/* ===== PHONE + TABLET ONLY (phone plan, Nov 24): credit packs as cards you swipe sideways (like the plans), big buy buttons. ===== */
+:global(html[data-device="phone"]) .packGrid { display: flex; gap: 12px; margin: 0 calc(-1 * var(--phone-pad)); padding: 2px var(--phone-pad) 6px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--phone-pad); scrollbar-width: none; overscroll-behavior-x: contain; }
+:global(html[data-device="phone"]) .packGrid::-webkit-scrollbar { display: none; }
+:global(html[data-device="phone"]) .pack { flex: 0 0 calc(100% - 2 * var(--phone-pad) - 26px); scroll-snap-align: start; padding: 20px 18px 18px; border-radius: 18px; }
+:global(html[data-device="phone"]) .packName { font-size: 17px; }
+:global(html[data-device="phone"]) .packNote, :global(html[data-device="phone"]) .text { font-size: 14.5px; }
+:global(html[data-device="phone"]) .packBuy, :global(html[data-device="phone"]) .button { min-height: 50px; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .packs { display: grid; grid-template-columns: minmax(0, 1fr); }
+:global(html[data-device="phone"]) .heading { font-size: 18px; }
+:global(html[data-device="tablet"]) .packBuy, :global(html[data-device="tablet"]) .button { min-height: 48px; }

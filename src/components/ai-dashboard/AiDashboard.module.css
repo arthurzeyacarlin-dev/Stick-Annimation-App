@@ -338,3 +338,32 @@
 .splitBar > span:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
 .splitTip { position: absolute; bottom: calc(100% + 10px); z-index: 30; display: grid; gap: 2px; padding: 9px 12px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-card-fill); box-shadow: var(--da-pop-shadow); color: var(--da-muted); font-size: 12.5px; white-space: nowrap; transform: translateX(-50%); pointer-events: none; }
 .splitTip strong { color: var(--da-text); font-size: 13px; font-weight: 600; }
+
+/* ===== PHONE + TABLET ONLY (phone plan, Nov 24). A computer never reads these rules. =====
+   Phone: the big days-left heading, a full-width main button, the credits ring centred and big, then simple rows;
+   controls finger-sized; room at the bottom for the bottom bar. */
+:global(html[data-device="phone"]) .main { min-height: 0; padding: 14px var(--phone-pad) calc(32px + var(--phone-tabbar-space)); }
+:global(html[data-device="phone"]) .content { gap: 18px; }
+:global(html[data-device="phone"]) .trialHero { grid-template-columns: minmax(0, 1fr); gap: 22px; padding: 8px 0 6px; }
+:global(html[data-device="phone"]) .heroActions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; width: 100%; }
+:global(html[data-device="phone"]) .trialCta.trialCta, :global(html[data-device="phone"]) .planButton.planButton, :global(html[data-device="phone"]) .heroOutline.heroOutline {
+  width: 100%; height: 52px; justify-content: center; border-radius: 13px; font-size: 16.5px; }
+:global(html[data-device="phone"]) .trialCredits { flex-direction: column; align-items: stretch; gap: 18px; padding: 22px 0 0; border-left: 0; border-top: 1px solid var(--da-line); }
+:global(html[data-device="phone"]) .ring { width: 196px; height: 196px; align-self: center; }
+:global(html[data-device="phone"]) .ring strong { font-size: 38px; }
+:global(html[data-device="phone"]) .ring span { font-size: 14px; }
+:global(html[data-device="phone"]) .trialCreditsLabel { font-size: 15px; }
+:global(html[data-device="phone"]) .split, :global(html[data-device="phone"]) .chartCard { padding: 18px 16px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .kinds > div { padding: 12px 0; font-size: 15px; }
+:global(html[data-device="phone"]) .controls { display: grid; gap: 14px; }
+:global(html[data-device="phone"]) .segmented { display: flex; width: 100%; flex-wrap: nowrap; padding: 4px; border-radius: 12px; }
+:global(html[data-device="phone"]) .segmented button { flex: 1 1 0; height: 44px; min-width: 0; padding: 0 6px; border-radius: 9px; font-size: 14px; }
+:global(html[data-device="phone"]) .segmented button:hover:not([aria-pressed="true"]) { background: transparent; color: var(--da-text-3, #b8b8bf); box-shadow: none; }
+:global(html[data-device="phone"]) .planActions { display: grid; grid-template-columns: minmax(0, 1fr); }
+:global(html[data-device="phone"]) .planActions a, :global(html[data-device="phone"]) .planActions button { min-height: 50px; justify-content: center; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .extraCredits h2 { font-size: 21px; }
+:global(html[data-device="phone"]) .extraCredits p { font-size: 15px; }
+:global(html[data-device="tablet"]) .main { padding-bottom: calc(40px + var(--phone-tabbar-space)); }
+:global(html[data-device="tablet"]) .segmented button { height: 44px; }
+:global(html[data-device="tablet"]) .trialCta.trialCta, :global(html[data-device="tablet"]) .planButton.planButton, :global(html[data-device="tablet"]) .heroOutline.heroOutline,
+:global(html[data-device="tablet"]) .planActions a, :global(html[data-device="tablet"]) .planActions button { min-height: 48px; height: 48px; }

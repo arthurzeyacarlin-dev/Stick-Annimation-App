@@ -194,3 +194,17 @@
 @media (max-width: 900px) {
   .homeActions { justify-content: center !important; gap: 12px !important; max-width: none !important; }
 }
+
+/* ===== PHONE + TABLET ONLY (phone plan, Nov 24): these pop-ups (Report a Problem) slide up from the bottom as a sheet with
+   finger-sized controls. A computer never reads these rules. ===== */
+@keyframes phoneSheetUp { from { transform: translateY(100%); } to { transform: none; } }
+:global(html[data-device="phone"]) .modalScrim { z-index: 140; align-items: flex-end; justify-content: stretch; padding: 0; }
+:global(html[data-device="phone"]) .modal {
+  width: 100%; max-height: calc(100dvh - var(--phone-safe-top) - 16px); padding: 20px var(--phone-pad) calc(20px + var(--phone-safe-bottom));
+  border-width: 1px 0 0; border-radius: var(--phone-sheet-radius) var(--phone-sheet-radius) 0 0; animation: phoneSheetUp 260ms cubic-bezier(.2, .8, .2, 1);
+}
+:global(html[data-device="phone"]) .modalHead { top: -20px; margin: -20px calc(-1 * var(--phone-pad)) 16px; padding: 22px var(--phone-pad) 12px; border-radius: var(--phone-sheet-radius) var(--phone-sheet-radius) 0 0; }
+:global(html[data-device="phone"]) .modalHead button { min-width: 44px; min-height: 44px; }
+:global(html[data-device="phone"]) .modalTitle { font-size: 24px; }
+:global(html[data-device="phone"]) .modalBody { font-size: 15.5px; }
+:global(html[data-device="tablet"]) .modalHead button { min-width: 44px; min-height: 44px; }

@@ -235,6 +235,9 @@ export function DrawingRightPanel({
     const heights = measureSheetHeights();
     const sheet = sheetRef.current;
     if (!heights || !sheet || event.button > 0) return;
+    // (Nov 24, Arthur on his iPhone: "I don't like that there's a sliding panel") phones and tablets: a panel is opened and
+    // closed with its button only, never dragged.
+    if (/^(phone|tablet)$/.test(document.documentElement.getAttribute("data-device") ?? "")) return;
     const forAi = aiTabActive;
     const drag = { startY: event.clientY, startH: sheet.getBoundingClientRect().height, moved: false, pointerId: event.pointerId };
     const heightAt = (clientY: number) => Math.min(heights.full, Math.max(heights.small, drag.startH - (clientY - drag.startY)));
@@ -272,6 +275,8 @@ export function DrawingRightPanel({
       ref={sheetRef}
       className="da-sheet"
       data-sheet-size={sheetSize}
+      data-sheet-tab={aiTabActive ? "ai" : rightPanelTab.toLowerCase()}
+      data-ai-in-tab={aiInTab ? "true" : undefined}
       data-sheet-dragging={sheetLiveHeight === null ? undefined : "true"}
       style={sheetHeight === null ? undefined : { ["--da-sheet-px" as string]: `${sheetHeight}px` }}
     >
@@ -297,6 +302,18 @@ export function DrawingRightPanel({
         }}
       />
       <div role="tablist" aria-label="Panels" className="da-sheet-tab-row">
+      {/* (Nov 24 evening, the phone's bottom bar) Draw = no panel open: the big tools show in the space under the frames.
+          A computer never shows this button (hidden unless the page says phone or tablet). */}
+      <button
+        type="button"
+        role="tab"
+        className="pe-draw-tab"
+        aria-selected={sheetSize === "small"}
+        onClick={() => chooseSheetSize("small", aiTabActive)}
+      >
+        <svg className="pe-tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l.9-3.9L16.6 4.4a2 2 0 0 1 2.9 0l.1.1a2 2 0 0 1 0 2.9L8.4 18.6Z" /><path d="M14.6 6.4l3 3" /></svg>
+        Tools
+      </button>
       {([...RIGHT_PANEL_TABS, "AI Animator"] as const).map((name) => {
         const active = name === "AI Animator" ? aiTabActive : !aiTabActive && rightPanelTab === name;
         const forAi = name === "AI Animator";
@@ -307,10 +324,13 @@ export function DrawingRightPanel({
             role="tab"
             aria-selected={active}
             data-file-target={name === "Assets" && fileDragActive ? "true" : undefined}
+            data-pe-tab={name === "AI Animator" ? "ai" : name.toLowerCase()}
             onClick={() => {
               if (active) {
                 // The open tab again: a small sheet opens, an open sheet gets small (the canvas comes back).
-                chooseSheetSize(sheetSize === "small" ? openSizeFor(forAi) : "small", forAi);
+                // (Nov 24 evening) phones and tablets: tapping the tab you are on keeps it open; Draw is the way back.
+                const touchBar = /^(phone|tablet)$/.test(document.documentElement.getAttribute("data-device") ?? "");
+                chooseSheetSize(sheetSize === "small" || touchBar ? openSizeFor(forAi) : "small", forAi);
                 return;
               }
               if (forAi) setAiTabActive(true);
@@ -318,6 +338,13 @@ export function DrawingRightPanel({
               chooseSheetSize(openSizeFor(forAi), forAi);
             }}
           >
+            {/* (Nov 24 night) the phone bar's icons: the app's own thin white line style; a computer never shows them */}
+            <svg className="pe-tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+              {name === "Properties" ? (<><path d="M4 7h8M16 7h4M4 12h2M10 12h10M4 17h10M18 17h2" /><circle cx="14" cy="7" r="2" /><circle cx="8" cy="12" r="2" /><circle cx="16" cy="17" r="2" /></>)
+                : name === "Library" ? (<><rect x="4" y="4" width="7" height="7" rx="1.6" /><rect x="13" y="4" width="7" height="7" rx="1.6" /><rect x="4" y="13" width="7" height="7" rx="1.6" /><rect x="13" y="13" width="7" height="7" rx="1.6" /></>)
+                : name === "Assets" ? (<><rect x="3.5" y="5" width="17" height="14" rx="2.2" /><circle cx="9" cy="10" r="1.6" /><path d="M4.5 17l5-4.5 3.5 3 2.5-2 4 3.5" /></>)
+                : (<><path d="M11 4l1.9 5.1L18 11l-5.1 1.9L11 18l-1.9-5.1L4 11l5.1-1.9Z" /><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7Z" /></>)}
+            </svg>
             {name === "AI Animator" ? "AI" : name}
           </button>
         );

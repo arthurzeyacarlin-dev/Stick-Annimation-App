@@ -77,3 +77,37 @@
 .effortStops button:hover { color: var(--da-hover-text); }
 .effortEnds { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--da-line, #2c2c32); color: var(--da-muted, #a3a3ab); font-size: 11px; letter-spacing: .02em; }
 @media (prefers-reduced-motion: reduce) { .effortFill, .effortThumb { transition: none; } }
+
+/* ---------- Phones and tablets only (Nov 24): a great phone composer, here and on the Help Assistant page. The text is
+   16 px (no iPhone zoom), Send / Dictate / Stop are 44 px finger targets, Effort is a finger-sized button. Computers read
+   none of this (every rule starts with html[data-device]). ---------- */
+:global(html[data-device="phone"]) .box textarea, :global(html[data-device="tablet"]) .box textarea { font-size: 16px; line-height: 1.45; min-height: 46px; max-height: 30dvh; }
+:global(html[data-device="phone"]) .tools, :global(html[data-device="tablet"]) .tools { gap: 8px; margin-top: 8px; }
+:global(html[data-device="phone"]) .actions, :global(html[data-device="tablet"]) .actions { gap: 8px; }
+:global(html[data-device="phone"]) .iconButton, :global(html[data-device="tablet"]) .iconButton { width: 44px; height: 44px; padding: 10px; border-radius: 12px; }
+:global(html[data-device="phone"]) .sendButton, :global(html[data-device="tablet"]) .sendButton { padding: 9px; border-radius: 50%; }
+:global(html[data-device="phone"]) .iconButton:hover:enabled:not(.sendButton), :global(html[data-device="tablet"]) .iconButton:hover:enabled:not(.sendButton) { border-color: transparent; background: transparent; box-shadow: none; }
+:global(html[data-device="phone"]) .iconButton:active:enabled, :global(html[data-device="tablet"]) .iconButton:active:enabled { background: var(--da-hover, #3a3a41); }
+:global(html[data-device="phone"]) .effortButton, :global(html[data-device="tablet"]) .effortButton { height: 40px; padding: 0 12px; font-size: 14px; border-radius: 12px; }
+:global(html[data-device="phone"]) .effortPopover, :global(html[data-device="tablet"]) .effortPopover { width: min(360px, calc(100vw - 32px)); padding: 16px 20px 14px; }
+:global(html[data-device="phone"]) .effortTitle, :global(html[data-device="tablet"]) .effortTitle { font-size: 15px; }
+:global(html[data-device="phone"]) .effortHint, :global(html[data-device="tablet"]) .effortHint { font-size: 13.5px; }
+:global(html[data-device="phone"]) .effortStops, :global(html[data-device="tablet"]) .effortStops { height: 32px; }
+:global(html[data-device="phone"]) .effortStops button, :global(html[data-device="tablet"]) .effortStops button { min-height: 32px; font-size: 13.5px; }
+/* Dictation on phones (Arthur, Nov 24: "dictate doesn't look good"): one clean pill. ✕ is a quiet round button on the left,
+   ✓ the round blue button on the right (the main action), and the dots/waves sit centred in between, white. While the
+   phone is still asking for the microphone the dots breathe gently, so it never looks stuck. Looks only. */
+:global(html[data-device="phone"]) .dictationPanel, :global(html[data-device="tablet"]) .dictationPanel {
+  gap: 12px; min-height: 56px; margin-top: 8px; padding: 5px; border: 1px solid var(--da-line, #2c2c32); border-radius: 999px; background: rgba(255, 255, 255, .035);
+}
+:global(html[data-device="phone"]) .dictationPanel > .iconButton, :global(html[data-device="tablet"]) .dictationPanel > .iconButton {
+  flex: 0 0 auto; width: 44px; height: 44px; padding: 12px; border: 0; border-radius: 50%; box-shadow: none;
+}
+:global(html[data-device="phone"]) .dictationPanel > .iconButton:first-child, :global(html[data-device="tablet"]) .dictationPanel > .iconButton:first-child { background: rgba(255, 255, 255, .09); color: #ffffff; }
+:global(html[data-device="phone"]) .dictationPanel > .iconButton:last-child, :global(html[data-device="tablet"]) .dictationPanel > .iconButton:last-child { padding: 11px; background: var(--da-accent, #0066ff); color: #ffffff; }
+:global(html[data-device="phone"]) .dictationPanel > .iconButton:last-child:disabled, :global(html[data-device="tablet"]) .dictationPanel > .iconButton:last-child:disabled { background: var(--da-line, #2c2c32); color: var(--da-muted, #a3a3ab); opacity: 1; }
+:global(html[data-device="phone"]) .dictationPanel > .iconButton:active:enabled, :global(html[data-device="tablet"]) .dictationPanel > .iconButton:active:enabled { filter: brightness(1.2); }
+:global(html[data-device="phone"]) .dictationPanel .waveform, :global(html[data-device="tablet"]) .dictationPanel .waveform { height: 36px; padding: 0 2px; }
+:global(html[data-device="phone"]) .dictationPanel .waveform span, :global(html[data-device="tablet"]) .dictationPanel .waveform span { background: #ffffff !important; opacity: .9; height: calc(4px + var(--wave, 0) * 32px); }
+:global(html[data-device="phone"]) .dictationPanel[data-dictation-phase="requesting"] .waveform span, :global(html[data-device="tablet"]) .dictationPanel[data-dictation-phase="requesting"] .waveform span { animation: dictationPulse 1.2s ease-in-out infinite; }
+:global(html[data-device="phone"]) .reasoning select, :global(html[data-device="tablet"]) .reasoning select { min-height: 44px; font-size: 16px; }

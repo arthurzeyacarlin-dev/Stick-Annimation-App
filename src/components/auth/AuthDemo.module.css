@@ -80,3 +80,36 @@
 .cursor[data-down] path { fill: #e8e8ec; }
 
 @media (max-width: 1180px) { .field { display: none; } }
+
+/* PHONE ONLY (phone plan, Nov 24; Arthur on his iPhone: "they don't show me talking to the AI and the AI talks back"):
+   the same film, stacked like the phone editor: the canvas with its tool rail and timeline on top, the AI Animator panel
+   under it (the request being typed, the AI's answer, "animating", then the animation plays). The fake mouse is a finger
+   dot. Look only: the film's content and timing are unchanged. The canvas size follows the strip's width (container). */
+.panelName { display: none; }
+:global(html[data-device="phone"]) .demo { position: relative; inset: auto; grid-template-rows: auto; }
+:global(html[data-device="phone"]) .bar { display: none; }
+:global(html[data-device="phone"]) .body { grid-template-columns: 38px minmax(0, 1fr); grid-template-rows: auto auto; }
+:global(html[data-device="phone"]) .rail { gap: 5px; padding-top: 44px; }
+:global(html[data-device="phone"]) .tool, :global(html[data-device="phone"]) .toolOn { width: 28px; height: 28px; border-radius: 7px; }
+:global(html[data-device="phone"]) .tool svg, :global(html[data-device="phone"]) .toolOn svg { width: 15px; height: 15px; }
+:global(html[data-device="phone"]) .main { grid-template-rows: auto 26px; }
+:global(html[data-device="phone"]) .area { height: calc((100cqw - 54px) * 9 / 16 + 52px); padding: 44px 8px 8px; }
+:global(html[data-device="phone"]) .timeline { padding: 0 12px; gap: 10px; }
+:global(html[data-device="phone"]) .fps { padding: 2px 7px; font-size: 11px; }
+:global(html[data-device="phone"]) .track { height: 14px; }
+:global(html[data-device="phone"]) .caption { margin-top: 8px; padding: 5px 9px 5px 7px; gap: 7px; font-size: 12px; box-shadow: none; }
+:global(html[data-device="phone"]) .panel { grid-column: 1 / -1; grid-row: 2; grid-template-columns: minmax(0, 1fr); min-width: 0; height: 204px; border-left: 0; border-top: 1px solid #1f1f23; }
+:global(html[data-device="phone"]) .panelTop { gap: 8px; padding: 8px 14px; }
+:global(html[data-device="phone"]) .panelName { display: inline; color: #ffffff; font-family: var(--font-geist-sans), system-ui, sans-serif; font-size: 13px; font-weight: 600; }
+:global(html[data-device="phone"]) .state { margin-left: auto; font-size: 12px; }
+:global(html[data-device="phone"]) .lines { gap: 6px; padding: 6px 14px 8px; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16px); mask-image: linear-gradient(to bottom, transparent 0, #000 16px); }
+:global(html[data-device="phone"]) .lines p { font-size: 13px; line-height: 1.45; }
+:global(html[data-device="phone"]) .done { font-size: 12px !important; }
+:global(html[data-device="phone"]) .composer { min-height: 46px; margin: 0 10px 10px; padding: 9px 9px 9px 12px; }
+:global(html[data-device="phone"]) .placeholder, :global(html[data-device="phone"]) .draft { font-size: 13px; }
+:global(html[data-device="phone"]) .placeholder { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:global(html[data-device="phone"]) .composer { align-items: center; }
+:global(html[data-device="phone"]) .cursor { margin: -11px 0 0 -11px; border-radius: 50%; background: rgba(255, 255, 255, .28); box-shadow: 0 0 0 2px rgba(255, 255, 255, .75); filter: none; }
+:global(html[data-device="phone"]) .cursor path { display: none; }
+:global(html[data-device="phone"]) .cursor[data-down] { background: rgba(255, 255, 255, .55); scale: .82; }
+:global(html[data-device="tablet"][data-orient="portrait"]) .cursor { display: none; }

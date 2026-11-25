@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
+import { PHONE_NAV_EVENT } from "@/src/components/phone/PhoneTabBar";
 import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
 import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecoveryPrompt";
 import { ProjectLibrary } from "@/src/components/project-library/ProjectLibrary";
@@ -102,6 +103,24 @@ export default function Page() {
     if (window.location.hash !== "#export") return;
     window.history.replaceState(null, "", window.location.pathname + window.location.search);
     setExportOrigin("home"); setView("animationExport");
+  }, []);
+  // Phone plan (Nov 24): the page says which Home view is showing (the phone's bottom bar shows only on Home and Open
+  // project), and the bottom bar's Home / Projects buttons switch the same two views the Home buttons already switch.
+  useEffect(() => {
+    document.documentElement.setAttribute("data-home-view", view);
+    return () => document.documentElement.removeAttribute("data-home-view");
+  }, [view]);
+  useEffect(() => {
+    if (window.location.hash === "#projects") {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      setView("openProject");
+    }
+    const onPhoneNav = (event: Event) => {
+      const to = (event as CustomEvent<string>).detail;
+      setView((current) => (current === "home" || current === "openProject") ? (to === "projects" ? "openProject" : "home") : current);
+    };
+    window.addEventListener(PHONE_NAV_EVENT, onPhoneNav);
+    return () => window.removeEventListener(PHONE_NAV_EVENT, onPhoneNav);
   }, []);
   const [exportProjectId, setExportProjectId] = useState<string | null>(null);
   const [bootstrap] = useState(() => new WorkspaceBootstrap());
@@ -509,7 +528,7 @@ export default function Page() {
           onExport={() => { setExportOrigin("home"); setView("animationExport"); }}
         />
       )}
-{bootstrapMessage && view === "home" ? <div role="status" style={{ position: "fixed", bottom: 12, left: 12, color: "#f5f5f6", background: "#1a1a1e", border: "1px solid #2c2c32", padding: 12, borderRadius: 12 }}>{bootstrapMessage}</div> : null}
+{bootstrapMessage && view === "home" ? <div role="status" data-phone-home-note="" style={{ position: "fixed", bottom: 12, left: 12, color: "#f5f5f6", background: "#1a1a1e", border: "1px solid #2c2c32", padding: 12, borderRadius: 12 }}>{bootstrapMessage}</div> : null}
 {view === "aiDashboard" && workspace && (
   <div className="da-polished-page" style={{ flex: 1, minHeight: 0, overflowY: "auto", color: "var(--da-text, #f5f5f6)" }}
     onClickCapture={(event) => {

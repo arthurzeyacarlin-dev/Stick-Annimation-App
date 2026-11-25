@@ -4,3 +4,8 @@
 .back.back svg { width: 26px; height: 26px; }
 .back.back:hover { border: 0; background: transparent; color: #ffffff; filter: var(--da-icon-glow); }
 .back.back:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
+/* PHONE + TABLET ONLY (phone plan, Nov 24): the back arrow is a full finger target. */
+:global(html[data-device="phone"]) .back.back, :global(html[data-device="tablet"]) .back.back { width: 44px; height: 44px; min-height: 44px; margin-left: -10px; }
+:global(html[data-device="phone"]) .back.back:active { background: var(--da-hover); color: #ffffff; }
+/* phone: when the bottom bar is showing, Home is one tap away there, so the extra "back to Home" arrow steps aside */
+:global(html[data-device="phone"][data-tabbar]) .back.back { display: none; }

@@ -123,3 +123,25 @@
 .body { font-size: 13.5px; }
 .row time { font-size: 12px; }
 .empty { padding: 48px 28px; font-size: 14px; line-height: 1.45; }
+
+/* PHONE + TABLET ONLY (phone plan, Nov 24): on a phone the panel is a bottom sheet (data-phone-sheet) that slides back
+   down when it closes; rows and the close X are finger-sized. A computer never reads these rules. */
+@keyframes phoneNotificationSheetDown { from { transform: none; } to { transform: translateY(100%); } }
+:global(html[data-device="phone"]) [data-closing] > .panel[data-phone-sheet] { animation: phoneNotificationSheetDown 200ms ease-in forwards; }
+:global(html[data-device="phone"]) .panel[data-phone-sheet] { display: flex; flex-direction: column; height: auto !important; max-height: min(80dvh, calc(100dvh - var(--phone-safe-top) - 48px)) !important; padding: 18px 0 var(--phone-safe-bottom) !important; overflow: hidden; }
+:global(html[data-device="phone"]) .panelHeader { padding: 6px 8px 10px var(--phone-pad); }
+:global(html[data-device="phone"]) .panelHeader h2 { font-size: 20px; }
+:global(html[data-device="phone"]) .panelHeader p { font-size: 14px; }
+:global(html[data-device="phone"]) .panelHeader button { width: 44px; height: 44px; }
+:global(html[data-device="phone"]) .list { overflow-y: auto; overscroll-behavior: contain; }
+:global(html[data-device="phone"]) .row { min-height: 64px; padding: 14px var(--phone-pad); }
+:global(html[data-device="phone"]) .row:active { background: var(--da-hover); }
+:global(html[data-device="phone"]) .rowTop strong { font-size: 16px; }
+:global(html[data-device="phone"]) .body { font-size: 15px; }
+:global(html[data-device="phone"]) .row time { font-size: 13px; }
+:global(html[data-device="phone"]) .empty { padding: 36px 24px 44px; font-size: 16px; }
+:global(html[data-device="phone"]) .fault button, :global(html[data-device="phone"]) .markAll { min-height: 44px; }
+:global(html[data-device="phone"]) .trigger { width: 44px; height: 44px; }
+:global(html[data-device="tablet"]) .trigger { width: 44px; height: 44px; }
+:global(html[data-device="tablet"]) .panelHeader button { width: 44px; height: 44px; }
+:global(html[data-device="tablet"]) .row { min-height: 60px; }

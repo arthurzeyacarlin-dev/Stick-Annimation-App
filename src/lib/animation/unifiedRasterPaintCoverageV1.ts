@@ -366,6 +366,17 @@ export const paintCoveragesEqual = (left: UnifiedRasterPaintCoverageV1 | null | 
   });
 };
 
+// true = this tile has a painted pixel at or past column `limitX` or row `limitY` (both counted inside the tile).
+const tilePaintsPast = (tile: RasterPaintCoverageTileV1, limitX: number, limitY: number) => {
+  for (let offset = 0; offset < tile.runs.length; offset += RECORD_BYTES) {
+    const start = u16(tile.runs, offset), last = start + u16(tile.runs, offset + 2) - 1;
+    const firstRow = Math.floor(start / TILE_SIZE), lastRow = Math.floor(last / TILE_SIZE);
+    if (lastRow >= limitY) return true;
+    if (limitX < TILE_SIZE && (lastRow > firstRow || last % TILE_SIZE >= limitX)) return true;
+  }
+  return false;
+};
+
 export const cropPaintCoverage = (coverage: UnifiedRasterPaintCoverageV1 | null | undefined, left: number, top: number, width: number, height: number) => {
   assertDimensions(width, height);
   if (!Number.isSafeInteger(left) || !Number.isSafeInteger(top)) invalid();
@@ -373,10 +384,29 @@ export const cropPaintCoverage = (coverage: UnifiedRasterPaintCoverageV1 | null 
   // A command's aligned dirty rectangle contains complete encoded tiles.
   // Copy those records directly, keeping ownership isolated without decoding
   // and re-encoding every covered pixel several times during release.
-  if (left % TILE_SIZE === 0 && top % TILE_SIZE === 0 &&
-    (width % TILE_SIZE === 0 || left + width >= coverage.width) && (height % TILE_SIZE === 0 || top + height >= coverage.height)) {
-    const tiles = coverage.tiles.filter(tile => tile.x >= left && tile.y >= top && tile.x < left + width && tile.y < top + height)
-      .map(tile => ({ x: tile.x - left, y: tile.y - top, palette: tile.palette.map(key => ({ ...key, ...(key.owners ? { owners: key.owners.slice() } : {}) })), runs: tile.runs.slice() }));
+  // (Nov 24, lag) The box only has to START on the tile grid. Every tile inside it is copied as it is. Only a tile that
+  // the box's right or bottom edge cuts through AND that has paint past that edge is built again, that one tile alone.
+  // Before, a box that did not also END on the grid (a compact picture's box, the canvas window) sent every painted
+  // pixel of the whole picture through the slow way below on every stroke, although the result is the very same tiles.
+  if (left % TILE_SIZE === 0 && top % TILE_SIZE === 0) {
+    const right = left + width, bottom = top + height;
+    const cutsX = width % TILE_SIZE !== 0 && right < coverage.width, cutsY = height % TILE_SIZE !== 0 && bottom < coverage.height;
+    const tiles: RasterPaintCoverageTileV1[] = [];
+    for (const tile of coverage.tiles) {
+      if (!(tile.x >= left && tile.y >= top && tile.x < right && tile.y < bottom)) continue;
+      const limitX = right - tile.x, limitY = bottom - tile.y;
+      if ((cutsX && limitX < TILE_SIZE || cutsY && limitY < TILE_SIZE) && tilePaintsPast(tile, limitX, limitY)) {
+        const pixels: (RasterPaintPixelV1 | null)[] = Array(TILE_SIZE * TILE_SIZE).fill(null);
+        for (let offset = 0; offset < tile.runs.length; offset += RECORD_BYTES) {
+          const start = u16(tile.runs, offset), end = start + u16(tile.runs, offset + 2), pixel = readPixel(tile, offset);
+          for (let point = start; point < end; point += 1) if (point % TILE_SIZE < limitX && Math.floor(point / TILE_SIZE) < limitY) pixels[point] = pixel;
+        }
+        const cut = encodeTile(tile.x - left, tile.y - top, pixels);
+        if (cut) tiles.push(cut);
+        continue;
+      }
+      tiles.push({ x: tile.x - left, y: tile.y - top, palette: tile.palette.map(key => ({ ...key, ...(key.owners ? { owners: key.owners.slice() } : {}) })), runs: tile.runs.slice() });
+    }
     return tiles.length ? assertRasterPaintCoverageV1({ version: coverageVersion(tiles), width, height, tileSize: 32, tiles }) : null;
   }
   const writer = createPaintCoverageWriter(null, width, height);

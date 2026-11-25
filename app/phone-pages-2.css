@@ -1,0 +1,42 @@
+/* PHONE + TABLET ONLY: Plans, pay, Credits, Account, Settings, Help Assistant, notifications, tour, small pages (builder C). Every rule starts with html[data-device="phone"] or html[data-device="tablet"]. */
+
+/* The app's one on/off switch (OnOffSwitch, inline-sized 44x24 for computers): bigger, phone-sized pill on touch screens. */
+html[data-device="phone"] button.da-switch, html[data-device="tablet"] button.da-switch { width: 52px !important; height: 32px !important; }
+html[data-device="phone"] button.da-switch > span, html[data-device="tablet"] button.da-switch > span { top: 2px !important; left: 2px !important; width: 26px !important; height: 26px !important; }
+html[data-device="phone"] button.da-switch[aria-checked="true"] > span, html[data-device="tablet"] button.da-switch[aria-checked="true"] > span { transform: translateX(20px) !important; }
+/* the app's plain buttons are finger-sized on touch screens */
+html[data-device="phone"] .da-plain-button, html[data-device="tablet"] .da-plain-button { min-height: 44px; }
+
+/* Guided tour (LearnMode) on touch screens: the card spans the phone with even 16 px margins (never touches an edge),
+   bigger words, finger-sized buttons; the Stop / Next bar sits above the home bar. The tour's steps are unchanged. */
+html[data-device="phone"] .da-learn-card { left: var(--phone-pad) !important; right: var(--phone-pad); width: auto !important; max-width: none; padding: 18px 18px 16px; border-radius: 16px; }
+html[data-device="phone"] .da-learn-card strong { font-size: 19px; }
+html[data-device="phone"] .da-learn-count { font-size: 12px; }
+html[data-device="phone"] .da-learn-text { font-size: 15.5px; }
+html[data-device="phone"] .da-learn-lost { left: var(--phone-pad) !important; right: var(--phone-pad); width: auto; transform: none; top: calc(76px + var(--phone-safe-top)); }
+html[data-device="phone"] .da-learn-bar { left: var(--phone-pad); right: var(--phone-pad); width: auto; transform: none; bottom: calc(12px + var(--phone-safe-bottom)); padding: 8px 8px 8px 16px; border-radius: 16px; }
+html[data-device="phone"] .da-learn-small { min-height: 44px; padding: 0 18px; font-size: 15px; border-radius: 12px; }
+html[data-device="phone"] .da-learn-welcome { width: 100%; padding: 32px 20px 22px; border-radius: 20px; }
+html[data-device="phone"] .da-learn-welcome p { font-size: 15.5px; }
+html[data-device="phone"] .da-learn-actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+html[data-device="phone"] .da-learn-primary, html[data-device="phone"] .da-learn-quiet { min-height: 50px; font-size: 16px; border-radius: 12px; }
+html[data-device="phone"] .da-learn-close { width: 44px; height: 44px; top: 8px; right: 8px; }
+html[data-device="phone"] .da-learn-scrim { place-items: end stretch; padding: 0 0 calc(12px + var(--phone-safe-bottom)); }
+html[data-device="phone"] .da-learn-scrim > .da-learn-welcome { margin: 0 12px; width: auto; }
+html[data-device="tablet"] .da-learn-small { min-height: 44px; }
+html[data-device="tablet"] .da-learn-primary, html[data-device="tablet"] .da-learn-quiet { min-height: 48px; }
+html[data-device="tablet"] .da-learn-close { width: 44px; height: 44px; }
+
+/* Local recovery prompt (global recovery-* classes): one column, full-width finger-sized buttons, clear of notch and home bar. */
+html[data-device="phone"] .recovery-shell { padding: calc(16px + var(--phone-safe-top)) var(--phone-pad) calc(16px + var(--phone-safe-bottom)) !important; }
+html[data-device="phone"] .recovery-card { width: 100% !important; max-width: none !important; padding: 24px 18px !important; border-radius: 20px !important; }
+html[data-device="phone"] .recovery-description, html[data-device="phone"] .recovery-details { font-size: 15.5px !important; }
+html[data-device="phone"] :is(.recovery-actions, .recovery-confirm-actions) { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; gap: 10px !important; }
+html[data-device="phone"] :is(.recovery-primary, .recovery-secondary, .recovery-danger-confirm, .recovery-continue) { width: 100% !important; min-height: 50px !important; border-radius: 12px !important; font-size: 16px !important; }
+html[data-device="tablet"] :is(.recovery-primary, .recovery-secondary, .recovery-danger-confirm, .recovery-continue) { min-height: 48px !important; }
+
+/* 404 and the crash page: centred card with 16 px margins and a big Home button. */
+html[data-device="phone"] .da-notfound { padding: calc(16px + var(--phone-safe-top)) var(--phone-pad) calc(16px + var(--phone-safe-bottom)) !important; }
+html[data-device="phone"] .da-notfound-card { width: 100% !important; max-width: none !important; padding: 32px 20px !important; }
+html[data-device="phone"] .da-notfound-home { display: flex !important; align-items: center; justify-content: center; width: 100%; min-height: 52px !important; border-radius: 12px !important; font-size: 16.5px !important; }
+html[data-device="tablet"] .da-notfound-home { min-height: 48px !important; }

@@ -18,6 +18,13 @@
 .promptInput { flex: 1 1 auto; min-width: 0; height: 100%; padding: 0; border: 0; outline: none; background: transparent; color: #ffffff; caret-color: #ffffff;
   font-family: var(--font-geist-mono, ui-monospace, "SF Mono", Menlo, monospace); font-size: 16px; }
 .promptInput:focus, .promptInput:focus-visible { outline: none !important; box-shadow: none !important; }
+/* (Nov 25) the example line: over the empty typing box, same words, same colour and letters as the hint, but it may use two lines */
+.promptField { position: relative; flex: 1 1 auto; min-width: 0; height: 100%; display: flex; }
+.promptField .promptInput { width: 100%; }
+.promptField .promptInput::placeholder { color: transparent; }
+.promptGhost { position: absolute; inset: 0; display: none; align-items: center; overflow: hidden; pointer-events: none; color: var(--ink-3);
+  font-family: var(--font-geist-mono, ui-monospace, "SF Mono", Menlo, monospace); font-size: 16px; line-height: 1.25; overflow-wrap: anywhere; }
+.promptField[data-empty] .promptGhost { display: flex; }
 .promptInput::placeholder { color: var(--ink-3); opacity: 1; }
 .promptGo { flex: 0 0 auto; height: 46px; display: inline-flex; align-items: center; gap: 8px; padding: 0 18px 0 20px; border: 0; border-radius: 10px;
   background: var(--da-accent); color: #ffffff; font: inherit; font-size: 15.5px; font-weight: 600; letter-spacing: -.01em; cursor: pointer; transition: none;
@@ -73,3 +80,71 @@
   .recentEyebrow { margin-bottom: 2px; }
   .recentCta { height: 36px; padding: 0 14px; font-size: 13.5px; }
 }
+
+/* ============================================================================================================
+   PHONE + TABLET ONLY (phone plan, Nov 24). A computer never reads these rules (the Export row stays hidden there).
+   Phone: one column inside 16 px margins (the old grid grew to its widest child and ran 19 px off the right edge),
+   a big heading, the story box with a full-width Animate button under it, then New project / Open project / Export /
+   Continue as big full-width rows; room at the bottom for the bottom bar. Tablet: the same, in two columns.
+   ============================================================================================================ */
+.phoneOnly { display: none !important; }
+:global(html[data-device="phone"]) .phoneOnly, :global(html[data-device="tablet"]) .phoneOnly { display: flex !important; }
+
+:global(html[data-device="phone"]) .screen { overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; }
+:global(html[data-device="phone"]) .main { flex: 0 0 auto; overflow: visible; padding: 18px calc(var(--phone-pad) + var(--phone-safe-right)) calc(28px + var(--phone-tabbar-space)) calc(var(--phone-pad) + var(--phone-safe-left)); }
+:global(html[data-device="phone"]) .frame { width: 100%; margin: 0; grid-template-columns: minmax(0, 1fr); gap: 22px; }
+:global(html[data-device="phone"]) .hero { gap: 8px; }
+:global(html[data-device="phone"]) .eyebrow { font-size: 15px; }
+:global(html[data-device="phone"]) .title { font-size: clamp(30px, 8.6vw, 40px); line-height: 1.08; letter-spacing: -.035em; }
+:global(html[data-device="phone"]) .subtitle { font-size: 16px; line-height: 1.45; }
+:global(html[data-device="phone"]) .prompt { height: auto; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; margin-top: 12px; padding: 4px 6px 6px 16px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .promptInput { height: 54px; font-size: 16px; }
+:global(html[data-device="phone"]) .promptGo { grid-column: 1 / -1; height: 52px; margin-left: -10px; justify-content: center; border-radius: 11px; font-size: 17px; }
+:global(html[data-device="phone"]) .promptNote { font-size: 14px; }
+:global(html[data-device="phone"]) .work { gap: 10px; }
+:global(html[data-device="phone"]) .actions { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+:global(html[data-device="phone"]) .action { height: 68px; gap: 14px; padding: 0 18px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .actionText strong { font-size: 17px; }
+:global(html[data-device="phone"]) .actionText small { font-size: 14px; }
+:global(html[data-device="phone"]) .action:active:enabled { border-color: var(--da-hover); background: var(--da-hover); }
+:global(html[data-device="phone"]) .actionPrimary:active:enabled { border-color: var(--da-accent-hover); background: var(--da-accent-hover); }
+:global(html[data-device="phone"]) .recent { height: auto; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 10px 14px 14px 10px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .poster { grid-column: 1 / -1; width: 100%; height: auto; }
+:global(html[data-device="phone"]) .recentInfo { padding-left: 4px; }
+:global(html[data-device="phone"]) .recentEyebrow { margin-bottom: 2px; font-size: 14px; }
+:global(html[data-device="phone"]) .recentTitle { font-size: 20px; }
+:global(html[data-device="phone"]) .recentCta { height: 44px; padding: 0 18px; font-size: 15.5px; }
+:global(html[data-device="phone"]) .recentEmpty { padding: 20px; border-radius: var(--phone-radius); }
+/* phone sideways: the question and its box on the left, the rows on the right, so both fit without scrolling far */
+:global(html[data-device="phone"][data-orient="landscape"]) .main { padding-top: 12px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .frame { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px 24px; align-items: start; }
+:global(html[data-device="phone"][data-orient="landscape"]) .title { font-size: 28px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .action { height: 60px; }
+
+/* tablet: the computer look with finger-sized rows; the rows and the latest animation side by side */
+:global(html[data-device="tablet"]) .main { padding-bottom: calc(24px + var(--phone-tabbar-space)); padding-left: calc(var(--phone-pad) + var(--phone-safe-left)); padding-right: calc(var(--phone-pad) + var(--phone-safe-right)); }
+:global(html[data-device="tablet"]) .frame { grid-template-columns: minmax(0, 1fr); }
+:global(html[data-device="tablet"]) .work { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+:global(html[data-device="tablet"]) .actions { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+:global(html[data-device="tablet"]) .action { height: 72px; }
+:global(html[data-device="tablet"]) .recent { height: 100%; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: minmax(0, 1fr) auto; gap: 12px; padding: 10px 14px 14px 10px; }
+:global(html[data-device="tablet"]) .poster { grid-column: 1 / -1; width: 100%; height: 100%; min-height: 120px; }
+:global(html[data-device="tablet"]) .recentCta { height: 44px; }
+:global(html[data-device="tablet"]) .promptGo { height: 48px; }
+:global(html[data-device="tablet"]) .prompt { height: 64px; }
+:global(html[data-device="tablet"][data-orient="portrait"]) .frame { margin: clamp(24px, 6vh, 64px) auto auto; }
+:global(html[data-device="tablet"][data-orient="portrait"]) .title { font-size: 52px; }
+
+/* PHONE ONLY (Nov 24, no header strip on a phone): the greeting row is a 44 px row with room on the right for the bell,
+   which sits there (AppHeader); the page starts right under the notch. Sideways, the rows start under the bell. */
+:global(html[data-device="phone"]) .main { padding-top: 8px; }
+:global(html[data-device="phone"]) .eyebrow { min-height: 44px; display: flex; align-items: center; padding-right: 56px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .main { padding-top: 8px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .work { margin-top: 52px; }
+/* phone sideways (Arthur, Nov 24 evening: "your latest animation project is a little too low"): the three buttons share ONE
+   row, so the latest project sits right under them instead of below the screen's edge. */
+:global(html[data-device="phone"][data-orient="landscape"]) .actions { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .action { height: 66px; flex-direction: column; justify-content: center; gap: 6px; padding: 0 6px; text-align: center; }
+:global(html[data-device="phone"][data-orient="landscape"]) .action svg { width: 22px; height: 22px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .actionText small { display: none; }
+:global(html[data-device="phone"][data-orient="landscape"]) .actionText strong { font-size: 13.5px; white-space: nowrap; }

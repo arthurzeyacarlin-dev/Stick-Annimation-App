@@ -734,3 +734,72 @@
 .formatButton[aria-checked="true"] { background: var(--da-hover) !important; border-color: rgba(255, 255, 255, 0.256) !important; color: #ffffff !important; box-shadow: none; }
 .formatButton svg { color: #d2d2d7; }
 .formatButton[aria-checked="true"] svg { color: #ffffff; }
+
+/* ============================================================================================================
+   PHONE + TABLET ONLY (phone plan, Nov 24). A computer never reads these rules (the "Tap…" line stays hidden there).
+   Phone: the page fits the visible screen; Choose = big title, full-width search, one animation per row. Export =
+   back + title, the preview on top, the choices under it, and the Export (or Stop) button fixed at the bottom above
+   the home bar so you never scroll to find it. Tablet: the same with two animations per row.
+   ============================================================================================================ */
+.touchOnly { display: none; }
+:global(html[data-device="phone"]) .touchOnly, :global(html[data-device="tablet"]) .touchOnly { display: block; }
+:global(html[data-device="phone"]) .computerOnly, :global(html[data-device="tablet"]) .computerOnly { display: none; }
+:global(html[data-device="phone"]) .page, :global(html[data-device="tablet"]) .page { flex: 1 1 auto; height: 100%; min-height: 0; overscroll-behavior-y: contain; }
+:global(html[data-device="phone"]) .choosePage { padding: calc(10px + var(--phone-safe-top)) calc(var(--phone-pad) + var(--phone-safe-right)) calc(24px + var(--phone-safe-bottom)) calc(var(--phone-pad) + var(--phone-safe-left)); }
+:global(html[data-device="phone"]) .chooseColumn { gap: 18px; }
+:global(html[data-device="phone"]) .chooseHeader { gap: 10px; }
+:global(html[data-device="phone"]) .chooseHeading .chooseTitle { font-size: clamp(30px, 8.6vw, 38px); letter-spacing: -.04em; }
+:global(html[data-device="phone"]) .chooseLead { font-size: 15.5px; }
+:global(html[data-device="phone"]) .chooseToolbar { gap: 12px; }
+:global(html[data-device="phone"]) .chooseSearch { flex: 1 1 auto; height: 48px; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .chooseCount { font-size: 14px; }
+:global(html[data-device="phone"]) .grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+:global(html[data-device="phone"]) .card { border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .card:active:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); }
+:global(html[data-device="phone"]) .cardTitle { font-size: 17px; }
+:global(html[data-device="phone"]) .cardMeta, :global(html[data-device="phone"]) .cardMetaReady { font-size: 14px; }
+:global(html[data-device="phone"]) .chooseFormatName { font-size: 15.5px; }
+:global(html[data-device="phone"]) .chooseFormatDetail, :global(html[data-device="phone"]) .chooseAsideNote { font-size: 14.5px; }
+:global(html[data-device="phone"]) .button, :global(html[data-device="phone"]) .backButton { min-height: 48px; border-radius: 12px; font-size: 15px; }
+/* the export screen */
+:global(html[data-device="phone"]) .playerPage { padding: calc(8px + var(--phone-safe-top)) calc(var(--phone-pad) + var(--phone-safe-right)) calc(104px + var(--phone-safe-bottom)) calc(var(--phone-pad) + var(--phone-safe-left)); }
+:global(html[data-device="phone"]) .playerColumn { gap: 14px; }
+:global(html[data-device="phone"]) .exportHeader { gap: 10px; }
+:global(html[data-device="phone"]) .exportHeader .title { font-size: 24px; text-align: left; overflow-wrap: anywhere; }
+:global(html[data-device="phone"]) .exportLayout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+:global(html[data-device="phone"]) .playerFrame { border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .settingsColumn { gap: 16px; padding: 16px; border-radius: var(--phone-radius); }
+:global(html[data-device="phone"]) .formatRow { gap: 8px; }
+:global(html[data-device="phone"]) .formatButton { min-height: 76px; padding: 12px 4px 10px; }
+:global(html[data-device="phone"]) .formatName { font-size: 15.5px; }
+:global(html[data-device="phone"]) .formatDetail { font-size: 12.5px; }
+:global(html[data-device="phone"]) .formatButton:active:not(:disabled) { background: var(--da-hover); }
+:global(html[data-device="phone"]) .field { font-size: 14.5px; }
+:global(html[data-device="phone"]) .input { min-height: 48px; border-radius: 12px; font-size: 16px; }
+:global(html[data-device="phone"]) .checkRow { min-height: 48px; font-size: 15.5px; }
+:global(html[data-device="phone"]) .checkRow input { width: 24px; height: 24px; }
+:global(html[data-device="phone"]) .summaryLine { font-size: 14.5px; }
+:global(html[data-device="phone"]) .resultSuccess, :global(html[data-device="phone"]) .resultError, :global(html[data-device="phone"]) .resultNote { font-size: 15px; }
+:global(html[data-device="phone"]) .footnote { font-size: 13.5px; }
+/* the one main button, fixed at the bottom above the home bar */
+:global(html[data-device="phone"]) .settingsColumn .actions {
+  position: fixed; z-index: 60; left: 0; right: 0; bottom: 0; display: grid; gap: 0;
+  padding: 12px calc(var(--phone-pad) + var(--phone-safe-right)) calc(12px + var(--phone-safe-bottom)) calc(var(--phone-pad) + var(--phone-safe-left));
+  border-top: 1px solid var(--da-line); background: rgba(17, 17, 19, .86); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+}
+:global(html[data-device="phone"]) .settingsColumn .actions > button { width: 100%; min-height: 54px; border-radius: 14px; font-size: 17px; }
+/* phone sideways: preview left, choices right; the Export button still fixed at the bottom */
+:global(html[data-device="phone"][data-orient="landscape"]) .exportLayout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+:global(html[data-device="phone"][data-orient="landscape"]) .previewColumn { position: sticky; top: 0; }
+:global(html[data-device="phone"][data-orient="landscape"]) .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+:global(html[data-device="phone"][data-orient="landscape"]) .playerPage { padding-bottom: calc(88px + var(--phone-safe-bottom)); }
+
+/* tablet: finger-sized controls; two animations per row on Choose */
+:global(html[data-device="tablet"]) .choosePage, :global(html[data-device="tablet"]) .playerPage { padding-top: calc(20px + var(--phone-safe-top)); padding-bottom: calc(24px + var(--phone-safe-bottom)); }
+:global(html[data-device="tablet"]) .chooseSearch { height: 48px; font-size: 16px; }
+:global(html[data-device="tablet"]) .button, :global(html[data-device="tablet"]) .backButton { min-height: 48px; }
+:global(html[data-device="tablet"]) .input { min-height: 48px; font-size: 16px; }
+:global(html[data-device="tablet"]) .formatButton { min-height: 72px; }
+:global(html[data-device="tablet"]) .checkRow { min-height: 48px; }
+:global(html[data-device="tablet"]) .checkRow input { width: 22px; height: 22px; }
+:global(html[data-device="tablet"]) .exportButton { min-height: 54px; font-size: 16px; }

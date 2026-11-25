@@ -1982,7 +1982,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const [activeBoxSelection, setActiveBoxSelection] = useState<ActiveBoxSelection | null>(null);
   const [fillTolerance, setFillTolerance] = useState(20);
   const [brushTransparency, setBrushTransparency] = useState(0);
-  const [brushSmoothing, setBrushSmoothing] = useState(0);
+  // (Nov 24, Arthur: "make it always draw the smoothest possible… H3 Max Turbo is smooth. So I want to draw like H3 Max
+  // Turbo") the Pencil always draws with the smoothest setting; there is no smoothing slider to turn it down.
+  const brushSmoothing = 100;
   const [drawRigEnabled, setDrawRigEnabled] = useState(false);
   const [glowGradientBrightness, setGlowGradientBrightness] = useState(60);
   const [glowGradientRadius, setGlowGradientRadius] = useState(40);
@@ -4635,6 +4637,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       for (let left = Math.floor(rect.left / 32) * 32; left < rect.left + rect.width; left += 32) {
         const key = `${left}:${top}`;
         let tile = draft.tiles.get(key);
+        const freshTile = !tile;
         if (!tile) {
           const committed = authoringCommittedBitmapRef.current;
           const width = Math.min(32, draft.engine.options.width - left), height = Math.min(32, draft.engine.options.height - top);
@@ -4663,6 +4666,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         const stableTile = preview.stable.tiles.get(maskKey), tailTile = preview.tail.tiles.get(maskKey);
         // SPEC-0020 Phase 4 (lag): only repaint a 32×32 tile when one of its pixels really changed.
         let tileChanged = false;
+        // (Nov 25, phone lag) A tile this stroke has not painted yet, with no paint arriving now, has nothing to compare:
+        // every pixel would be skipped one by one. The box around a fast slanted move is mostly such tiles.
+        if (freshTile && !stableTile && !tailTile) continue;
         for (let y = Math.max(top, rect.top); y < Math.min(top + tile.base.height, rect.top + rect.height); y++) {
           for (let x = Math.max(left, rect.left); x < Math.min(left + tile.base.width, rect.left + rect.width); x++) {
             const offset = ((y - top) * tile.base.width + x - left) * 4;
@@ -10506,18 +10512,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             />
           </label>
         )}
-        <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "var(--da-muted, #a3a3ab)", fontSize: 12 }}>
-          Smoothing: {brushSmoothing}
-          <input
-            type="range"
-            min={0}
-            max={100}
-            step={1}
-            value={brushSmoothing}
-            onChange={(e) => setBrushSmoothing(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "var(--da-selected-border, #55555e)" }}
-          />
-        </label>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, color: "var(--da-muted, #a3a3ab)", fontSize: 12 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <span>Draw Rig</span>

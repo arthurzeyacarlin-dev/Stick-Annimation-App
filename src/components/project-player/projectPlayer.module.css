@@ -592,3 +592,49 @@
   .seek { flex-basis: auto; width: auto; }
   .time { width: auto; text-align: right; }
 }
+
+/* ============================================================================================================
+   PHONE + TABLET ONLY (phone plan, Nov 24). A computer never reads these rules.
+   Phone: Watch fills the whole screen (dark, like a phone's video player): title + close at the top clear of the
+   notch, the animation as big as it fits, the progress bar and big Play / Fullscreen buttons at the bottom above
+   the home bar. Export's preview gets finger-sized controls.
+   ============================================================================================================ */
+:global(html[data-device="phone"]) .viewerBackdrop { z-index: 140; padding: 0; place-items: stretch; background: #000; }
+:global(html[data-device="phone"]) .viewerDialog {
+  width: 100%; height: 100dvh !important; max-height: none; align-self: stretch; border: 0; border-radius: 0; box-shadow: none; background: #0c0c0e;
+  padding: calc(6px + var(--phone-safe-top)) calc(var(--phone-pad) + var(--phone-safe-right)) 0 calc(var(--phone-pad) + var(--phone-safe-left));
+  animation: phone-sheet-up 260ms cubic-bezier(.2, .8, .2, 1);
+}
+:global(html[data-device="phone"]) .viewerHeader { align-items: center; gap: 12px; margin-bottom: 10px; }
+:global(html[data-device="phone"]) .viewerEyebrow { display: none; }
+:global(html[data-device="phone"]) .viewerTitle { margin: 0; font-size: 20px; }
+:global(html[data-device="phone"]) .viewerDescription { display: block; margin-top: 3px; font-size: 13.5px; }
+:global(html[data-device="phone"]) .viewerStage { height: auto !important; min-height: 0 !important; flex: 1 1 auto !important; margin: 0 calc(-1 * var(--phone-pad)); border-left: 0; border-right: 0; border-radius: 0; background: #000; }
+:global(html[data-device="phone"]) .viewerVideoSurface { background: #000; }
+:global(html[data-device="phone"]) .viewerChrome { gap: 8px; padding: 10px calc(var(--phone-pad) + var(--phone-safe-right)) calc(14px + var(--phone-safe-bottom)) calc(var(--phone-pad) + var(--phone-safe-left)); background: #0c0c0e; }
+:global(html[data-device="phone"]) .viewerChromeTitle { display: none; }
+:global(html[data-device="phone"]) .viewerControlRow { display: grid; grid-template-columns: minmax(96px, auto) minmax(0, 1fr) minmax(96px, auto); gap: 8px 10px; }
+:global(html[data-device="phone"]) .viewerSeek { grid-column: 1 / -1; grid-row: 1; width: 100%; height: 44px; }
+:global(html[data-device="phone"]) .viewerControlButton { grid-row: 2; min-width: 0; min-height: 52px; padding-inline: 14px; border-radius: 12px; font-size: 16.5px; }
+:global(html[data-device="phone"]) .viewerTime { grid-row: 2; min-width: 0; align-items: center; justify-content: center; text-align: center; font-size: 14px; }
+:global(html[data-device="phone"]) .viewerControlButton:active { background: var(--da-hover); color: #ffffff; }
+/* phone sideways: the animation gets the height; Play / time / Fullscreen sit in one row with the progress bar */
+:global(html[data-device="phone"][data-orient="landscape"]) .viewerHeader { margin-bottom: 4px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .viewerDescription { display: none; }
+:global(html[data-device="phone"][data-orient="landscape"]) .viewerTitle { font-size: 17px; }
+:global(html[data-device="phone"][data-orient="landscape"]) .viewerChrome { padding-top: 6px; padding-bottom: calc(6px + var(--phone-safe-bottom)); }
+:global(html[data-device="phone"][data-orient="landscape"]) .viewerControlRow { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+:global(html[data-device="phone"][data-orient="landscape"]) .viewerSeek { grid-column: 2; grid-row: 1; }
+:global(html[data-device="phone"][data-orient="landscape"]) .viewerControlButton,
+:global(html[data-device="phone"][data-orient="landscape"]) .viewerTime { grid-row: 1; min-height: 46px; }
+/* Export's preview controls */
+:global(html[data-device="phone"]) .controls { gap: 12px; padding: 10px 12px; }
+:global(html[data-device="phone"]) .exportPlayButton { width: 48px; height: 48px; }
+:global(html[data-device="phone"]) .seek { height: 44px; }
+:global(html[data-device="phone"]) .timeNow { font-size: 14px; }
+:global(html[data-device="phone"]) .timeFrame { font-size: 12.5px; }
+
+/* tablet: the same dialog as the computer, finger-sized controls */
+:global(html[data-device="tablet"]) .viewerControlButton { min-height: 50px; min-width: 96px; font-size: 16px; }
+:global(html[data-device="tablet"]) .viewerSeek { height: 44px; }
+:global(html[data-device="tablet"]) .exportPlayButton { width: 48px; height: 48px; }

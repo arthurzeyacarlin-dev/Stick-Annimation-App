@@ -79,8 +79,12 @@ export const createAuthoringSurfaceViewport = ({
   const spanWith = (margin: number) => {
     const left = Math.max(0, visibleLeft - margin), top = Math.max(0, visibleTop - margin);
     const right = Math.min(fullWorldWidth, visibleLeft + visibleWidth + margin), bottom = Math.min(fullWorldHeight, visibleTop + visibleHeight + margin);
-    const referenceLeft = Math.max(0, Math.floor(left * referenceWidth / fullWorldWidth));
-    const referenceTop = Math.max(0, Math.floor(top * referenceHeight / fullWorldHeight));
+    // (Nov 24, lag) The window starts on the brush history's 32-pixel grid (at most 31 pixels more margin on the left and
+    // top). Off the grid, the brush history of the whole picture was rebuilt pixel by pixel after every single stroke to
+    // fit the window (measured: a quarter of a second of frozen page per stroke); on the grid its tiles are used as they are.
+    const gridStart = (value: number) => value - value % 32;
+    const referenceLeft = gridStart(Math.max(0, Math.floor(left * referenceWidth / fullWorldWidth)));
+    const referenceTop = gridStart(Math.max(0, Math.floor(top * referenceHeight / fullWorldHeight)));
     const referenceRight = Math.min(referenceWidth, Math.ceil(right * referenceWidth / fullWorldWidth));
     const referenceBottom = Math.min(referenceHeight, Math.ceil(bottom * referenceHeight / fullWorldHeight));
     return { referenceLeft, referenceTop, referenceRight, referenceBottom };

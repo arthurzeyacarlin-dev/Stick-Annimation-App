@@ -20,14 +20,20 @@ const BILLING_URL = "https://api.fal.ai/v1/account/billing?expand=credits";
 
 export type FalBalance = { usd: number } | { unknown: string };
 
-/** The FAL_KEY line of the engine's settings file (null = none). */
-export function falKeyFrom(settings: string): string | null {
+/** One key line of the engine's settings file (null = none). */
+function keyLine(settings: string, name: string): string | null {
   for (const line of settings.split(/\r?\n/)) {
-    if (!line.startsWith("FAL_KEY=")) continue;
-    const key = line.slice("FAL_KEY=".length).trim().replace(/^["']|["']$/g, "");
+    if (!line.startsWith(`${name}=`)) continue;
+    const key = line.slice(name.length + 1).trim().replace(/^["']|["']$/g, "");
     return key || null;
   }
   return null;
+}
+/** The key the watch asks with. (Nov 25, live: fal answered the engine's own key with "This API key is not permitted to perform
+ *  this action" - a key that may only make animations may not read the account's money.) So a second line, FAL_ADMIN_KEY (a key
+ *  made on fal with the Admin scope), is used when it is there; without it the engine's FAL_KEY is tried as before. */
+export function falKeyFrom(settings: string): string | null {
+  return keyLine(settings, "FAL_ADMIN_KEY") ?? keyLine(settings, "FAL_KEY");
 }
 
 /** Asks fal how much money the account has. Any problem = { unknown } (never throws, never guesses a number). */
@@ -87,7 +93,11 @@ export function watchFalBalance(options: {
         try { (options.alert ?? ownerAlert)("ai-animator-fal-balance", "The animator's money account (fal) is EMPTY: fal has locked it, so the AI Animator cannot make animations right now. Add money to fal. Users are told nothing was made and no credits are taken."); } catch { /* the log line stays */ }
         return { usd: 0 };
       }
-      if ("unknown" in balance) { console.warn(`[fal money watch] the balance could not be read (${balance.unknown}); the watch tries again in 10 minutes`); return balance; }
+      if ("unknown" in balance) {
+        const noRights = /not permitted|forbidden|unauthori[sz]ed|\b40[13]\b/i.test(balance.unknown);
+        console.warn(`[fal money watch] the balance could not be read (${balance.unknown})${noRights ? ". This key may not read the account's money: add a line FAL_ADMIN_KEY=<a fal key with the Admin scope> to diamond-engine/.env.local" : ""}; the watch tries again in 10 minutes`);
+        return balance;
+      }
       const lowAt = options.low ?? (Number(process.env.DIAMOND_FAL_LOW_USD) > 0 ? Number(process.env.DIAMOND_FAL_LOW_USD) : FAL_LOW_USD);
       console.info(`[fal money watch] ${dollars(balance.usd)} left (the owner is told below ${dollars(lowAt)})`);
       const say = falBalanceAlert(balance.usd, lowAt, options.veryLow ?? Math.min(FAL_VERY_LOW_USD, lowAt));

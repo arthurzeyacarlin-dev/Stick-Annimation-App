@@ -9,6 +9,8 @@ test("the engine's key line is read, quoted or not, and nothing else", () => {
   assert.equal(falKeyFrom("FAL_KEY=abc\n"), "abc");
   assert.equal(falKeyFrom("NOT_FAL_KEY=abc\nFAL_KEY=\n"), null);
   assert.equal(falKeyFrom(""), null);
+  assert.equal(falKeyFrom("FAL_KEY=engine\nFAL_ADMIN_KEY=admin\n"), "admin");   // the key that may read the money wins
+  assert.equal(falKeyFrom("FAL_ADMIN_KEY=\nFAL_KEY=engine\n"), "engine");
 });
 
 test("fal's balance is read as dollars; anything unclear is 'unknown', never a guessed number", async () => {

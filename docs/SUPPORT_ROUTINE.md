@@ -1,5 +1,13 @@
 # The support routine — Claude reads tickets on a schedule (SPEC-0027, Nov 26)
 
+**LIVE (Nov 26 18:04): it runs ON THE SERVER, not as a cloud routine.** `deploy/support-helper.py` is copied to
+`/srv/diamond/support-helper.py` and runs from `/etc/cron.d/diamond-support-helper` every 15 minutes (log:
+`/var/log/diamond-support-helper.log`). It reads both keys from `/srv/diamond/settings.env` (nobody pastes a key). The AI has
+NO tools: the script makes every call itself (note, draft, status only), so a ticket's words can at most change a note or a
+draft that Arthur reads. No new tickets = no AI call. First run: 7 tickets, the trick ticket flagged, no draft for it.
+The cloud routine "Diamond Animator help-message helper" (trig_01UiW9idssnw5S9jcHKDN2or) stays switched OFF and unused.
+The ticket key was replaced on Nov 26 17:50 (the old one was pasted into a help message by mistake).
+
 The app has a small **ticket API** so a scheduled Claude routine can help Arthur answer beta users within an hour.
 It is **off** until the server has `DIAMOND_SUPPORT_API_KEY` (see `deploy/server-settings.example`). Setting the key and creating
 the routine is done by "Website pm" / Arthur after go-live, with Arthur's OK. The key never goes in git or chat: the routine reads

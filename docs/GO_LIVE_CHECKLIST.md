@@ -1,5 +1,27 @@
 # Going online at app.diamondanimator.com — checklist (Nov 25, D-0255)
 
+## DAD, START HERE (Nov 26 10:44 — the same list is at the bottom of dad's session "Diamond Animator live app setup")
+Type there: "I'm here, let's do my list." (~30 min; each page opens in Chrome, dad only clicks)
+1. One real card payment + refund (no real payment has been made yet; the live form and codes FIRSTDIAMOND / DIAMOND10 work).
+2. Stripe: Reveal + copy the webhook signing secret, run the one command on the Mac.
+3. Klaviyo: old "Welcome series - website sign-ups" -> Manual; the $20 plan; review + switch on the 93 new emails; company
+   address (every email footer); sending domain shows Active; who reads replies (arthur@ or support@).
+4. Open support@diamondanimator.com once: the Nov 26 test email arrived.
+5. Cloudflare Pages website settings for the first-50 launch email (BETA_CODE=FIRSTDIAMOND, email key, unsubscribe secret,
+   Access for /admin).
+6. Choices: under-13 rule (COPPA), off-server backup (~$5/mo), Claude fixing outages without asking, Google sign-in, sales tax,
+   server resize later if people wait.
+After: Arthur's session pushes the website sign-ups -> Klaviyo fix, switches the webhook on, runs the final full check -> Dec 1.
+
+## UPDATE Nov 26 10:40 — dad's 3 features are LIVE (main a2c828d, server on main)
+Support (help bubble: Ask AI / Talk to a person / My messages, tickets, owner alerts, Claude ticket API with
+DIAMOND_SUPPORT_API_KEY made on the server, /status page + banner, 3-minute line-wait alert), testimonials (ask at the happy
+moment, 13+ only on the wall, owner approve page /testimonials), email signals (first animation, exported, paid month, payment
+failed, cancelled, ended). Proven on the live site: Help answer in the bubble, a ticket from a test account + its alert email
+Delivered to Arthur's Gmail, Arthur's own Report a problem arrived. Rollback: image diamond-animator:before-launch-features +
+backups /srv/diamond/backups/pre-launch-features-*. Still open: the owner reply round-trip on live (with dad), the 93 new Klaviyo
+emails (DRAFT until dad's $20 plan), website sign-ups -> Klaviyo (push pending), dad's bundle (docs/specs/0030-DAD-BUNDLE.md).
+
 ## EVERYTHING LEFT BEFORE GOING LIVE (Nov 26 09:15 — show this to dad)
 Done today: server rented + app moved (49 accounts), Mac runs nothing; make / edit / Help / save / phone / card form / password
 email all pass on the server; live payments; discount codes FIRSTDIAMOND (25% first year) + DIAMOND10 (10% first month) pass;

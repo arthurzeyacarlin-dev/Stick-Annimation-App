@@ -12,6 +12,11 @@ Type there: "I'm here, let's do my list." (~30 min; each page opens in Chrome, d
 6. Choices: under-13 rule (COPPA), off-server backup (~$5/mo), Claude fixing outages without asking, Google sign-in, sales tax,
    server resize later if people wait.
 After: Arthur's session pushes the website sign-ups -> Klaviyo fix, switches the webhook on, runs the final full check -> Dec 1.
+Dad's decisions (10:58): the beta free trial stays WITHOUT a card (kids can't easily give one). Added to the list:
+- BEFORE ADS START: a repeat-trial abuse check (several trial accounts from one device / internet address) + a simple owner
+  report of suspicious repeat sign-ups ("new email, new 14 days").
+- AFTER LAUNCH: A/B test a card-required trial.
+- AFTER LAUNCH (marketing): an ad funnel / sales page.
 
 ## UPDATE Nov 26 10:40 — dad's 3 features are LIVE (main a2c828d, server on main)
 Support (help bubble: Ask AI / Talk to a person / My messages, tickets, owner alerts, Claude ticket API with

@@ -57,7 +57,9 @@ function loadCardScript(): Promise<void> {
 // The card boxes in Diamond Animator's look (the same white text, gray hints, Geist and red errors as every other field).
 const FIELD_STYLE = {
   base: { color: "#f5f5f6", fontFamily: "Geist, system-ui, -apple-system, sans-serif", fontSize: "15px", fontWeight: "500", iconColor: "#a3a3ab",
-    "::placeholder": { color: "#85858e" }, ":-webkit-autofill": { color: "#f5f5f6" } },
+    // (Nov 26, dad's real payment) the browser paints an auto-filled card field light yellow and cannot be told otherwise inside
+    // the card frame, so auto-filled text is DARK (it was white on yellow = unreadable). Typed text stays white on our dark field.
+    "::placeholder": { color: "#85858e" }, ":-webkit-autofill": { color: "#14141a" } },
   invalid: { color: "#ff8a95", iconColor: "#ff8a95" },
 };
 

@@ -14,7 +14,16 @@ export type EmailSignal =
 export type EmailSignalStatus = Pick<AccountPlanStatus, "plan" | "locked" | "windowStart">
   & Partial<Pick<AccountPlanStatus, "lockReason" | "billingStatus" | "paymentProblem" | "waitingForPayment" | "cancelAtPeriodEnd">>;
 /** Facts that are not in the plan status: the plan's own id (so someone who comes back counts again) and the first animation. */
-export type EmailSignalExtras = { subscriptionId?: string | null; madeFirstAnimation?: boolean };
+export type EmailSignalExtras = { subscriptionId?: string | null; madeFirstAnimation?: boolean; firstName?: string | null };
+
+/** Dad, Nov 26 11:34: emails greet people by first name ("Hi Maya,"), but a name goes to the email service ONLY for accounts
+ *  marked 13 or older ("13plus") or a parent's account ("parent"). Never for "under13", never when it isn't known: then the
+ *  emails say "Hi there,". Only the first word of the Name field, letters only (a name, not an email or a number), max 30. */
+export function emailFirstName(name: unknown, ageGroup: unknown): string | null {
+  if (ageGroup !== "13plus" && ageGroup !== "parent") return null;
+  const first = typeof name === "string" ? name.trim().split(/\s+/)[0] ?? "" : "";
+  return /^\p{L}[\p{L}'-]{0,29}$/u.test(first) ? first : null;
+}
 /** One fact to send: its name, the id that makes a repeat count once, and (for the trial) when it really happened. */
 export type DueSignal = { signal: EmailSignal; id: string; at?: number };
 
@@ -55,7 +64,7 @@ export const signalsFor = (status: EmailSignalStatus, extras: EmailSignalExtras 
   dueSignals("_", status, extras).map((due) => due.signal);
 
 /** `at` = when it really happened (the trial's real start), so the follow-up emails count their days from the right moment. */
-export function emailSignalBody(email: string, uniqueId: string, signal: EmailSignal, at?: number) {
+export function emailSignalBody(email: string, uniqueId: string, signal: EmailSignal, at?: number, firstName?: string | null) {
   return {
     data: {
       type: "event",
@@ -65,14 +74,14 @@ export function emailSignalBody(email: string, uniqueId: string, signal: EmailSi
         // The same id for the same fact: a repeat is not counted twice.
         unique_id: uniqueId,
         metric: { data: { type: "metric", attributes: { name: signal } } },
-        profile: { data: { type: "profile", attributes: { email } } },
+        profile: { data: { type: "profile", attributes: { email, ...(firstName ? { first_name: firstName } : {}) } } },
       },
     },
   };
 }
 
 /** Sends the facts not sent yet. Never waits, never throws. Returns the ones it started sending. */
-function send(email: string | null | undefined, signals: DueSignal[], fetcher: typeof fetch): EmailSignal[] {
+function send(email: string | null | undefined, signals: DueSignal[], fetcher: typeof fetch, firstName?: string | null): EmailSignal[] {
   const siteId = process.env.DIAMOND_EMAIL_SITE_ID?.trim();
   if (!siteId || !email || !isRealEmail(email)) return [];
   const due = signals.filter((one) => !sent.has(one.id));
@@ -82,7 +91,7 @@ function send(email: string | null | undefined, signals: DueSignal[], fetcher: t
       .then(() => fetcher(`https://a.klaviyo.com/client/events?company_id=${encodeURIComponent(siteId)}`, {
         method: "POST",
         headers: { "Content-Type": "application/vnd.api+json", Accept: "application/vnd.api+json", revision: REVISION },
-        body: JSON.stringify(emailSignalBody(email, one.id, one.signal, one.at)),
+        body: JSON.stringify(emailSignalBody(email, one.id, one.signal, one.at, firstName)),
       }))
       .then((res) => { if (!res.ok) sent.delete(one.id); }, () => { sent.delete(one.id); });
   }
@@ -92,7 +101,7 @@ function send(email: string | null | undefined, signals: DueSignal[], fetcher: t
 /** Sends what is new for this account's plan. Never waits, never throws. Returns the signals it started sending. */
 export function sendEmailSignals(ownerId: string, email: string | null | undefined, status: EmailSignalStatus,
   extras: EmailSignalExtras = {}, fetcher: typeof fetch = fetch): EmailSignal[] {
-  try { return send(email, dueSignals(ownerId, status, extras), fetcher); } catch { return []; }
+  try { return send(email, dueSignals(ownerId, status, extras), fetcher, extras.firstName); } catch { return []; }
 }
 
 /** A video (MP4 or GIF) was really saved: tells the email service once per account. Never waits, never throws. */

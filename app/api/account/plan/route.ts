@@ -20,7 +20,8 @@ export async function GET(request: Request) {
     const status = getAccountPlanStatus(ownerId);
     // Follow-up emails (dad, Nov 21; SPEC-0030): tell the email service each new fact once (trial, first animation, plan,
     // paid month, payment problem, cancelled, ended). Never waits. The 6-hourly check covers accounts that don't open the app.
-    sendAccountEmailSignals(ownerId, access.session.user.email, access.session.user.ageGroup, status);
+    const user = access.session.user as { email: string; name?: unknown; ageGroup?: unknown };
+    sendAccountEmailSignals(ownerId, user.email, status, { name: user.name, ageGroup: user.ageGroup });
     startEmailSignalSweeper();
     return NextResponse.json({ schema: "diamond-account-plan/v1", status, billing: { mode: billingMode(), cardKey: await ensureBillingPublicKey(), ...billingFacts(ownerId) } },
       { headers: { "Cache-Control": "no-store" } });

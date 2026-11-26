@@ -36,3 +36,7 @@
 :global(html[data-device="phone"]) .library { flex: none; padding-bottom: var(--phone-safe-bottom); }
 :global(html[data-device="tablet"]) .top { padding-top: calc(20px + var(--phone-safe-top)); }
 :global(html[data-device="tablet"]) .button { min-height: 48px; font-size: 15px; }
+
+
+/* SPEC-0031: what a plan gives you, under the message. */
+.value { flex-basis: 100%; }

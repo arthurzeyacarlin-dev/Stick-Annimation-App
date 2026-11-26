@@ -8,6 +8,8 @@ import { AuthShowcase } from "./AuthShowcase";
 import { creditsText } from "@/src/lib/account/credits";
 import { birthYearChoices, isUnder13, needsBirthMonth } from "@/src/lib/account/ageCheck";
 import styles from "./AuthScreen.module.css";
+import { useSavedOffer } from "@/src/components/account/offerCode";
+import { offerFromCodes, offerLine, offerMoney, offerPrice } from "@/src/lib/account/offerDisplay";
 
 // The new first screen (redesign Phase 1, Arthur 2026-10-26): a polished welcome with one card for Create account,
 // Log in and Forgot password. It uses the same account endpoints as before; only the look is new.
@@ -58,6 +60,9 @@ export function AuthScreen() {
   const [step, setStep] = useState<"account" | "plan">("account");
   const [plan, setPlan] = useState<PlanChoice>("trial");
   const [interval, setInterval] = useState<BillingInterval>(PLAN_CYCLE);
+  // SPEC-0031: a code from a link (?code=FIRSTDIAMOND) is kept through sign-up; at step 2 (signed in) the prices show it.
+  const { saved, code: savedCode } = useSavedOffer(step === "plan");
+  const savedCodes = saved ? { [saved.offer]: saved.code } as { first50?: string; youtube?: string } : undefined;
 
   useEffect(() => { (mode === "signup" && age === "ask" ? yearRef : firstFieldRef).current?.focus({ preventScroll: true }); }, [mode, age]);
 
@@ -150,6 +155,7 @@ export function AuthScreen() {
           <p className={styles.stepTag}>Step 2 of 2</p>
           <h2 id="plan-heading">Choose your plan</h2>
           <p>Start free, or pick a plan now. You can change it any time.</p>
+          {saved && <p className={styles.codeSaved}>◆ Your {saved.offer === "first50" ? "beta" : "YouTube"} code <strong>{saved.code}</strong> is saved: {offerLine(saved.offer)}</p>}
         </div>
         <div className={styles.switcher} role="group" aria-label="Pay monthly or yearly" data-mode={interval === "year" ? "login" : "signup"}>
           <span className={styles.switcherPill} aria-hidden="true" />
@@ -159,7 +165,8 @@ export function AuthScreen() {
         <div className={styles.planList} role="radiogroup" aria-label="Plans">
           {(["trial", ...PAID_PLAN_IDS] as PlanChoice[]).map((id) => {
             const info = ACCOUNT_PLANS[id];
-            const price = id === "trial" ? "Free" : interval === "year" ? money(info.yearlyUsd) : money(info.monthlyUsd);
+            const deal = id === "trial" ? null : offerPrice(id, interval, offerFromCodes({ first50: saved?.offer === "first50", youtube: saved?.offer === "youtube" }, interval));
+            const price = id === "trial" ? "Free" : deal ? offerMoney(deal.firstCents) : interval === "year" ? money(info.yearlyUsd) : money(info.monthlyUsd);
             const per = id === "trial" ? "14 days" : interval === "year" ? "a year" : `a ${CYCLE_WORD}`;
             return (
               <button key={id} type="button" role="radio" aria-checked={plan === id} className={styles.planRow} data-plan={id} onClick={() => setPlan(id)}>
@@ -171,7 +178,7 @@ export function AuthScreen() {
                   </span>
                   <span className={styles.planLine}>{creditsText(info.credits)}{id === "trial" ? "" : ` every ${CYCLE_WORD}`} · {PLAN_LINE[id]}</span>
                 </span>
-                <span className={styles.planPrice}><strong>{price}</strong><small>{per}</small></span>
+                <span className={styles.planPrice}>{deal && <s className={styles.planWas}>{money(interval === "year" ? info.yearlyUsd : info.monthlyUsd)}</s>}<strong>{price}</strong><small>{deal ? `${per} · ${deal.badge}` : per}</small></span>
               </button>
             );
           })}
@@ -283,6 +290,7 @@ export function AuthScreen() {
           {mode === "signup" && <p className={styles.fine}>Already have an account? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Log in</button></p>}
           {mode === "signup" && !parentForm && <p className={styles.fine}>By creating an account you agree to the <a className={styles.inlineLink} href="/terms" target="_blank" rel="noopener">Terms of Service</a> and <a className={styles.inlineLink} href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>}
           {mode === "signup" && <p className={styles.fine}>We&apos;ll email {parentForm ? "you (the parent)" : "you"} tips during your free trial. Unsubscribe any time.</p>}
+          {mode === "signup" && savedCode && <p className={styles.codeSaved}>◆ Your code <strong>{savedCode}</strong> is saved for when you choose a plan.</p>}
           {mode === "login" && <p className={styles.fine}>New to Diamond Animator? <button type="button" className={styles.inlineLink} onClick={() => switchMode("signup")}>Create an account</button></p>}
           {mode === "forgot" && !resetSent && <p className={styles.fine}>Remembered it? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Back to log in</button></p>}
         </div>
@@ -290,7 +298,7 @@ export function AuthScreen() {
       )}
 
       <footer className={styles.footer}>© 2026 Diamond Animator</footer>
-      {paying && plan !== "trial" && <PaymentDialog payFor={{ kind: "plan", plan, interval }} onClose={() => setPaying(false)} onDone={() => window.location.assign("/credits")} />}
+      {paying && plan !== "trial" && <PaymentDialog payFor={{ kind: "plan", plan, interval, codes: savedCodes }} onClose={() => setPaying(false)} onDone={() => window.location.assign("/credits")} />}
     </main>
   );
 }

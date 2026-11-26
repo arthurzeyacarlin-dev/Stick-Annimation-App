@@ -4,20 +4,23 @@ import "server-only";
 // didn't go through" and "your plan has ended" still reach the email service. Off when DIAMOND_EMAIL_SITE_ID is not set.
 import { getAccountPlanStatus, hasMadeAnimation, listBillingOwners, readAccountBillingIds } from "./aiCredits";
 import type { AccountPlanStatus } from "./plans";
-import { sendEmailSignals } from "./emailSignals";
+import { emailFirstName, sendEmailSignals } from "./emailSignals";
 import { mayGetEmails } from "./ageCheck";
 
 const SWEEP_EVERY_MS = 6 * 60 * 60 * 1000;
 const cache = globalThis as typeof globalThis & { diamondEmailSignalSweeper?: boolean };
 
 /** Sends this account's new facts (the plan status is passed in when the caller already has it). Never waits, never throws.
- *  SPEC-0031 (COPPA): only for accounts that said 13 or older, or a parent's account - never an under-13 or an unanswered one. */
-export function sendAccountEmailSignals(ownerId: string, email: string | null | undefined, ageGroup: unknown, status?: AccountPlanStatus) {
-  if (!mayGetEmails(ageGroup)) return;
+ *  SPEC-0031 (COPPA): only for accounts that said 13 or older, or a parent's account - never an under-13 or an unanswered one.
+ *  `person` = the account's Name and its age group: the first name goes with the facts only for 13plus / parent accounts. */
+export function sendAccountEmailSignals(ownerId: string, email: string | null | undefined, status?: AccountPlanStatus,
+  person: { name?: unknown; ageGroup?: unknown } = {}) {
+  if (!mayGetEmails(person.ageGroup)) return;
   try {
     sendEmailSignals(ownerId, email, status ?? getAccountPlanStatus(ownerId), {
       subscriptionId: readAccountBillingIds(ownerId).subscriptionId,
       madeFirstAnimation: hasMadeAnimation(ownerId),
+      firstName: emailFirstName(person.name, person.ageGroup),
     });
   } catch { /* the follow-up emails never break the app */ }
 }
@@ -33,7 +36,7 @@ export function startEmailSignalSweeper() {
       for (const ownerId of listBillingOwners()) {
         try {
           const user = await context.internalAdapter.findUserById(ownerId);
-          if (user?.email) sendAccountEmailSignals(ownerId, user.email, (user as { ageGroup?: unknown }).ageGroup);
+          if (user?.email) sendAccountEmailSignals(ownerId, user.email, undefined, { name: user.name, ageGroup: (user as { ageGroup?: unknown }).ageGroup });
         } catch { /* next account */ }
         await new Promise((done) => setTimeout(done, 200));
       }

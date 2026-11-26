@@ -251,3 +251,8 @@ a.primary { display: grid; place-items: center; color: #fff; text-decoration: no
   background: linear-gradient(to top, rgba(17, 17, 19, .97) 62%, rgba(17, 17, 19, 0)); }
 :global(html[data-device="phone"][data-orient="portrait"]) .card:not(.cardCompact) { padding-bottom: calc(96px + var(--phone-safe-bottom)); }
 :global(html[data-device="phone"][data-orient="portrait"]) .screenCenter { padding-bottom: calc(96px + var(--phone-safe-bottom)); }
+
+/* SPEC-0031: a code from a link, kept through sign-up; the beta price on step 2. */
+.codeSaved { margin: 6px 0 0; color: var(--da-success, #3ecf8e); font-size: 13.5px; font-weight: 500; line-height: 1.45; }
+.codeSaved strong { letter-spacing: .03em; }
+.planWas { color: var(--muted); font-size: 12.5px; font-weight: 500; }

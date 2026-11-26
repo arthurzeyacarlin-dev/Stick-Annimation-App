@@ -171,3 +171,17 @@ test("an exported video sends Exported Video once per account, and never for a t
   await settle();
   assert.deepEqual(ids(calls), ["export-e1"]);
 });
+
+test("dad, Nov 26: a first name goes to the email service only for 13plus and parent accounts", async () => {
+  const { emailFirstName } = await import("./emailSignals.ts");
+  assert.equal(emailFirstName("Maya Rose", "13plus"), "Maya");
+  assert.equal(emailFirstName("  José  ", "parent"), "José");
+  assert.equal(emailFirstName("Maya", "under13"), null, "never for under 13");
+  assert.equal(emailFirstName("Maya", undefined), null, "never when the age group isn't known");
+  assert.equal(emailFirstName("Maya", ""), null);
+  assert.equal(emailFirstName("maya@mail.com", "13plus"), null, "an email is not a name");
+  assert.equal(emailFirstName("Diamond2", "13plus"), null);
+  assert.equal(emailFirstName("", "13plus"), null);
+  assert.deepEqual(emailSignalBody("a@b.co", "id", "Started Trial", undefined, "Maya").data.attributes.profile.data.attributes, { email: "a@b.co", first_name: "Maya" });
+  assert.deepEqual(emailSignalBody("a@b.co", "id", "Started Trial").data.attributes.profile.data.attributes, { email: "a@b.co" });
+});

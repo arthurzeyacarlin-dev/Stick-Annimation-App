@@ -8,6 +8,10 @@ import { ACCOUNT_PLAN_CHANGED_EVENT, useAccountPlan } from "./useAccountPlan";
 import styles from "./PlansScreen.module.css";
 import { BackButton } from "@/src/components/ui/BackButton";
 import { PaymentDialog, type PaymentFor } from "./PaymentDialog";
+import { normalizeCode, offerFromCodes, offerLine, offerMoney, offerPrice } from "@/src/lib/account/offerDisplay";
+import { saveCode, useCodeCheck, useSavedOffer } from "./offerCode";
+import { SalesRecap } from "./SalesRecap";
+import { betaDeadlineLine } from "@/src/lib/account/salesCopy";
 
 // The plans page. "Choose" opens Stripe's own page (cards are typed there, never here); coming back with
 // ?checkout=done&session_id=… checks with Stripe, which applies the plan exactly once. Nov 21 (Arthur: "Diamond Animator is what
@@ -37,6 +41,15 @@ export function PlansScreen() {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [codes, setCodes] = useState({ first50: "", youtube: "" });
+  // SPEC-0031: a code from a link (?code=) or typed before goes into its own box by itself; the prices show it.
+  const { saved } = useSavedOffer();
+  const [filledFrom, setFilledFrom] = useState("");
+  if (saved && saved.code !== filledFrom) {
+    setFilledFrom(saved.code);
+    setCodes((now) => ({ ...now, [saved.offer]: now[saved.offer] || saved.code }));
+  }
+  const first50Ok = useCodeCheck(codes.first50) === "first50";
+  const youtubeOk = useCodeCheck(codes.youtube) === "youtube";
   const [switchTo, setSwitchTo] = useState<{ plan: PaidPlanId; interval: BillingInterval } | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [payFor, setPayFor] = useState<PaymentFor | null>(null);
@@ -115,6 +128,7 @@ export function PlansScreen() {
     if (payingNow) { setError(null); setSwitchTo({ plan, interval }); return; }
     // First plan: paid in the app's own card dialog (Nov 21: never a payment company's page).
     setError(null);
+    if (first50Ok) saveCode(codes.first50); else if (youtubeOk) saveCode(codes.youtube);
     setPayFor({ kind: "plan", plan, interval, codes: { first50: codes.first50.trim() || undefined, youtube: codes.youtube.trim() || undefined } });
   };
 
@@ -152,6 +166,11 @@ export function PlansScreen() {
           </div>
         </header>
 
+        {!payingNow && (first50Ok || youtubeOk) && <p className={styles.applied} role="status">
+          <span aria-hidden="true">◆</span> {first50Ok ? "Beta price" : "YouTube price"} applied: <strong>{first50Ok ? normalizeCode(codes.first50) : normalizeCode(codes.youtube)}</strong> · {offerLine(first50Ok ? "first50" : "youtube")}
+          {first50Ok && youtubeOk && billingInterval !== "year" && ` Plus your YouTube code: 30% off your first ${CYCLE_WORD}.`}
+          {first50Ok && status?.plan === "trial" && !status.locked && <><br /><strong>{betaDeadlineLine(status.trialEndsAt ?? status.windowEnd)}</strong></>}
+        </p>}
         {!payingNow && canPay(mode) && <DiscountCodes codes={codes} setCodes={setCodes} />}
 
         {status?.plan === "trial" && !status.locked && <div className={styles.trialCard}>
@@ -169,14 +188,16 @@ export function PlansScreen() {
             const shownInterval = current ? status?.interval ?? PLAN_CYCLE : billingInterval;
             const price = shownInterval === "year" ? `${usd(plan.yearlyUsd)} a year` : `${usd(plan.monthlyUsd)} a ${CYCLE_WORD}`;
             const amount = usd(shownInterval === "year" ? plan.yearlyUsd : plan.monthlyUsd);
+            const deal = current || payingNow ? null : offerPrice(id, shownInterval, offerFromCodes({ first50: first50Ok, youtube: youtubeOk }, shownInterval));
             const body = (
               <>
                 <span className={styles.planTop}>
                   <span className={styles.planName}>{plan.label}</span>
-                  {current ? <span className={styles.yoursBadge}>Your plan</span> : PLAN_BADGE[id] && <span className={styles.badge}>{PLAN_BADGE[id]}</span>}
+                  {current ? <span className={styles.yoursBadge}>Your plan</span> : deal ? <span className={`${styles.badge} ${styles.dealBadge}`}>{deal.badge}</span> : PLAN_BADGE[id] && <span className={styles.badge}>{PLAN_BADGE[id]}</span>}
                 </span>
                 <span className={styles.planFor}>{PLAN_FOR[id]}</span>
-                <span className={styles.price}><strong>{amount}</strong><small>{shownInterval === "year" ? "a year" : `a ${CYCLE_WORD}`}</small></span>
+                <span className={styles.price}>{deal && <s className={styles.was} aria-label={`was ${amount}`}>{amount}</s>}<strong>{deal ? offerMoney(deal.firstCents) : amount}</strong><small>{shownInterval === "year" ? "a year" : `a ${CYCLE_WORD}`}</small></span>
+                {deal && <span className={styles.dealThen}>{deal.then}</span>}
                 <span className={styles.allowance}><strong>{creditsText(plan.credits)}</strong><small>every {CYCLE_WORD}</small><small className={styles.allowanceMakes}>{plan.about}</small></span>
                 <ul>{PLAN_POINTS[id].map((point) => <li key={point}>{point}</li>)}</ul>
               </>
@@ -213,18 +234,16 @@ export function PlansScreen() {
                 {body}
                 <button type="button" className={`${styles.choose} ${id === "starter" ? styles.chooseOutline : id === "creator" ? styles.chooseGray : styles.chooseBlue}`}
                   disabled={!canPay(mode) || busy !== null} onClick={() => void choose(id)}
-                  aria-label={`${label}, ${price}, ${creditsText(plan.credits)} every ${CYCLE_WORD}`}>{label}</button>
+                  aria-label={`${label}, ${deal ? `beta price ${offerMoney(deal.firstCents)}${shownInterval === "year" ? " a year" : ` a ${CYCLE_WORD}`}, ${deal.then}` : price}, ${creditsText(plan.credits)} every ${CYCLE_WORD}`}>{label}</button>
               </div>
             );
           })}
         </div>
         {error && <p role="alert" className={styles.error}>{error}</p>}
 
-        <ul className={styles.promises}>
-          <li><strong>Switch or cancel any time</strong><span>A switch happens right away with the new plan&apos;s full credits. A cancelled plan runs to the end of what you paid and is never charged again.</span></li>
-          <li><strong>Refills every {CYCLE_WORD}</strong><span>Your credits come back on the day your plan started, once that payment goes through. Leftovers don&apos;t roll over; extra packs never expire.</span></li>
-          <li><strong>Secure payment</strong><span>Your card is encrypted and sent securely. Diamond Animator never sees or stores your card number.</span></li>
-        </ul>
+        {/* SPEC-0031: the mini sales page (what you get, what animators say, the promises). Words: salesCopy.ts. */}
+        <div className={styles.recapWrap}><SalesRecap /></div>
+        <p className={`${styles.note} ${styles.recapNote}`}>Credits refill every {CYCLE_WORD} on the day your plan started, once that payment goes through. Leftovers don&apos;t roll over; extra packs never expire. A switch happens right away with the new plan&apos;s full credits.</p>
       </div>
       {payFor && <PaymentDialog payFor={payFor} onClose={() => setPayFor(null)} onDone={(words) => { setPayFor(null); setNotice(words); refreshAll(); }} />}
       {switchTo && status && <SwitchDialog target={switchTo} current={status.label} onClose={() => setSwitchTo(null)}

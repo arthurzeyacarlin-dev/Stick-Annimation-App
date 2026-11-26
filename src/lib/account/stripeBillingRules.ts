@@ -228,17 +228,23 @@ export function deletionRefund(planPayments: RefundablePayment[], planCreditsUse
 
 // ---------- The two discount codes (website: first 50 = 25% off the first year; YouTube = 10% off the first month) ----------
 
-/** "Do both → 30% off your first month, then 25% for the rest of your first year": the first-50 code goes on the checkout
- *  (Stripe takes one code), and right after the first payment 5% of the list price is refunded, once. */
-export const BOTH_EXTRA_PERCENT = 5;
+// "Do both" = 30% off the first month (25% code at checkout + 5% of the list price refunded once). The numbers (5% extra, 25% for 12 months, 10%) live in offerDisplay.ts (browser-safe), so the coupons and every price shown
+// read the same numbers.
+import { normalizeCode } from "./offerDisplay.ts";
+export { BOTH_EXTRA_PERCENT, FIRST50_MONTHS, FIRST50_PERCENT, normalizeCode, YOUTUBE_PERCENT } from "./offerDisplay.ts";
 export type Offer = "first50" | "youtube" | "both";
-export const normalizeCode = (code: unknown) => (typeof code === "string" ? code.trim().toUpperCase().replace(/\s+/g, "") : "");
 
-/** Which offer a checkout gets from the codes the person typed. `codes` = the real codes (settings). */
-export function pickOffer(typed: { first50?: unknown; youtube?: unknown }, codes: { first50: string | null; youtube: string | null }, interval: BillingInterval):
+/** Dad, Nov 26: the beta price is reserved only while the account's free trial is running; once the trial ends it is gone. */
+export const BETA_PRICE_ENDED_MESSAGE = "Your beta price was reserved during your free trial, and your trial has ended, so this code doesn't work any more.";
+
+/** Which offer a checkout gets from the codes the person typed. `codes` = the real codes (settings). `account.trialRunning` =
+ *  this account's free trial is still on (dad, Nov 26: the first-50 code can be claimed only then; plus its 50-use cap). */
+export function pickOffer(typed: { first50?: unknown; youtube?: unknown }, codes: { first50: string | null; youtube: string | null }, interval: BillingInterval,
+  account: { trialRunning: boolean }):
   { ok: true; offer: Offer | null; apply: "first50" | "youtube" | null } | { ok: false; message: string } {
   const first50 = normalizeCode(typed.first50), youtube = normalizeCode(typed.youtube);
   if (first50 && (!codes.first50 || first50 !== normalizeCode(codes.first50))) return { ok: false, message: "That first-50 code isn't right. Check the email we sent you." };
+  if (first50 && !account.trialRunning) return { ok: false, message: BETA_PRICE_ENDED_MESSAGE };
   if (youtube && (!codes.youtube || youtube !== normalizeCode(codes.youtube))) return { ok: false, message: "That YouTube code isn't right. Check the code on the channel." };
   if (youtube && interval === "year") {
     if (!first50) return { ok: false, message: `The YouTube code works on ${PLAN_CYCLE === "week" ? "weekly" : "monthly"} plans only.` };

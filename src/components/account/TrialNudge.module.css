@@ -1,0 +1,39 @@
+/* SPEC-0031: the trial card floats bottom-left over the page (the help bubble is bottom-right); nothing below it moves. */
+.nudge { position: fixed; z-index: 123; left: calc(18px + env(safe-area-inset-left, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  display: grid; gap: 10px; width: min(360px, calc(100vw - 36px)); padding: 16px 16px 14px; border: 1px solid var(--da-border); border-radius: 14px;
+  background: var(--da-panel); color: var(--da-text); box-shadow: var(--da-shadow-pop, var(--da-pop-shadow)); font-family: var(--font-geist-sans), system-ui, sans-serif; }
+.nudge[data-stage="lastDay"], .nudge[data-stage="creditsOut"] { border-color: var(--da-accent); }
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.title { margin: 0; font-size: 16.5px; font-weight: 700; letter-spacing: -.015em; line-height: 1.3; }
+.text, .unlock { margin: 0; color: var(--da-muted); font-size: 14px; line-height: 1.45; }
+.unlock strong { color: var(--da-text); font-weight: 600; }
+.code { font-size: 13.5px; }
+.buttons { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.primary { display: inline-grid; place-items: center; min-height: 40px; padding: 0 18px; border: 1px solid var(--da-accent); border-radius: 10px;
+  background: var(--da-accent); color: #fff; font-size: 14.5px; font-weight: 600; text-decoration: none; }
+.primary:hover { border-color: var(--da-accent-hover); background: var(--da-accent-hover); box-shadow: var(--da-glow-primary-hover); }
+.later { min-height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--da-muted); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+.later:hover { border-color: var(--da-hover); background: var(--da-hover); color: #fff; }
+.primary:focus-visible, .later:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+/* phone + tablet: a card above the bottom bar and the help button, full width inside the side margins */
+:global(html[data-device="phone"]) .nudge { left: var(--phone-pad, 16px); right: var(--phone-pad, 16px); width: auto;
+  bottom: calc(74px + var(--phone-tabbar-space, 72px)); border-radius: var(--phone-radius, 16px); }
+:global(html[data-device="phone"]) .primary, :global(html[data-device="phone"]) .later { min-height: 46px; font-size: 15.5px; }
+:global(html[data-device="phone"]) .primary { flex: 1; }
+:global(html[data-device="tablet"]) .nudge { bottom: calc(12px + var(--phone-tabbar-space, 72px)); }
+/* the beta bar (a trial account with the beta code): slim, bottom-left, stronger in the last 3 days */
+.bar { position: fixed; z-index: 122; left: calc(18px + env(safe-area-inset-left, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 12px; width: max-content; max-width: min(620px, calc(100vw - 110px)); padding: 8px 8px 8px 14px;
+  border: 1px solid var(--da-success-border, var(--da-border)); border-radius: 12px; background: var(--da-panel); color: var(--da-text);
+  box-shadow: var(--da-shadow-pop, var(--da-pop-shadow)); font-family: var(--font-geist-sans), system-ui, sans-serif; }
+.bar[data-urgent] { border-color: var(--da-accent); box-shadow: var(--da-shadow-pop, var(--da-pop-shadow)), 0 0 0 3px rgba(0, 102, 255, .22); }
+.barText { margin: 0; color: var(--da-muted); font-size: 13.5px; line-height: 1.4; }
+.barText strong { color: var(--da-text); font-weight: 650; }
+.bar[data-urgent] .barText { color: var(--da-text); }
+.diamond { margin-right: 6px; color: var(--da-success); }
+.bar .primary { flex: none; min-height: 36px; padding: 0 14px; font-size: 14px; white-space: nowrap; }
+:global(html[data-device="phone"]) .bar { left: var(--phone-pad, 16px); right: calc(var(--phone-pad, 16px) + 60px); width: auto; max-width: none;
+  bottom: calc(12px + var(--phone-tabbar-space, 72px)); flex-wrap: wrap; padding: 12px; border-radius: var(--phone-radius, 16px); }
+:global(html[data-device="phone"]) .barText { flex: 1 1 calc(100% - 50px); font-size: 14px; }
+:global(html[data-device="phone"]) .bar .primary { flex: 1; min-height: 44px; font-size: 15px; }
+:global(html[data-device="tablet"]) .bar { bottom: calc(12px + var(--phone-tabbar-space, 72px)); }

@@ -6,6 +6,9 @@ import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 import { ProjectLibrary } from "@/src/components/project-library/ProjectLibrary";
 import { useAccountSession } from "./AccountSessionProvider";
 import styles from "./TrialEndedScreen.module.css";
+import { TRIAL_ENDED_LEAD } from "@/src/lib/account/salesCopy";
+import { SavedCodeLine, ValueBullets } from "./SalesRecap";
+import { useSavedOffer } from "./offerCode";
 
 // SPEC-0020 Phase 2 + 9: after the free trial (or a paid plan) ends, creating is locked (Arthur: no free mode), but
 // people can still open, WATCH and EXPORT what they made (dad's decision). This screen replaces Home, so the editor
@@ -19,6 +22,7 @@ export function TrialEndedScreen({ name, lockReason = "trial_ended" }: {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const planEnded = lockReason === "plan_ended";
+  const { saved } = useSavedOffer();
   const logOut = async () => {
     setBusy(true);
     setError(null);
@@ -40,8 +44,9 @@ export function TrialEndedScreen({ name, lockReason = "trial_ended" }: {
             <h1 id="trial-ended-title" className={styles.title}>{planEnded ? "Your plan has ended" : "Your free trial has ended"}</h1>
             <p className={styles.lead}>
               {planEnded ? "Thanks for animating with Diamond Animator" : "Thanks for trying Diamond Animator"}{name ? `, ${name}` : ""}!
-              {" "}Choose a plan to keep animating. Your animations are safe: you can still watch and export them below.
+              {" "}{TRIAL_ENDED_LEAD}
             </p>
+            {saved && <SavedCodeLine code={saved.code} offer={saved.offer} />}
           </div>
         </div>
         <div className={styles.actions}>
@@ -50,6 +55,7 @@ export function TrialEndedScreen({ name, lockReason = "trial_ended" }: {
           <button type="button" className={styles.button} onClick={() => void logOut()} disabled={busy}>{busy ? "Logging out" : "Log out"}</button>
         </div>
         {error && <p role="alert" className={styles.error}>{error}</p>}
+        <div className={styles.value}><ValueBullets compact wide /></div>
       </header>
       <div className={styles.library}>
         {account?.id ? <ProjectLibrary readOnly surface="combined" ownerId={account.id} />

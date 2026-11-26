@@ -36,12 +36,8 @@
 .manage:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #fff; box-shadow: var(--da-glow-hover); }
 .manage:disabled { cursor: default; opacity: .6; }
 .error { margin: 0; color: var(--da-danger); font-size: 14px; }
-.promises { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 18px 0 0; border-top: 1px solid var(--da-line); list-style: none; }
-.promises li { display: grid; gap: 2px; padding-inline: 2px; }
-.promises strong { color: var(--da-text); font-size: 14px; font-weight: 600; }
-.promises span { color: var(--da-muted); font-size: 13.5px; line-height: 1.4; }
 @media (max-width: 860px) {
-  .plans, .promises { grid-template-columns: minmax(0, 1fr); }
+  .plans { grid-template-columns: minmax(0, 1fr); }
   .intervals { width: 100%; }
   .plan { padding: 20px; }
   .price { margin-top: 18px; }
@@ -131,7 +127,7 @@ button.choose:focus-visible { outline: 2px solid var(--da-focus); outline-offset
 
 /* ===== PHONE + TABLET ONLY (phone plan, Nov 24). A computer never reads these rules. =====
    Phone: big title, a big Monthly/Yearly switch, the three plans side by side as cards you swipe (the next one peeks in),
-   the discount codes and the promises under the plans, every dialog a sheet from the bottom. */
+   the discount codes and the sales recap under the plans, every dialog a sheet from the bottom. */
 :global(html[data-device="phone"]) .main { padding: 22px 0 calc(32px + var(--phone-tabbar-space)); }
 :global(html[data-device="phone"]) .frame { display: flex; flex-direction: column; gap: 18px; }
 :global(html[data-device="phone"]) .frame > * { margin-inline: var(--phone-pad); }
@@ -167,9 +163,8 @@ button.choose:focus-visible { outline: 2px solid var(--da-focus); outline-offset
 :global(html[data-device="phone"]) .codeField input { width: 100%; min-width: 0; }
 :global(html[data-device="phone"]) .codeField input { height: 48px; border-radius: 12px; }
 :global(html[data-device="phone"]) .note { font-size: 13.5px; }
-:global(html[data-device="phone"]) .promises { order: 6; grid-template-columns: minmax(0, 1fr); gap: 14px; padding-top: 18px; }
-:global(html[data-device="phone"]) .promises strong { font-size: 15px; }
-:global(html[data-device="phone"]) .promises span { font-size: 14px; }
+:global(html[data-device="phone"]) .recapWrap { order: 6; }
+:global(html[data-device="phone"]) .recapNote { order: 7; }
 /* the switch and cancel dialogs: a sheet from the bottom, buttons big and at the bottom */
 :global(html[data-device="phone"]) .dialogBackdrop { place-items: end stretch; padding: 0; animation: phoneFadeIn 200ms ease; }
 :global(html[data-device="phone"]) .dialog {
@@ -190,12 +185,19 @@ button.choose:focus-visible { outline: 2px solid var(--da-focus); outline-offset
 :global(html[data-device="tablet"]) .frame { display: flex; flex-direction: column; gap: 22px; }
 :global(html[data-device="tablet"]) .error { order: 4; }
 :global(html[data-device="tablet"]) .codes { order: 5; }
-:global(html[data-device="tablet"]) .promises { order: 6; }
+:global(html[data-device="tablet"]) .recapWrap { order: 6; }
+:global(html[data-device="tablet"]) .recapNote { order: 7; }
 :global(html[data-device="tablet"][data-orient="portrait"]) .plans {
   display: flex; gap: 14px; margin-inline: calc(-1 * clamp(20px, 4vw, 56px)); padding: 2px clamp(20px, 4vw, 56px) 6px; overflow-x: auto; scroll-snap-type: x mandatory;
   scroll-padding-inline: clamp(20px, 4vw, 56px); scrollbar-width: none; overscroll-behavior-x: contain; }
 :global(html[data-device="tablet"][data-orient="portrait"]) .plans::-webkit-scrollbar { display: none; }
 :global(html[data-device="tablet"][data-orient="portrait"]) .plan { flex: 0 0 calc(50% - 40px); scroll-snap-align: start; border-radius: 18px; }
-:global(html[data-device="tablet"][data-orient="portrait"]) .promises { grid-template-columns: minmax(0, 1fr); }
 @keyframes phoneSheetUp { from { transform: translateY(100%); } to { transform: none; } }
 @keyframes phoneFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* SPEC-0031: the beta price (struck-through list price, the price with the code, a badge, what happens after). */
+.applied { margin: 0; padding: 12px 16px; border: 1px solid var(--da-success-border, var(--da-line)); border-radius: 12px; background: var(--da-card-fill); color: var(--da-success); font-size: 14.5px; font-weight: 500; line-height: 1.45; }
+.applied strong { letter-spacing: .03em; }
+.was { margin-right: 2px; color: var(--da-muted); font-size: 20px; font-weight: 500; text-decoration-thickness: 1.5px; }
+.dealBadge { background: var(--da-success); color: var(--da-page); }
+.dealThen { margin-top: 6px; color: var(--da-success); font-size: 13.5px; font-weight: 500; line-height: 1.35; }

@@ -26,7 +26,7 @@ import {
 } from "./plans";
 import { dollarsText, creditsText } from "./credits";
 import {
-  assertAllowedStripeKey, BillingError, billingModeForKey, BOTH_EXTRA_PERCENT, deletionRefund, encodeStripeForm, estimateStripeFeeCents,
+  assertAllowedStripeKey, BillingError, billingModeForKey, BOTH_EXTRA_PERCENT, deletionRefund, normalizeCode, FIRST50_MONTHS, FIRST50_PERCENT, YOUTUBE_PERCENT, encodeStripeForm, estimateStripeFeeCents,
   idempotencyKey, isBillingInterval, isChargingSubscriptionStatus, isLiveSubscriptionStatus, mapSubscriptionStatus, pickOffer, planLookupKey, planUnitAmount,
   STRIPE_API_VERSION, STRIPE_CATALOG, subscriptionPeriodEndMs, subscriptionPeriodStartMs, subscriptionPlan, verifyStripeSignature,
   type BillingMode, type CatalogEntry, type DeletionRefund, type FormValue, type Offer, type RefundablePayment,
@@ -623,14 +623,28 @@ export function startBillingSweeper() {
 // ---------- Discount codes ----------
 
 const OFFER_COUPONS: Record<"first50" | "youtube", { id: string; percent_off: number; duration: "once" | "repeating"; months?: number; name: string; max?: number }> = {
-  first50: { id: "diamond-first50-25", percent_off: 25, duration: "repeating", months: 12, name: "First 50: 25% off the first year", max: 50 },
-  youtube: { id: "diamond-youtube-10", percent_off: 10, duration: "once", name: "YouTube: 10% off the first payment" },
+  first50: { id: "diamond-first50-25", percent_off: FIRST50_PERCENT, duration: "repeating", months: FIRST50_MONTHS, name: "First 50: 25% off the first year", max: 50 },
+  youtube: { id: "diamond-youtube-10", percent_off: YOUTUBE_PERCENT, duration: "once", name: "YouTube: 10% off the first payment" },
 };
 /** The real codes people type (settings; in test mode they default to test codes). */
 const offerCodes = () => ({
   first50: process.env.DIAMOND_FIRST50_CODE?.trim() || (billingMode() === "test" ? "FIRST50TEST" : null),
   youtube: process.env.DIAMOND_YOUTUBE_CODE?.trim() || (billingMode() === "test" ? "YOUTUBETEST" : null),
 });
+
+/** Dad, Nov 26: the beta (first-50) price can be claimed only while this account's free trial is still running. */
+const trialRunning = (ownerId: string) => { const status = getAccountPlanStatus(ownerId); return status.plan === "trial" && !status.locked; };
+
+/** SPEC-0031 (display only): which box a typed or linked code belongs in, so the screens can show the beta price before paying.
+ *  The same check as paying (pickOffer + the real codes); nothing is asked of the payment service and nothing is charged. */
+export function whichOfferCode(ownerId: string, code: unknown): "first50" | "youtube" | null {
+  const typed = normalizeCode(code);
+  if (!typed) return null;
+  const codes = offerCodes();
+  if (codes.first50 && typed === normalizeCode(codes.first50)) return trialRunning(ownerId) ? "first50" : null;
+  if (codes.youtube && typed === normalizeCode(codes.youtube)) return "youtube";
+  return null;
+}
 
 /** The Stripe promotion code for an offer (made once, with its limits: the first-50 code works 50 times, both once per person). */
 async function promotionCodeFor(offer: "first50" | "youtube"): Promise<string> {
@@ -682,7 +696,7 @@ export async function createPlanCheckout(ownerId: string, user: BillingUser, pla
   stripeKey();
   if (!isPaidPlanId(plan)) throw new BillingError("Choose Basic, Pro or Creator.");
   if (!isBillingInterval(interval)) throw new BillingError(`Choose ${PLAN_CYCLE === "week" ? "weekly" : "monthly"} or yearly.`);
-  const offer = pickOffer(codes, offerCodes(), interval);
+  const offer = pickOffer(codes, offerCodes(), interval, { trialRunning: trialRunning(ownerId) });
   if (!offer.ok) throw new BillingError(offer.message, 400);
   await syncWithStripe(ownerId, { force: true });
   // Nov 21 (Arthur): someone who already pays switches inside Diamond Animator (switchPlanNow), never on a second page.
@@ -972,7 +986,7 @@ async function startPlanPaymentNow(ownerId: string, user: BillingUser, plan: unk
   stripeKey();
   if (!isPaidPlanId(plan)) throw new BillingError("Choose Basic, Pro or Creator.");
   if (!isBillingInterval(interval)) throw new BillingError(`Choose ${PLAN_CYCLE === "week" ? "weekly" : "monthly"} or yearly.`);
-  const offer = pickOffer(codes, offerCodes(), interval);
+  const offer = pickOffer(codes, offerCodes(), interval, { trialRunning: trialRunning(ownerId) });
   if (!offer.ok) throw new BillingError(offer.message, 400);
   await syncWithStripe(ownerId, { force: true });
   if (hasLiveSubscription(ownerId)) throw new BillingError("You already have a plan. Use Switch on the Plans page to change it right away.", 409);

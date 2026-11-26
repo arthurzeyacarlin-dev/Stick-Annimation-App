@@ -5,6 +5,8 @@ import { ACCOUNT_PLANS, CYCLE_WORD, TOP_UP_PACKS, type BillingInterval, type Pai
 import { creditsText, dollarsText } from "@/src/lib/account/credits";
 import { postBilling, useBillingInfo } from "./billingClient";
 import styles from "./PaymentDialog.module.css";
+import { afterFirstPayment, normalizeCode, offerFromCodes, offerPrice } from "@/src/lib/account/offerDisplay";
+import { betaLockedLine, NEXT_STEPS, PAY_BULLETS } from "@/src/lib/account/salesCopy";
 
 // Nov 21 (Arthur: "I don't want it to pop up Stripe ever again... Instead of typing to Stripe, they type in my app"):
 // every card is typed HERE, in Diamond Animator's own dialog. The three card boxes are the payment company's secure fields (the
@@ -63,13 +65,31 @@ const FIELD_STYLE = {
   invalid: { color: "#ff8a95", iconColor: "#ff8a95" },
 };
 
-const nextPaymentDay = (interval: BillingInterval) => {
-  const date = new Date();
-  if (interval === "year") date.setUTCFullYear(date.getUTCFullYear() + 1);
-  else if (interval === "week") date.setUTCDate(date.getUTCDate() + 7);
-  else date.setUTCMonth(date.getUTCMonth() + 1);
-  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
-};
+/** SPEC-0031: the plan's lines. "Today's total" is what the payment service really charges (its own amount); the discount line is
+ *  the list price minus that amount, so it can never show a discount that isn't really given. */
+function PlanLines({ payFor, start, amount }: { payFor: Extract<PaymentFor, { kind: "plan" }>; start: Start | null; amount: string }) {
+  const info = ACCOUNT_PLANS[payFor.plan];
+  const listCents = Math.round((payFor.interval === "year" ? info.yearlyUsd : info.monthlyUsd) * 100);
+  const discountCents = start ? Math.max(0, listCents - start.amountCents) : 0;
+  const offer = discountCents > 0 ? offerFromCodes({ first50: Boolean(payFor.codes?.first50), youtube: Boolean(payFor.codes?.youtube) }, payFor.interval) : null;
+  const code = normalizeCode(offer === "youtube" ? payFor.codes?.youtube : payFor.codes?.first50);
+  const bonus = offer === "both" ? offerPrice(payFor.plan, payFor.interval, offer)?.bonusBackCents ?? 0 : 0;
+  const unit = payFor.interval === "year" ? "yearly" : CYCLE_WORD === "week" ? "weekly" : "monthly";
+  return (
+    <>
+      <dl className={styles.facts}>
+        <div><dt>{info.label}, {unit}</dt><dd>{dollarsText(listCents)}</dd></div>
+        {discountCents > 0 && <div className={styles.discount}><dt>{offer === "youtube" ? "YouTube discount" : offer ? "Beta discount" : "Discount"}{offer && code ? ` (${code})` : ""}</dt><dd>−{dollarsText(discountCents)}</dd></div>}
+        <div className={styles.total}><dt>Today&apos;s total</dt><dd>{start ? amount : " "}</dd></div>
+        {(offer === "first50" || offer === "both") && <div className={styles.discount}><dt>{betaLockedLine(payFor.interval === "year")}</dt><dd>✓</dd></div>}
+        {bonus > 0 && <div className={styles.discount}><dt>YouTube bonus, back to your card right after</dt><dd>{dollarsText(bonus)}</dd></div>}
+        <div><dt>You get</dt><dd>{creditsText(info.credits)} every {CYCLE_WORD}</dd></div>
+        <div><dt>After that</dt><dd>{start ? afterFirstPayment(payFor.plan, payFor.interval, offer) : " "}</dd></div>
+      </dl>
+      <ul className={styles.bullets}>{PAY_BULLETS.map((line) => <li key={line}>{line}</li>)}</ul>
+    </>
+  );
+}
 
 // (Nov 22, Fable's money check) after a real payment: one more fresh check with the payment company a few seconds later, and every
 // credits counter reads again - a plan or pack that was a moment behind shows without waiting for the minute's check
@@ -214,11 +234,7 @@ export function PaymentDialog({ payFor, onClose: close, onDone: done }: { payFor
       <div className={styles.dialog}>
         <h2 id="pay-title" className={styles.title}>{title}</h2>
 
-        {payFor.kind === "plan" && <dl className={styles.facts}>
-          <div><dt>You get</dt><dd>{creditsText(ACCOUNT_PLANS[payFor.plan].credits)} every {CYCLE_WORD}</dd></div>
-          <div><dt>You pay today</dt><dd>{start ? amount : " "}</dd></div>
-          <div><dt>Next payment</dt><dd>{nextPaymentDay(payFor.interval)}</dd></div>
-        </dl>}
+        {payFor.kind === "plan" && <PlanLines payFor={payFor} start={start} amount={amount} />}
         {payFor.kind === "pack" && <dl className={styles.facts}>
           <div><dt>You get</dt><dd>{creditsText(TOP_UP_PACKS.find((pack) => pack.id === payFor.pack)?.credits ?? 0)}, never expire</dd></div>
           <div><dt>You pay today</dt><dd>{start ? amount : " "}</dd></div>
@@ -269,6 +285,10 @@ export function PaymentDialog({ payFor, onClose: close, onDone: done }: { payFor
           <button type="button" className={styles.primary} disabled={!canSubmit} onClick={() => void pay()}>{label}</button>
           <button type="button" className={styles.plain} disabled={busy} onClick={onClose}>Not now</button>
         </div>
+        {payFor.kind === "plan" && <div className={styles.next}>
+          <p className={styles.nextTitle}>What happens next</p>
+          <ol>{NEXT_STEPS.map((step) => <li key={step}>{step}</li>)}</ol>
+        </div>}
         <p className={styles.secure}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
           Your card is encrypted and sent securely. Diamond Animator never sees or stores your card number.

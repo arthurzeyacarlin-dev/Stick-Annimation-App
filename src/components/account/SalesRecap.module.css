@@ -1,0 +1,34 @@
+/* SPEC-0031: the value recap, proof strip and promises. Same gray tokens, lines and Geist as the plans page. */
+.recap { display: grid; gap: 28px; }
+.title { margin: 0 0 14px; color: var(--da-text); font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.value { padding-top: 22px; border-top: 1px solid var(--da-line); }
+.bullets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 28px; margin: 0; padding: 0; list-style: none; }
+.bullets li { position: relative; padding-left: 24px; color: var(--da-muted); font-size: 14.5px; line-height: 1.45; }
+.bullets li::before { content: ""; position: absolute; left: 3px; top: 5px; width: 10px; height: 5px; border-left: 1.8px solid var(--da-accent); border-bottom: 1.8px solid var(--da-accent); transform: rotate(-45deg); }
+.bullets strong { color: var(--da-text); font-weight: 600; }
+.value[data-compact] { padding-top: 0; border-top: 0; }
+.value[data-compact] .bullets { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.value[data-compact] .bullets li { font-size: 13.5px; }
+.value[data-compact][data-wide] .bullets { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 24px; }
+.quotes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.quote { display: grid; align-content: start; gap: 10px; padding: 18px; border: 1px solid var(--da-line); border-radius: 12px; background: var(--da-card-fill); color: var(--da-text-2); font-size: 14.5px; line-height: 1.5; }
+.quote q { quotes: "\201C" "\201D"; }
+.stars { color: #f5c542; font-size: 14px; letter-spacing: 2px; }
+.who { display: flex; align-items: center; gap: 8px; color: var(--da-text); font-size: 13.5px; font-weight: 600; }
+.initial { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--da-line); color: var(--da-text); font-size: 12px; }
+.promises { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 0; padding: 18px 0 0; border-top: 1px solid var(--da-line); list-style: none; }
+.promises li { display: grid; gap: 2px; padding-inline: 2px; }
+.promises strong { color: var(--da-text); font-size: 14px; font-weight: 600; }
+.promises span { color: var(--da-muted); font-size: 13.5px; line-height: 1.4; }
+.saved { margin: 0; color: var(--da-success); font-size: 14px; font-weight: 500; line-height: 1.45; }
+.saved strong { letter-spacing: .03em; }
+.saved span { margin-right: 4px; }
+@media (max-width: 860px) {
+  .bullets, .quotes, .value[data-compact][data-wide] .bullets { grid-template-columns: minmax(0, 1fr); }
+}
+:global(html[data-device="phone"]) .bullets, :global(html[data-device="phone"]) .quotes, :global(html[data-device="phone"]) .value[data-compact][data-wide] .bullets { grid-template-columns: minmax(0, 1fr); }
+:global(html[data-device="phone"]) .bullets li { font-size: 15px; }
+:global(html[data-device="phone"]) .promises { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+:global(html[data-device="phone"]) .promises strong { font-size: 15px; }
+:global(html[data-device="phone"]) .promises span { font-size: 14px; }
+:global(html[data-device="tablet"][data-orient="portrait"]) .bullets { grid-template-columns: repeat(2, minmax(0, 1fr)); }

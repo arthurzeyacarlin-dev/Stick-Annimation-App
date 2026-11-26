@@ -733,3 +733,42 @@ test("34. (Nov 22, Fable) Basic, then Pro, then Basic again within one minute: t
   assert.deepEqual([...stripe.charges.values()].filter((charge) => charge.customer === customerOf(o)).map((charge) => charge.amount), [999], "one plan, one charge");
 });
 
+
+test("35. (dad, Nov 26) the beta price is claimable from sign-up until the trial ENDS: brand-new account OK, running trial OK, ended trial refused, a past paid plan refused", async () => {
+  for (const promo of stripe.promos.values()) promo.times_redeemed = 0;
+  const beta = { first50: "FIRST50TEST" };
+  // (a) a brand-new account that never opened the app or chose anything yet (sign-up step 2 → Basic): nothing read before
+  at(T0);
+  assert.equal(billing.whichOfferCode("u_beta_new", "first50test"), "first50", "the price shown on sign-up step 2");
+  assert.equal((await billing.startPlanPayment("u_beta_new", user("u_beta_new"), "starter", "month", beta)).amountCents, 749);
+  const fresh = "u_beta_new_direct";   // the very first thing this account ever does is pay with the code
+  assert.equal((await billing.startPlanPayment(fresh, user(fresh), "creator", "month", beta)).amountCents, 1874);
+  // (b) the trial is running (day 13 of 14)
+  at(T0);
+  status("u_beta_trial");
+  at(T0 + 13 * DAY);
+  assert.equal(billing.whichOfferCode("u_beta_trial", "FIRST50TEST"), "first50");
+  assert.equal((await billing.startPlanPayment("u_beta_trial", user("u_beta_trial"), "starter", "year", beta)).amountCents, 7425);
+  // (c) the trial has ended: refused (shown nowhere, refused at payment); paying without the code still works
+  at(T0);
+  status("u_beta_ended");
+  at(T0 + 15 * DAY);
+  assert.equal(status("u_beta_ended").lockReason, "trial_ended");
+  assert.equal(billing.whichOfferCode("u_beta_ended", "FIRST50TEST"), null);
+  await assert.rejects(billing.startPlanPayment("u_beta_ended", user("u_beta_ended"), "starter", "month", beta), /trial has ended/);
+  assert.equal((await billing.startPlanPayment("u_beta_ended", user("u_beta_ended"), "starter", "month")).amountCents, 999);
+  // (d) paid before, then cancelled and the plan ended: refused
+  at(T0);
+  const o = "u_beta_was_paid";
+  const { sub } = await buy(o);
+  await sync(o);
+  stripe.cancelAtPeriodEnd(sub.id);
+  await sync(o);
+  at(NEXT_MONTH + 60_000);
+  assert.equal(stripe.renew(sub.id), null);
+  await sync(o);
+  assert.equal(status(o).lockReason, "plan_ended");
+  assert.equal(billing.whichOfferCode(o, "FIRST50TEST"), null);
+  await assert.rejects(billing.startPlanPayment(o, user(o), "starter", "month", beta), /trial has ended/);
+  await assert.rejects(billing.createPlanCheckout(o, user(o), "starter", "month", ORIGIN, beta), /trial has ended/);
+});

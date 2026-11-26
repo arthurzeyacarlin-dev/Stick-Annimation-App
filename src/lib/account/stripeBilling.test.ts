@@ -5,7 +5,7 @@ import { createHmac } from "node:crypto";
 import { test } from "node:test";
 import {
   assertAllowedStripeKey, BillingError, billingModeForKey, deletionRefund, encodeStripeForm, estimateStripeFeeCents, idempotencyKey,
-  isChargingSubscriptionStatus, isLiveSubscriptionStatus, isTestStripeKey, mapSubscriptionStatus, parsePlanLookupKey, pickOffer, planLookupKey,
+  isChargingSubscriptionStatus, isLiveSubscriptionStatus, isTestStripeKey, mapSubscriptionStatus, parsePlanLookupKey, pickOffer, planLookupKey, BETA_PRICE_ENDED_MESSAGE,
   STRIPE_CATALOG, stripeFormPairs, subscriptionPeriodEndMs, subscriptionPeriodStartMs, subscriptionPlan, TEST_MODE_ONLY_MESSAGE, verifyStripeSignature,
 } from "./stripeBillingRules.ts";
 
@@ -146,13 +146,25 @@ test("deleting an account: they pay only their AI and Stripe's fee (zero profit,
 
 test("the discount codes: first 50, YouTube, both (30% then 25%), wrong codes and the YouTube code on a yearly plan", () => {
   const codes = { first50: "FIRST50TEST", youtube: "YOUTUBETEST" };
-  assert.deepEqual(pickOffer({}, codes, "month"), { ok: true, offer: null, apply: null });
-  assert.deepEqual(pickOffer({ first50: " first50test " }, codes, "month"), { ok: true, offer: "first50", apply: "first50" });
-  assert.deepEqual(pickOffer({ youtube: "YouTubeTest" }, codes, "month"), { ok: true, offer: "youtube", apply: "youtube" });
-  assert.deepEqual(pickOffer({ first50: "FIRST50TEST", youtube: "YOUTUBETEST" }, codes, "month"), { ok: true, offer: "both", apply: "first50" });
-  assert.deepEqual(pickOffer({ first50: "FIRST50TEST", youtube: "YOUTUBETEST" }, codes, "year"), { ok: true, offer: "first50", apply: "first50" });
-  assert.equal(pickOffer({ youtube: "YOUTUBETEST" }, codes, "year").ok, false, "YouTube = monthly plans only");
-  assert.equal(pickOffer({ first50: "NOPE" }, codes, "month").ok, false);
-  assert.equal(pickOffer({ youtube: "NOPE" }, codes, "month").ok, false);
-  assert.equal(pickOffer({ first50: "FIRST50TEST" }, { first50: null, youtube: null }, "month").ok, false, "no code set = refused");
+  const trial = { trialRunning: true };
+  assert.deepEqual(pickOffer({}, codes, "month", trial), { ok: true, offer: null, apply: null });
+  assert.deepEqual(pickOffer({ first50: " first50test " }, codes, "month", trial), { ok: true, offer: "first50", apply: "first50" });
+  assert.deepEqual(pickOffer({ youtube: "YouTubeTest" }, codes, "month", trial), { ok: true, offer: "youtube", apply: "youtube" });
+  assert.deepEqual(pickOffer({ first50: "FIRST50TEST", youtube: "YOUTUBETEST" }, codes, "month", trial), { ok: true, offer: "both", apply: "first50" });
+  assert.deepEqual(pickOffer({ first50: "FIRST50TEST", youtube: "YOUTUBETEST" }, codes, "year", trial), { ok: true, offer: "first50", apply: "first50" });
+  assert.equal(pickOffer({ youtube: "YOUTUBETEST" }, codes, "year", trial).ok, false, "YouTube = monthly plans only");
+  assert.equal(pickOffer({ first50: "NOPE" }, codes, "month", trial).ok, false);
+  assert.equal(pickOffer({ youtube: "NOPE" }, codes, "month", trial).ok, false);
+  assert.equal(pickOffer({ first50: "FIRST50TEST" }, { first50: null, youtube: null }, "month", trial).ok, false, "no code set = refused");
+});
+
+test("dad, Nov 26: the beta (first-50) price is gone once the account's free trial has ended; the YouTube code is not affected", () => {
+  const codes = { first50: "FIRST50TEST", youtube: "YOUTUBETEST" };
+  const ended = { trialRunning: false };
+  assert.deepEqual(pickOffer({ first50: "FIRST50TEST" }, codes, "month", ended), { ok: false, message: BETA_PRICE_ENDED_MESSAGE });
+  assert.deepEqual(pickOffer({ first50: "FIRST50TEST" }, codes, "year", ended), { ok: false, message: BETA_PRICE_ENDED_MESSAGE });
+  assert.equal(pickOffer({ first50: "FIRST50TEST", youtube: "YOUTUBETEST" }, codes, "month", ended).ok, false, "both codes: the beta part is refused");
+  assert.deepEqual(pickOffer({ youtube: "YOUTUBETEST" }, codes, "month", ended), { ok: true, offer: "youtube", apply: "youtube" });
+  assert.deepEqual(pickOffer({}, codes, "month", ended), { ok: true, offer: null, apply: null });
+  assert.equal(pickOffer({ first50: "NOPE" }, codes, "month", ended).ok, false);
 });

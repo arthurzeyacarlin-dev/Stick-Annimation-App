@@ -17,6 +17,7 @@ import {
 //   GET  ?ask=animation|export — signed in: should the ask be shown now?   GET ?mine=1 — signed in: my own testimonial.
 //   POST { stars, text, featureOk, where } — the one answer;  POST { skip: true, where } — "Not now" / closed.
 //   DELETE — signed in: take my testimonial back.
+//   GET ?proof=1 — signed in: up to 3 Wall of Love quotes for the plans page (SPEC-0031).
 //   GET (owner) ?status=new|approved|hidden|all — the list;  GET (owner) ?export=1 — the Wall of Love entries (+ photos).
 //   PATCH (owner) { id, status?, displayName?, usePhoto? }.
 // Anyone who isn't the owner gets a plain "not found" for the owner parts.
@@ -45,6 +46,13 @@ export async function GET(request: Request) {
     if (params.get("mine") === "1") {
       const mine = readOwnTestimonial(user.id);
       return json({ testimonial: mine && { stars: mine.stars, text: mine.text, featureOk: mine.featureOk, status: mine.status } });
+    }
+    // SPEC-0031: the plans page's proof strip: up to 3 that are in the Wall of Love (approved + 13 or older + OK to feature),
+    // name + stars + words only (no photo, no account).
+    if (params.get("proof") === "1") {
+      const proof = listTestimonials("approved").filter(isExported).slice(0, 3)
+        .map((t) => ({ id: t.id, name: t.displayName, stars: t.stars, quote: t.text }));
+      return json({ proof });
     }
     if (!isOwnerEmail(user.email)) return notFound();
     if (params.get("export") === "1") {

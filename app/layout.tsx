@@ -24,6 +24,7 @@ import { HelpBubble } from "@/src/components/support/HelpBubble";
 import { StatusBanner } from "@/src/components/support/StatusBanner";
 import { AgeGate } from "@/src/components/account/AgeGate";
 import { ageAllowed } from "@/src/lib/account/ageCheck";
+import { TrialNudge } from "@/src/components/account/TrialNudge";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -91,6 +92,8 @@ export default async function RootLayout({
             {inApp && <PhoneTabBar />}
             {/* SPEC-0027: the help bubble (AI Help first, then "Talk to a person") on every signed-in page. */}
             {inApp && <HelpBubble />}
+            {/* SPEC-0032: the friendly "your trial is ending" card, once per stage (only past the age check, like the bubble). */}
+            {inApp && <TrialNudge />}
           </NotificationCenterProvider>
         </AccountSessionProvider>
       </body>

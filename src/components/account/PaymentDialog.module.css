@@ -60,3 +60,15 @@
 :global(html[data-device="tablet"]) .choiceItem, :global(html[data-device="tablet"]) .box, :global(html[data-device="tablet"]) .input { min-height: 48px; }
 @keyframes phoneSheetUp { from { transform: translateY(100%); } to { transform: none; } }
 @keyframes phoneFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* SPEC-0031: the plan's lines (price, discount, today's total, after that), the short promises and "What happens next". */
+.discount dt, .discount dd { color: var(--da-success); }
+.total dt { color: var(--da-text); font-weight: 600; }
+.total dd { font-size: 16px; }
+.bullets { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; color: var(--da-text-2); font-size: 13px; }
+.bullets li { position: relative; padding-left: 18px; }
+.bullets li::before { content: ""; position: absolute; left: 2px; top: 4px; width: 8px; height: 4px; border-left: 1.6px solid var(--da-accent); border-bottom: 1.6px solid var(--da-accent); transform: rotate(-45deg); }
+.next { display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--da-line); }
+.nextTitle { margin: 0; color: var(--da-text); font-size: 13.5px; font-weight: 600; }
+.next ol { display: grid; gap: 3px; margin: 0; padding-left: 20px; color: var(--da-muted); font-size: 13px; line-height: 1.45; }
+:global(html[data-device="phone"]) .bullets, :global(html[data-device="phone"]) .next ol { font-size: 14px; }

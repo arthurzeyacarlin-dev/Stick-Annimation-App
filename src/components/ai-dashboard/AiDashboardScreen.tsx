@@ -41,6 +41,8 @@ function PlanWarnings({ plan, trial }: { plan: AccountPlanStatus; trial: boolean
     </p>}
     {plan.creditsLeft === 0 && !plan.waitingForPayment && <p className={styles.exhausted} role="status">{trial
       ? "Out of credits — choose a plan to keep animating. Your projects are safe."
+      // (Nov 26, dad's test) a plan that is ending never refills, so it never promises a refill day
+      : plan.cancelAtPeriodEnd ? "Out of credits — buy an extra pack, or choose a plan to keep animating. Your projects are safe."
       : `Out of credits — they refill on ${longDay(refill)}, or buy an extra pack.`}</p>}
     {plan.low && <p className={styles.warning} role="status">Almost out: only {creditsText(plan.creditsLeft)} left.</p>}
     {plan.cancelAtPeriodEnd && <p className={styles.warning} role="status">{plan.interval === "year"

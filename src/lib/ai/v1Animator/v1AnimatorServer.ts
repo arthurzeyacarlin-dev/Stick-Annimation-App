@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { getOpenAiClient } from "@/src/lib/openai/client";
 import { createV1LunaTurnGenerator } from "@/src/lib/openai/generateV1LunaTurn";
-import { createV1SonnetTurnGenerator } from "@/src/lib/anthropic/generateV1SonnetTurn";
+import { createV1SonnetTurnGenerator, sonnetKeepWarm, sonnetKeepWarmOn } from "@/src/lib/anthropic/generateV1SonnetTurn";
 import { recordUsageEvent } from "@/src/lib/usage-journal/usageJournalRuntime";
 import { projectTerminalEvent } from "@/src/lib/usage-journal/usageJournalEvents";
 import { withAccountUsageOwner } from "@/src/lib/account-usage/accountUsageStore";
@@ -101,7 +101,8 @@ const luna: V1LunaCall = (input) => withAccountUsageOwner(input.ownerId, async (
     if (!out.ok) console.warn(`[v1 brain] ${out.failure}: ${out.detail}`); // (Nov 2: a failed answer is never silent in the server log)
     // (Nov 13, live: "no stick figure" was on the card but never reached the engine) what a new animation's answer says about him is in the log
     else if (out.turn.intent === "create") console.info(`[v1 brain] new animation: noFigure=${out.turn.noFigure === true}, ${out.turn.kimodoSteps?.length ?? 0} step(s)`);
-    return out.ok ? { ok: true, turn: out.turn, costUsd: out.usage?.estimatedCostUsd ?? null } : { ok: false, failure: out.failure, detail: out.detail };
+    // (dad, Nov 26) costUsd = what the user may be charged (warm: never the cold rulebook load); realCostUsd = what we paid (limits)
+    return out.ok ? { ok: true, turn: out.turn, costUsd: out.usage?.warmCostUsd ?? out.usage?.estimatedCostUsd ?? null, realCostUsd: out.usage?.estimatedCostUsd ?? null } : { ok: false, failure: out.failure, detail: out.detail };
   } finally {
     clearTimeout(timer);
   }
@@ -157,6 +158,12 @@ const usage = createV1UsageMeter({
     const brain = readSonnetBrain(config.lunaBook, config.root);
     return { ledger: existsSync(brain.ledger) ? JSON.parse(readFileSync(brain.ledger, "utf8")) : null, exceptWho: brain.ledgerWho };
   },
+  // (dad, Nov 26) the shared fal ledger H3 books every request into (kimodo/wan.py LEDGER), read only for a stopped or failed run
+  readFalLedger: () => {
+    const config = v1EngineConfig();
+    const file = config ? join(config.root, "ltx-effects", "seedance", "spend.json") : null;
+    return file && existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
+  },
 });
 
 // one runner per server process (it survives hot reloads like the other AI job stores)
@@ -176,8 +183,27 @@ export const v1Animator = (): V1Animator => {
   if (!g.diamondV1Animator) { g.diamondV1Animator = createV1Animator({ config: () => v1EngineConfig(), books, luna, director, spawn: spawnEngine, usage, gate: true, ownerAlert, atOnce: animationsAtOnce }); g.diamondV1AnimatorCode = LOADED; }
   // (Nov 26, SPEC-0027) the owner hears when anyone waits more than 3 minutes in line (it only reads the line; see supportService.ts)
   if (!g.diamondV1LineWatch) { g.diamondV1LineWatch = true; startLineWaitWatch(() => g.diamondV1Animator?.lineWait?.()); }
+  startSonnetKeepWarm();
   return g.diamondV1Animator;
 };
+
+// (Dad, Nov 26) THE KEEP-WARM CHECK (generateV1SonnetTurn.ts sonnetKeepWarm): every few minutes it looks; about every 55 minutes without
+// a real turn it sends one tiny call that keeps Sonnet's rulebook cache warm. ONE switch: DIAMOND_SONNET_KEEP_WARM=off turns it off;
+// it runs by itself only on the live server (DIAMOND_PUBLIC_ORIGIN set) or with DIAMOND_SONNET_KEEP_WARM=on - never on a copy by surprise.
+function startSonnetKeepWarm() {
+  const holder = globalThis as typeof globalThis & { diamondSonnetKeepWarm?: ReturnType<typeof setInterval> };
+  if (holder.diamondSonnetKeepWarm || !sonnetKeepWarmOn()) return;
+  let busy = false;
+  holder.diamondSonnetKeepWarm = setInterval(() => {
+    if (busy || !sonnetKeepWarmOn()) return;
+    const config = v1EngineConfig();
+    if (!config || config.brain !== "sonnet") return;
+    busy = true;
+    void sonnetKeepWarm({ ...books(config), brain: readSonnetBrain(config.lunaBook, config.root), effort: readSonnetEffort(config.lunaBook) })
+      .catch(() => "failed").finally(() => { busy = false; });
+  }, 5 * 60 * 1000);
+  holder.diamondSonnetKeepWarm.unref?.();
+}
 
 // (Nov 17, Part 2) the panel's changing words while he thinks: the book's list (luna-book.json "thinking_words".words, so Arthur can add his
 // own); no list in the book = these. A word that says he is ALMOST done is never shown while he thinks (nothing knows when that is).

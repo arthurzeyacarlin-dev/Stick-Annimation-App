@@ -25,6 +25,7 @@ import { StatusBanner } from "@/src/components/support/StatusBanner";
 import { AgeGate } from "@/src/components/account/AgeGate";
 import { ageAllowed } from "@/src/lib/account/ageCheck";
 import { TrialNudge } from "@/src/components/account/TrialNudge";
+import { EmailConfirmFloat } from "@/src/components/account/EmailConfirm";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -94,6 +95,8 @@ export default async function RootLayout({
             {inApp && <HelpBubble />}
             {/* SPEC-0032: the friendly "your trial is ending" card, once per stage (only past the age check, like the bubble). */}
             {inApp && <TrialNudge />}
+            {/* (dad, Nov 26) until the email is confirmed: the small "confirm your email" card (the free trial starts on confirm). */}
+            {inApp && <EmailConfirmFloat />}
           </NotificationCenterProvider>
         </AccountSessionProvider>
       </body>

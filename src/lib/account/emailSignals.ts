@@ -12,7 +12,7 @@ export type EmailSignal =
   | "Payment Failed" | "Cancelled Plan" | "Plan Ended" | "Deleted Account";
 /** What the signals need from an account's plan. Only plan, locked and windowStart are always there; the rest is a paid plan's. */
 export type EmailSignalStatus = Pick<AccountPlanStatus, "plan" | "locked" | "windowStart">
-  & Partial<Pick<AccountPlanStatus, "lockReason" | "billingStatus" | "paymentProblem" | "waitingForPayment" | "cancelAtPeriodEnd">>;
+  & Partial<Pick<AccountPlanStatus, "lockReason" | "billingStatus" | "paymentProblem" | "waitingForPayment" | "cancelAtPeriodEnd" | "emailConfirmNeeded">>;
 /** Facts that are not in the plan status: the plan's own id (so someone who comes back counts again) and the first animation. */
 export type EmailSignalExtras = { subscriptionId?: string | null; madeFirstAnimation?: boolean; firstName?: string | null };
 
@@ -43,7 +43,8 @@ export const isRealEmail = (email: string) =>
 export function dueSignals(ownerId: string, status: EmailSignalStatus, extras: EmailSignalExtras = {}): DueSignal[] {
   const due: DueSignal[] = [];
   if (status.plan === "trial") {
-    if (!status.locked) due.push({ signal: "Started Trial", id: `trial-${ownerId}`, at: status.windowStart });
+    // (dad, Nov 26) the trial starts when the email is confirmed: no "Started Trial" before that
+    if (!status.locked && !status.emailConfirmNeeded) due.push({ signal: "Started Trial", id: `trial-${ownerId}`, at: status.windowStart });
   } else {
     const plan = extras.subscriptionId ? `${ownerId}-${extras.subscriptionId}` : ownerId;
     const month = `${ownerId}-${status.windowStart}`;

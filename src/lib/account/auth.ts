@@ -36,6 +36,9 @@ if (!owner.diamondAccountDatabase) {
   owner.diamondAccountDatabase = { path: databasePath, database };
 }
 
+/** (dad, Nov 26) the account database itself, read by the email-confirm rule (emailConfirm.ts: one free trial per real inbox). */
+export const accountDatabase = database;
+
 export const auth = betterAuth({
   appName: "Diamond Animator",
   baseURL: ACCOUNT_LOCAL_ORIGIN,
@@ -97,6 +100,8 @@ export const auth = betterAuth({
         const [{ deleteAllAccountProjects }, { deleteAllAccountDataForOwner }, { deleteAccountPlan }] = await Promise.all([import("./projectServer"), import("./accountDataServer"), import("./aiCredits")]);
         await deleteAllAccountProjects(user.id);
         deleteAllAccountDataForOwner(user.id);
+        // (dad, Nov 26) an inbox that used its free trial keeps its fingerprint: deleting and signing up again gets no new trial
+        (await import("./emailConfirm")).rememberInboxOnDelete(user);
         deleteAccountPlan(user.id);
       },
       // Nov 23: the account is gone, so the email service is told once and its follow-up emails stop. Best effort: it
@@ -124,7 +129,20 @@ export const auth = betterAuth({
             const { APIError } = await import("better-auth/api");
             throw new APIError("BAD_REQUEST", { message: "Please answer the birth year question first.", code: "AGE_CHECK_NEEDED" });
           }
+          // (dad, Nov 26) a throwaway email domain can't sign up (the owner's own test addresses can)
+          const emailProblem = (await import("./emailConfirm")).signUpEmailProblem(data.email);
+          if (emailProblem) {
+            const { APIError } = await import("better-auth/api");
+            throw new APIError("BAD_REQUEST", { message: emailProblem, code: "DISPOSABLE_EMAIL" });
+          }
           return { data: { ...data, ageGroup, ageCheckedAt: new Date() } };
+        },
+        // (dad, Nov 26) the new account's free trial waits for its email (link + 6-digit code), or it gets none when this inbox
+        // already had one. Never stops the sign-up itself: a problem here only means the confirm email is sent again from the app.
+        after: async (user, context) => {
+          if (context?.path !== "/sign-up/email") return;
+          try { await (await import("./emailConfirm")).afterSignUp(user as { id: string; email: string; name?: string | null; ageGroup?: unknown }); }
+          catch (error) { console.warn("[email confirm] after sign-up:", error instanceof Error ? error.message : "unknown"); }
         },
       },
       update: {

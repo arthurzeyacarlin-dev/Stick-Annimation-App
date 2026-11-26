@@ -15,6 +15,8 @@
 .quote q { quotes: "\201C" "\201D"; }
 .stars { color: #f5c542; font-size: 14px; letter-spacing: 2px; }
 .who { display: flex; align-items: center; gap: 8px; color: var(--da-text); font-size: 13.5px; font-weight: 600; }
+/* Nov 26: "Got 30 free credits for leaving a review" (US FTC rule) under a quote whose writer got the thank-you */
+.disclosure { color: var(--da-muted); font-size: 12px; }
 .initial { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--da-line); color: var(--da-text); font-size: 12px; }
 .promises { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 0; padding: 18px 0 0; border-top: 1px solid var(--da-line); list-style: none; }
 .promises li { display: grid; gap: 2px; padding-inline: 2px; }

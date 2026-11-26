@@ -201,7 +201,7 @@ export function AccountProfileScreen() {
               : plan.lockReason === "plan_ended" ? "Your plan has ended · you can still watch and export your animations"
               : plan.lockReason === "trial_ended" ? "Your free trial has ended · you can still watch and export your animations"
               : `${plan.plan === "trial" ? "Free trial" : `${plan.label} plan`}${plan.interval === "year" ? " (yearly)" : ""} · ${plan.planCreditsLeft.toLocaleString("en-US")} of ${creditsText(plan.creditsTotal)} left`
-                + (plan.topUpCredits > 0 ? ` · ${creditsText(plan.topUpCredits)} from packs` : "")
+                + (plan.topUpCredits > 0 ? ` · ${creditsText(plan.topUpCredits)} extra` : "")
                 + (plan.plan === "trial" ? ` · ${plan.trialDaysLeft === 1 ? "1 day" : `${plan.trialDaysLeft} days`} left` : "")}</p>
             <Link href="/plans" className={`${styles.button} ${styles.primary}`}>{!plan || plan.plan === "trial" || plan.locked ? "Choose a plan" : "Change plan"}</Link>
           </div>

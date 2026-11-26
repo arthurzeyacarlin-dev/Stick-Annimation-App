@@ -16,7 +16,7 @@ import path from "node:path";
 // restricted live key AND STRIPE_LIVE_OK=yes; otherwise test mode (fake cards) or off.
 import {
   addFreeRefund, addTopUpCredits, applyRefundTotal, applySubscriptionState, claimBillingEvent, findOwnerByStripeCustomer,
-  findPaymentByCharge, getAccountPlanStatus, listBillingOwners, listPayments, markBillingSynced, planCreditsUsedSince,
+  findPaymentByCharge, getAccountPlanStatus, listBillingOwners, listPayments, markBillingSynced, paidExtraCreditsLeft, planCreditsUsedSince,
   readAccountBillingIds, readAccountPlanRecord, readBillingFacts, recordPayment, releaseBillingEvent, setBillingNotice,
   setDisputed, setStripeCustomerId,
 } from "./aiCredits";
@@ -29,7 +29,7 @@ import {
   assertAllowedStripeKey, BillingError, billingModeForKey, BOTH_EXTRA_PERCENT, deletionRefund, normalizeCode, FIRST50_MONTHS, FIRST50_PERCENT, YOUTUBE_PERCENT, encodeStripeForm, estimateStripeFeeCents,
   idempotencyKey, isBillingInterval, isChargingSubscriptionStatus, isLiveSubscriptionStatus, mapSubscriptionStatus, pickOffer, planLookupKey, planUnitAmount,
   STRIPE_API_VERSION, STRIPE_CATALOG, subscriptionPeriodEndMs, subscriptionPeriodStartMs, subscriptionPlan, verifyStripeSignature,
-  type BillingMode, type CatalogEntry, type DeletionRefund, type FormValue, type Offer, type RefundablePayment,
+  switchRefund, type BillingMode, type CatalogEntry, type DeletionRefund, type FormValue, type Offer, type RefundablePayment,
 } from "./stripeBillingRules";
 import { ownerAlert } from "./ownerAlerts";
 
@@ -844,16 +844,9 @@ async function feeCentsOf(chargeId: string | null, paymentIntentId: string | nul
 
 const CANT_REACH = "We couldn't reach the payment service, so your account wasn't deleted (so you're never charged after it's gone). Nothing was changed. Try again in a minute.";
 
-/** What deleting this account would give back right now (shown in the Delete dialog before anything happens). Reads Stripe
- *  fresh and strictly: if Stripe can't be reached, it says so instead of guessing. */
-export async function previewAccountDeletion(ownerId: string): Promise<DeletionPreview> {
-  const zero: DeletionPreview = { hasPlan: false, planPaidCents: 0, aiCostCents: 0, feeCents: 0, planRefundCents: 0, packRefundCents: 0, refundCents: 0, lines: [] };
-  const saved = readAccountBillingIds(ownerId);
-  if (!saved.customerId) return zero;
-  if (billingMode() === "off") {
-    if (saved.subscriptionId || listPayments(ownerId).length) throw new BillingError(CANT_REACH, 503);
-    return zero;   // a customer that never paid anything: nothing to stop or give back
-  }
+/** The plan payments that pay for today (this cycle's bill and an upgrade's, or a yearly plan's year) and the account's unused
+ *  pack payments, read fresh and strictly from Stripe: if Stripe can't be reached, it says so instead of guessing. */
+async function currentPayments(ownerId: string) {
   try { await syncNow(ownerId, { changed: [] }, true); markBillingSynced(ownerId); } catch { throw new BillingError(CANT_REACH, 503); }
   const ids = readAccountBillingIds(ownerId);
   const record = readAccountPlanRecord(ownerId);
@@ -861,8 +854,7 @@ export async function previewAccountDeletion(ownerId: string): Promise<DeletionP
   const hasPlan = hasLiveSubscription(ownerId);
   const { start } = creditWindow(record, Date.now());
   const payments = listPayments(ownerId);
-  // The plan payments that pay for today: this cycle's bill (and an upgrade's), or a yearly plan's year. A cycle that
-  // isn't paid (its renewal failed) has nothing to give back; its waiting bill is voided when the plan stops.
+  // A cycle that isn't paid (its renewal failed) has nothing to give back; its waiting bill is voided when the plan stops.
   const paidFrom = record.paidFrom ?? start;
   const cyclePaid = hasPlan && !status.waitingForPayment;
   // (Nov 21) a bill counts when the period it paid for started in this one (a switch's old bill paid for the old period, so it is
@@ -875,8 +867,22 @@ export async function previewAccountDeletion(ownerId: string): Promise<DeletionP
   });
   const planPayments = await Promise.all(planPaymentsRaw.map(toRefundable));
   const packPayments = await Promise.all(payments.filter((payment) => payment.kind === "pack" && payment.refundedCents < payment.amountCents).map(toRefundable));
+  return { record, status, hasPlan, start, paidFrom, cyclePaid, planPayments, packPayments };
+}
+
+/** What deleting this account would give back right now (shown in the Delete dialog before anything happens). */
+export async function previewAccountDeletion(ownerId: string): Promise<DeletionPreview> {
+  const zero: DeletionPreview = { hasPlan: false, planPaidCents: 0, aiCostCents: 0, feeCents: 0, planRefundCents: 0, packRefundCents: 0, refundCents: 0, lines: [] };
+  const saved = readAccountBillingIds(ownerId);
+  if (!saved.customerId) return zero;
+  if (billingMode() === "off") {
+    if (saved.subscriptionId || listPayments(ownerId).length) throw new BillingError(CANT_REACH, 503);
+    return zero;   // a customer that never paid anything: nothing to stop or give back
+  }
+  const { status, hasPlan, start, paidFrom, cyclePaid, planPayments, packPayments } = await currentPayments(ownerId);
   const aiCost = cyclePaid ? planCreditsUsedSince(ownerId, Math.min(paidFrom, start)) : 0;
-  return { hasPlan, ...deletionRefund(planPayments, aiCost, packPayments, status.topUpCredits) };
+  // Nov 26: only PAID pack credits come back as money; the free thank-you credits never do.
+  return { hasPlan, ...deletionRefund(planPayments, aiCost, packPayments, paidExtraCreditsLeft(ownerId)) };
 }
 
 /** Before an account is deleted: stop every plan at once (never charged again), void waiting bills, close open payment pages,
@@ -1188,15 +1194,16 @@ export async function completeCardSave(ownerId: string, setupIntentId: unknown):
 // ---------- Managing a plan inside Diamond Animator (Nov 21, Arthur: "Diamond Animator is what you see, behind the scenes it's
 // Stripe") ----------
 // Switching happens NOW: the new plan's full price is charged at once with the card on file, a new month starts today with the new
-// plan's full credits, and what is left of the old payment comes back by the same fair rule as deleting (you pay only for the AI
-// you used and Stripe's fee). Cancelling and keeping a plan are one click. Only typing a new card opens Stripe's secure card page.
+// plan's full credits, and the UNUSED part of the old payment comes back (dad, Nov 26: paid x unused credits / credits paid for,
+// minus that share of Stripe's fee; deleting keeps its own zero-profit rule). Cancelling and keeping a plan are one click. Only typing a new card opens Stripe's secure card page.
 
 export type SwitchPreview = {
   plan: PaidPlanId; interval: BillingInterval; label: string; credits: number;
   /** What is charged now with the card on file (a discount that is still running is taken off). */
   chargeCents: number;
-  /** Given back from the current payment, and how: paid - AI used (1 credit = 1 cent) - Stripe's fee. */
-  refundCents: number; paidCents: number; aiCostCents: number; feeCents: number;
+  /** Given back from the current payment, and how (dad, Nov 26): paid x unused plan credits / credits paid for, minus that
+   *  share of Stripe's fee. */
+  refundCents: number; paidCents: number; feeCents: number; creditsPaidFor: number; unusedCredits: number;
   /** Pack credits stay as they are. */
   packCredits: number;
 };
@@ -1242,15 +1249,24 @@ async function planSwitchQuote(ownerId: string, plan: unknown, interval: unknown
   if (!isBillingInterval(interval)) throw new BillingError(`Choose ${PLAN_CYCLE === "week" ? "weekly" : "monthly"} or yearly.`);
   const { sub, status } = await changeablePlan(ownerId);
   if (status.plan === plan && status.interval === interval) throw new BillingError("That's already your plan.", 409);
-  // What is left of the payment for the current period comes back by the delete rule (packs are NOT given back: they stay).
-  const refund = await previewAccountDeletion(ownerId);
-  const planIds = new Set(listPayments(ownerId).filter((payment) => payment.kind === "plan").map((payment) => payment.stripeId));
-  const lines = refund.lines.filter((line) => planIds.has(line.stripeId));
+  // Only the UNUSED part of the payment for the current paid time comes back (dad, Nov 26; packs are NOT given back: they stay).
+  const { record, planPayments, start } = await currentPayments(ownerId);
+  const paidPlan = record.paidPlan && isPaidPlanId(record.paidPlan) ? record.paidPlan : status.plan;
+  const perCycle = isPaidPlanId(paidPlan) ? ACCOUNT_PLANS[paidPlan].credits : 0;
+  const paidFrom = record.paidFrom ?? start;
+  const paidUntil = record.paidUntil ?? status.windowEnd;
+  // How many cycles the payment covers (1 a month, 12 for a yearly plan), and how many of them already ended.
+  let cyclesPaid = 1, cyclesDone = 0;
+  while (cyclesPaid < 60 && addCycles(paidFrom, cyclesPaid) < paidUntil - 60_000) cyclesPaid++;
+  while (cyclesDone < cyclesPaid && addCycles(paidFrom, cyclesDone + 1) <= start + 60_000) cyclesDone++;
+  const refund = switchRefund(planPayments, perCycle * cyclesPaid, perCycle * cyclesDone + status.creditsUsed);
+  const lines = refund.lines;
   const list = planUnitAmount(plan, interval);
   const preview: SwitchPreview = {
     plan, interval, label: ACCOUNT_PLANS[plan].label, credits: ACCOUNT_PLANS[plan].credits,
     chargeCents: list - Math.round((list * runningDiscountPercent(sub)) / 100),
-    refundCents: lines.reduce((sum, line) => sum + line.cents, 0), paidCents: refund.planPaidCents, aiCostCents: refund.aiCostCents, feeCents: refund.feeCents,
+    refundCents: refund.refundCents, paidCents: refund.planPaidCents, feeCents: refund.feeCents,
+    creditsPaidFor: refund.creditsPaidFor, unusedCredits: refund.unusedCredits,
     packCredits: status.topUpCredits,
   };
   return { sub, preview, lines };
@@ -1262,7 +1278,7 @@ export async function previewPlanSwitch(ownerId: string, plan: unknown, interval
 }
 
 /** Switches the plan NOW. The card on file pays the new plan's full price first; if it is declined, nothing changes. Then the
- *  rest of the old payment is given back (never twice: each refund is claimed once, and the credits are not taken back for it). */
+ *  unused part of the old payment is given back (never twice: each refund is claimed once, and the credits are not taken back for it). */
 export async function switchPlanNow(ownerId: string, plan: unknown, interval: unknown): Promise<SwitchResult> {
   // One change at a time per account (two clicks or two tabs wait for each other; the second then sees "already your plan").
   const running = (cache.diamondPlanChanges ??= new Map<string, Promise<unknown>>());

@@ -22,7 +22,7 @@ async function made(animator: ReturnType<typeof createV1Animator>) {
   assert.ok(first.ok && first.gate && !first.gate.picture, "no scene sentence = no picture");
   // (Nov 22, Arthur: "not ridiculous amounts" / "the credits always gotta pay for fal") the card is the animator's price only (his answer
   // was paid when answered): 4 credits a second for the steps (5.9 s), the opening scene (3 s) and the settle second (1 s) = 40
-  assert.equal(first.ok && first.gate ? first.gate.credits : 0, 40);
+  assert.equal(first.ok && first.gate ? first.gate.credits : 0, 55);   // (dad, Nov 26) + the 15-credit planning amount: planning is in the price
   const go = animator.confirm(me.ownerId, me.projectId); assert.ok(go.ok && go.animation);
   const id = go.ok && go.animation ? go.animation.animationId : "";
   await until(() => animator.get(me.ownerId, me.projectId, id)!.versions[0].status === "done");
@@ -84,7 +84,7 @@ test("(Nov 22, Arthur: 'it needs to show everything that is about to show') a ne
   assert.ok(drawn && /brown dog/.test(String(drawn.env.H3_GATE_STILL)) && !drawn.args.includes("--prev"), "the later things go into the new animation's own first picture");
   const again = await ask();   // replaced by a new message: the whole picture is paid
   assert.ok(again.ok && again.gate?.picture === "first");
-  assert.deepEqual(charged, [24]);
+  assert.deepEqual(charged, [24], "(dad, Nov 26, option d) a first picture replaced by a change is charged its real cost, once");
   await animator.gatePicture(me.ownerId, me.projectId);
   const go = animator.confirm(me.ownerId, me.projectId); assert.ok(go.ok && go.animation);
   await until(() => calls.filter((c) => !c.env.H3_GATE_PICTURE).length === 1);
@@ -113,4 +113,66 @@ test("(Nov 22, hour 2: 'the progress bar has to be genuinely accurate') the bar 
   assert.ok(!p.late && !p.part, "on time, one part");
   animator.cancel(me.ownerId, me.projectId, id);
   await until(() => animator.get(me.ownerId, me.projectId, id)!.versions[0].status !== "running");
+});
+
+test("(dad, Nov 26, money only) a paid gate picture is written down as WAITING until it is animated or charged; Animate's check leaves its own picture out", async () => {
+  ANSWERS.nov26_wait = { ...(structuredClone(ANSWERS.create_jacks_flip_steps) as Record<string, unknown>), scene: "A black stick figure stands at the left side of the picture on a flat ground line." };
+  const { env } = makeTestRoot({ oneTake: true }), config = v1EngineConfig({ ...env, DIAMOND_ENGINE_ALLOW_KIMODO: "1" })!;
+  const books = () => ({ book: readLunaBook(config.lunaBook), words: readEngineWords(config.engineBook) }), { book, words } = books();
+  const { luna } = fakeLuna((r) => normalizeV1LunaTurn(r, words, book), "nov26_wait", "nov26_wait");
+  const { spawn, calls } = fakeSpawner((c) => c.env.H3_GATE_PICTURE ? { code: 0, hang: true, before: () => {
+    const out = String(c.env.H3_GATE_PICTURE), png = out.replace(/\.json$/, ".png");
+    writeFileSync(png, "png"); writeFileSync(out, JSON.stringify({ png, usd: 0.12, kept_usd: 0.12, pid: 0 }));
+  } } : playEngineOk(c.args));
+  const waiting = new Map<string, number>(), charged: number[] = [], excepts: (string | null | undefined)[] = [];
+  const animator = createV1Animator({ config: () => config, books, luna: luna as V1LunaCall, spawn: spawn as Spawner, gate: true, usage: {
+    pictureCharge: (_o, _r, n) => { charged.push(n); },
+    pictureWaiting: (_o, id, n) => { if (n > 0) waiting.set(id, n); else waiting.delete(id); },
+    creditsShort: (_o, _c, _h, except) => { excepts.push(except); return null; },
+  } });
+  const ask = () => animator.turn({ ...me, animationId: null, message: "a stick figure does jumping jacks and a front flip", recentConversation: [] });
+  assert.ok((await ask()).ok);
+  await animator.gatePicture(me.ownerId, me.projectId);
+  assert.deepEqual([...waiting.values()], [12], "the drawn first picture is waiting with its real cost");
+  const firstId = [...waiting.keys()][0];
+  assert.ok((await ask()).ok);   // replaced by a new message (a change of the plan): charged once (option d), no longer waiting
+  assert.deepEqual(charged, [12]);
+  assert.ok(!waiting.has(firstId));
+  await animator.gatePicture(me.ownerId, me.projectId);
+  const secondId = [...waiting.keys()][0];
+  assert.ok(secondId && secondId !== firstId);
+  const go = animator.confirm(me.ownerId, me.projectId); assert.ok(go.ok && go.animation);
+  assert.equal(excepts.at(-1), secondId, "Animate's credit check leaves out its own picture (its price includes it)");
+  assert.equal(waiting.size, 0, "animated: no longer waiting (the scene is included, nothing more is charged)");
+  assert.deepEqual(charged, [12]);
+  await until(() => calls.filter((c) => !c.env.H3_GATE_PICTURE).length === 1);
+  await until(() => animator.get(me.ownerId, me.projectId, go.ok && go.animation ? go.animation.animationId : "")!.versions[0].status === "done");
+});
+
+test("(dad, Nov 26) PLANNING IS IN THE PRICE: the first plan + 3 changes are free (the card counts down), the 5th answer is charged; Animate starts the count again; an edit card says a small fix is free by hand", async () => {
+  const { env } = makeTestRoot({ oneTake: true }), config = v1EngineConfig({ ...env, DIAMOND_ENGINE_ALLOW_KIMODO: "1" })!;
+  const books = () => ({ book: readLunaBook(config.lunaBook), words: readEngineWords(config.engineBook) }), { book, words } = books();
+  ANSWERS.nov22_step1 ??= { intent: "edit", say: "Five fast jumping jacks.", blocks: null, ops: null, kimodoSteps: [{ step: 1, text: "A person does five fast jumping jacks.", seconds: 3.5, travels: false, changed: true }], askedDetails: [{ said: "faster", step: 1 }] };
+  const { luna } = fakeLuna((r) => normalizeV1LunaTurn(r, words, book), ...Array(5).fill("create_jacks_flip_steps"), "nov22_step1");
+  const { spawn } = fakeSpawner((c) => playEngineOk(c.args));
+  const turns: { free?: boolean }[] = [];
+  const animator = createV1Animator({ config: () => config, books, luna: luna as V1LunaCall, spawn: spawn as Spawner, gate: true, usage: { turnAnswered: (t) => { turns.push(t); } } });
+  const left: number[] = [];
+  for (let i = 0; i < 5; i++) {
+    const out = await animator.turn({ ...me, projectId: "p-plan", animationId: null, message: "a stick figure does jumping jacks and a front flip", recentConversation: [] });
+    assert.ok(out.ok && out.gate);
+    left.push(out.ok && out.gate ? out.gate.freeChangesLeft ?? -1 : -1);
+    assert.equal(out.ok && out.gate?.credits, 55, "one price, planning included, every time");
+  }
+  assert.deepEqual(turns.map((t) => t.free), [true, true, true, true, false]);
+  assert.deepEqual(left, [3, 2, 1, 0, 0], "the card says how many free changes are left (0 = the next change is charged)");
+  const go = animator.confirm(me.ownerId, "p-plan"); assert.ok(go.ok && go.animation);
+  const id = go.ok && go.animation ? go.animation.animationId : "";
+  await until(() => animator.get(me.ownerId, "p-plan", id)!.versions[0].status === "done");
+  // after Animate: an edit's plan starts with its own free changes, and its card is an edit card
+  const edit = await animator.turn({ ...me, projectId: "p-plan", animationId: id, message: "make the jumping jacks faster", recentConversation: [] });
+  assert.ok(edit.ok && edit.gate);
+  assert.equal(edit.ok && edit.gate?.freeChangesLeft, 3);
+  assert.equal(edit.ok && edit.gate?.edit, true);
+  assert.equal(turns.at(-1)?.free, true);
 });

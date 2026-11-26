@@ -77,7 +77,7 @@ export function TrialNudge() {
   if (!status || HIDDEN_ON.some((path) => pathname.startsWith(path))) return null;
   // the trial cards are never shown on Plans (that page already is the answer); only the beta banner is
   if (pathname.startsWith("/plans") && shown) return null;
-  const trialOn = status.plan === "trial" && !status.locked;
+  const trialOn = status.plan === "trial" && !status.locked && !status.emailConfirmNeeded;   // (Nov 26) the confirm card shows first
   const trialEndsAt = status.trialEndsAt ?? status.windowEnd;
   if (!shown) {
     // the beta bar: only a running trial with a real first-50 code (the server already said the code still counts)

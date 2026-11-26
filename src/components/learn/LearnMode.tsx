@@ -20,7 +20,7 @@ const visible = (element: Element | null | undefined): HTMLElement | null => {
 // Each step finds its control by a data-tour tag, so renaming a button's words can never break the tour again.
 // The first VISIBLE match: the editor keeps a second, hidden copy of some controls for phones, so the first in the page
 // can be the hidden one.
-const firstVisible = (elements: Iterable<Element>) => { for (const element of elements) { const found = visible(element); if (found) return found; } return null; };
+export const firstVisible = (elements: Iterable<Element>) => { for (const element of elements) { const found = visible(element); if (found) return found; } return null; };
 const byTour = (name: string) => () => firstVisible(document.querySelectorAll(`[data-tour="${name}"]`));
 // The AI Animator tab lives in the right panel (its file is shared with the AI work, so it has no tag): the tab by its name, or the
 // open panel's message box on phones, where the tab is already open.
@@ -245,7 +245,8 @@ export function LearnMode() {
   );
 }
 
-const LEARN_CSS = `
+/** The tour's look; the after-first-animation guide (FirstAnimationGuide.tsx) uses the same, so it feels like one app. */
+export const LEARN_CSS = `
 .da-learn-scrim { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center; padding: 16px; background: var(--da-scrim); }
 .da-learn-welcome { position: relative; overflow: hidden; isolation: isolate; width: min(440px, 100%); padding: 34px 28px 28px; border-radius: 12px; border: 1px solid #3a3a41; text-align: center; color: #f5f5f6;
   background: var(--da-panel); box-shadow: var(--da-shadow-pop); }

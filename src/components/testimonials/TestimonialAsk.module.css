@@ -26,6 +26,8 @@
 .quiet:hover { color: var(--da-text, #f5f5f6); background: var(--da-hover, #3a3a41); }
 .primary:disabled, .quiet:disabled { opacity: .6; cursor: default; }
 .thanks { margin: 0; font-size: 13px; color: var(--da-text, #f5f5f6); }
+/* Nov 26: the thank-you line, said before they answer */
+.thankYou { margin: 0; font-size: 12px; line-height: 1.45; color: var(--da-muted, #a3a3ab); }
 .error { margin: 0; font-size: 12px; color: var(--da-danger, #ff6b6b); }
 :global(:is(html[data-device="phone"], html[data-device="tablet"])) .star { width: 40px; height: 40px; }
 :global(:is(html[data-device="phone"], html[data-device="tablet"])) .star svg { width: 26px; height: 26px; }

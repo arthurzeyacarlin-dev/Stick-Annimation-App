@@ -64,6 +64,8 @@ export type AiAnimatorUsage = {
   outputTokens: number | null;
   totalTokens: number | null;
   estimatedCostUsd: number | null;
+  /** (dad, Nov 26) what a user may be charged for it: the same answer as if Sonnet's rulebook cache were warm (we pay the cold load). */
+  warmCostUsd?: number | null;
 };
 
 export type AiAnimatorProviderResult = {

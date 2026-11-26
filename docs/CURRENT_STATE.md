@@ -1,5 +1,12 @@
 # Current State
 
+## SPEC-0033 — The 4 money leaks + email confirm: built and tested, NOT live (2026-11-26)
+
+Built in the copy `.claude/worktrees/money-leaks-nov26` (branch `claude/money-leaks-nov26`), waiting for dad's walkthrough to end; then
+the Website pm commits and deploys. Switching plans gives back only the unused part; a waiting first picture holds its real cost and
+counts toward the limits; stopped/failed runs stay free but count toward the limits; the free trial starts only after the email is
+confirmed, one trial per real inbox; the 10-second price says 56 credits plus replies. See `docs/specs/0033-money-leaks-email-confirm.md`.
+
 ## D-0255 — Ready to go online at app.diamondanimator.com; nothing rented or live yet (current, 2026-11-25)
 
 The app can now run on a real server at https://app.diamondanimator.com (dad's choice of address). One setting, `DIAMOND_PUBLIC_ORIGIN`, tells it its public address: then sign-in, accounts, the Help assistant and usage notes trust exactly that address over https and nothing else; without the setting (this Mac) everything is exactly as before, and a wrongly written address stops the app instead of trusting the wrong site (`src/lib/account/accountConfig.test.ts`; all account, money and email tests pass in both modes). The server kit is in `deploy/`: one container with the app and the AI Animator's Python (`Dockerfile`, `docker-compose.yml`), the https front door (`Caddyfile`, Caddy gets the certificate itself), a one-time server setup with a firewall and nightly account backups (`server-setup.sh`), the engine copy straight from this Mac (`engine-sync.sh`, ~810 MB, no secret files, no old animations), the settings list with names only (`server-settings.example`) and an "is it alive" page (`/api/health`). Emails: Resend (password and receipt emails) verified for diamondanimator.com; Klaviyo's send.diamondanimator.com verified, one Activate click left. Found: projects on this Mac save into a test stand-in (`local_account_store.mjs`) because the Supabase free plan is shut; online they save in the free project store built the same day (`deploy/project-store.mjs`; Arthur's rule: no paid Supabase until the app earns), proven in the real app: save, picture-by-picture saving, reopen with the browser wiped, Delete removes every file. Not done: the kit has not run on a real server (no Docker on this Mac, and the Mac has under 1 GB free), and a real animation on the server is the first proof. Plan and order: `docs/GO_LIVE_CHECKLIST.md`.

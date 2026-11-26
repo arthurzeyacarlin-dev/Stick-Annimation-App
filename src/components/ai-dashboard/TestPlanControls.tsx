@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ACCOUNT_PLANS, AI_ACTION_CREDITS } from "@/src/lib/account/plans";
+import { ACCOUNT_PLANS, AI_ACTION_CREDITS, SHORT_ANIMATION_CREDITS } from "@/src/lib/account/plans";
 import type { AccountPlanStatus } from "@/src/lib/account/plans";
 import { creditsText } from "@/src/lib/account/credits";
 import { ACCOUNT_PLAN_CHANGED_EVENT } from "@/src/components/account/useAccountPlan";
@@ -57,7 +57,7 @@ export const TEST_PLAN_GROUPS: { title: string; buttons: TestButton[] }[] = [
     buttons: [
       { action: "spend_chat", label: "Spend a chat", hint: `${creditsText(-AI_ACTION_CREDITS.chat)} · no AI runs` },
       { action: "spend_assistant", label: "Spend a Help Assistant answer", hint: `${creditsText(-AI_ACTION_CREDITS.assistant)} · no AI runs` },
-      { action: "spend_simple", label: "Spend a 10-second animation", hint: `−67 credits · no AI runs` },
+      { action: "spend_simple", label: "Spend a 10-second animation", hint: `−${SHORT_ANIMATION_CREDITS} credits · no AI runs` },
       { action: "spend_big", label: "Spend a 2-minute animation", hint: `−507 credits · no AI runs` },
     ],
   },

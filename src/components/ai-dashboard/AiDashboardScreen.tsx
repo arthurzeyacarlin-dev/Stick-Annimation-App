@@ -126,7 +126,7 @@ function PlanHero({ plan, byKind }: { plan: AccountPlanStatus; byKind: { animato
           <dl>
             <div><dt>Total</dt><dd>{number(total)}</dd></div>
             <div><dt>Used</dt><dd>{number(plan.creditsUsed)}</dd></div>
-            {plan.topUpCredits > 0 && <div><dt>From packs</dt><dd>{number(plan.topUpCredits)}</dd></div>}
+            {plan.topUpCredits > 0 && <div><dt>Extra (packs + free)</dt><dd>{number(plan.topUpCredits)}</dd></div>}
           </dl>
         </div>
       </div>

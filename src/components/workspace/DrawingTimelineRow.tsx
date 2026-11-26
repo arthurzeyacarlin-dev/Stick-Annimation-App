@@ -6,6 +6,7 @@ import {
   type DrawingAiSoundOption,
 } from "@/src/lib/ai/drawingAiContract";
 import { workspaceColors } from "./workspaceTheme";
+import { followPlayhead, isUserTimelineScroll, revealFrame } from "./timelineFollow";
 
 export type TimelineFrameKind = "frame" | "keyframe" | "tween";
 
@@ -767,6 +768,8 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
 // (Nov 23, Arthur) while an animation plays, a thin white line glides smoothly across the frames at the animation's own
 // frames per second (between two frames it moves on by itself; each new frame puts it back exactly on that frame).
 // A look only: it reads the playing frame and the fps, it never changes them.
+// (Nov 26 15:03, dad: "the timeline doesn't tell me where I'm actually at") it also stays when paused, sitting exactly on the
+// current frame (before, it vanished on pause).
 function TimelinePlayheadLine({ frameIndex, fps, playing, height }: { frameIndex: number; fps: number; playing: boolean; height: number }) {
   const lineRef = useRef<HTMLDivElement | null>(null);
   const frameStartRef = useRef({ index: frameIndex, at: 0 });
@@ -774,7 +777,11 @@ function TimelinePlayheadLine({ frameIndex, fps, playing, height }: { frameIndex
     frameStartRef.current = { index: frameIndex, at: typeof performance === "undefined" ? 0 : performance.now() };
   }, [frameIndex]);
   useEffect(() => {
-    if (!playing) return;
+    if (!playing) {
+      // paused: exactly on the current frame (while playing it glides ahead between frames)
+      if (lineRef.current) lineRef.current.style.transform = `translateX(${frameIndex * FRAME_CELL_WIDTH}px)`;
+      return;
+    }
     let raf = 0;
     const tick = () => {
       const line = lineRef.current;
@@ -787,13 +794,13 @@ function TimelinePlayheadLine({ frameIndex, fps, playing, height }: { frameIndex
     };
     raf = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(raf);
-  }, [playing, fps]);
-  if (!playing) return null;
+  }, [playing, fps, frameIndex]);
   return (
     <div
       ref={lineRef}
       aria-hidden="true"
       data-timeline-playhead="true"
+      data-playing={playing ? "true" : undefined}
       style={{
         position: "absolute", left: -1, top: 0, width: 2, height, zIndex: 6, pointerEvents: "none", borderRadius: 1,
         background: "#ffffff", boxShadow: "0 0 8px rgba(255, 255, 255, 0.55)",
@@ -1458,6 +1465,53 @@ export function DrawingTimelineRow({
     }
   };
 
+  // (Nov 26 15:03, dad: "It should be moving on the timeline below") the timeline follows the playhead: while playing it
+  // turns a page so the line stays in view (timelineFollow.ts); the user's own scroll or drag stops that until the next Play;
+  // on pause an off-screen current frame is brought into view. Display only: frames, fps and playback are never touched.
+  // paused, the frame he sees is the selected one (a click on the timeline, or where playback stopped); playing, the playing one
+  const playheadFrame = isPlaying || selectedTimelineIndex < 0 ? currentFrameIndex : selectedTimelineIndex;
+  const followRef = useRef({ following: true, wasPlaying: false });
+  // the page turn glides in ~250 ms through the timeline's own scroll setter (a browser "smooth" scroll is undone by the
+  // timeline's scroll sync on the next render, live test Nov 26); a newer turn or his own scroll replaces it
+  const glideRef = useRef(0);
+  const scrollSetterRef = useRef<(left: number) => void>(() => {});
+  useEffect(() => {
+    if (!isPlaying) return;
+    const takeOver = (event: Event) => { if (isUserTimelineScroll(event.target)) followRef.current.following = false; };
+    const options = { capture: true, passive: true } as const;
+    window.addEventListener("wheel", takeOver, options);
+    window.addEventListener("pointerdown", takeOver, options);
+    window.addEventListener("touchstart", takeOver, options);
+    return () => {
+      window.removeEventListener("wheel", takeOver, options);
+      window.removeEventListener("pointerdown", takeOver, options);
+      window.removeEventListener("touchstart", takeOver, options);
+    };
+  }, [isPlaying]);
+  useEffect(() => {
+    const follow = followRef.current;
+    if (isPlaying && !follow.wasPlaying) follow.following = true;
+    const viewport = frameLaneViewportRef.current;
+    const view = { frameIndex: playheadFrame, cell: FRAME_CELL_WIDTH, viewWidth: visibleTimelineWidth, scrollLeft: viewport?.scrollLeft ?? 0, maxScroll: maxTimelineScrollLeft };
+    const target = isPlaying ? (follow.following ? followPlayhead(view) : null) : follow.wasPlaying ? revealFrame(view) : null;
+    follow.wasPlaying = isPlaying;
+    if (target === null || !viewport) return;
+    window.cancelAnimationFrame(glideRef.current);
+    const calm = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (calm) { scrollSetterRef.current(target); return; }
+    const from = viewport.scrollLeft, startedAt = performance.now(), GLIDE_MS = 250;
+    const step = () => {
+      if (!followRef.current.following && followRef.current.wasPlaying) return;   // he took over mid-glide
+      const t = Math.min(1, (performance.now() - startedAt) / GLIDE_MS);
+      scrollSetterRef.current(from + (target - from) * (1 - (1 - t) ** 3));
+      if (t < 1) glideRef.current = window.requestAnimationFrame(step);
+    };
+    glideRef.current = window.requestAnimationFrame(step);
+  }, [isPlaying, playheadFrame, visibleTimelineWidth, maxTimelineScrollLeft]);
+  useEffect(() => () => window.cancelAnimationFrame(glideRef.current), []);
+
+  useEffect(() => { scrollSetterRef.current = setTimelineScrollPosition; });
+
   const getTimelineIndexFromClientX = useCallback(
     (clientX: number) => {
       const viewport = frameLaneViewportRef.current;
@@ -1783,7 +1837,7 @@ export function DrawingTimelineRow({
             }}
           >
             <div style={{ width: rulerWidth, minWidth: rulerWidth, height: rowLanesHeight, position: "relative" }}>
-              <TimelinePlayheadLine frameIndex={currentFrameIndex} fps={fps} playing={isPlaying} height={rowLanesHeight} />
+              <TimelinePlayheadLine frameIndex={playheadFrame} fps={fps} playing={isPlaying} height={rowLanesHeight} />
               {renderedLayers.map((layer) => {
                 const isActiveLayer = layer.id === activeLayerId;
                 const highlightedSpanBounds = isActiveLayer

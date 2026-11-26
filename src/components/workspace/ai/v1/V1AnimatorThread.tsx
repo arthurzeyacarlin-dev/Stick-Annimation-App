@@ -7,6 +7,7 @@ import type { ComponentType, ReactNode } from "react";
 import { AssistantActivity, useReducedMotion } from "@/src/components/assistant/AssistantText";
 import { workspaceColors } from "../../workspaceTheme";
 import { creditsText } from "@/src/lib/account/credits";
+import { animatePrice, changeCostLine, FREE_FIX_LINE } from "./v1GatePrice";
 import { V1_PANEL_WORDS, gentleBarPct, progressWords, undoRedoState, v1ReplyBlocks, v1WorkWord, type V1ReplySeg, type V1ChatLine, type V1GatePicture, type V1FrameDelta, type V1PanelState, type V1Progress, type V1ResultBlockMark } from "./v1AnimatorController.ts";
 
 // (Nov 17, Part 2) the changing words while he thinks (the server sends the book's list; these until it does). Never an "almost done" word:
@@ -393,8 +394,8 @@ function GatePictureBox({ picture }: { picture: V1GatePicture }) {
     : "This is how everything will look. Once animated, colours, sizes and shapes can't be changed.";
   const alt = isNew ? "How the new things will look" : "Everything in your animation, in one picture";
   const animate = Math.max(0, picture.animateCredits), changed = picture.credits;
-  const cost = changed <= 0 ? "" : animate <= 0 ? `The picture is included when you animate. If you change the plan instead, it costs ${creditsText(changed)}.`
-    : animate < changed ? `This picture costs ${creditsText(animate)} when you animate, or ${creditsText(changed)} if you change the plan instead.` : `This picture costs ${creditsText(changed)}.`;
+  // (dad, Nov 26) what the picture adds when animated is in the card's price; what a change costs (it replaces it) is under the buttons
+  const cost = changed <= 0 || animate <= 0 ? "" : `This picture adds ${creditsText(animate)} when you animate: it's in the price above.`;
   return (
     <>
       <button type="button" className="v1-gate-pic" title="See it bigger" onClick={() => setBig(true)}><img src={picture.src} alt={alt} /><span className="v1-gate-pic-say">{say}</span></button>
@@ -410,15 +411,17 @@ function GatePictureBox({ picture }: { picture: V1GatePicture }) {
 // (Nov 22, Arthur: "a quick summary ... with all the details needed", "more professional and polished") a line "words (N s)" is a step;
 // "24 fps" is a fact; anything else is a note
 const STEP_LINE = /^([\s\S]*) \((\d+(?:\.\d+)?) s\)$/;
-function GateCard({ credits, lines, exact, notDrawn, colour, picture, busy, readOnly, onAnimate, onChange }: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: V1GatePicture; busy: boolean; readOnly: boolean; onAnimate: () => void; onChange: () => void }) {
+function GateCard({ credits, lines, exact, notDrawn, colour, picture, freeChangesLeft, edit, busy, readOnly, onAnimate, onChange }: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: V1GatePicture; freeChangesLeft?: number; edit?: boolean; busy: boolean; readOnly: boolean; onAnimate: () => void; onChange: () => void }) {
   const drawing = picture?.state === "drawing";
+  const price = animatePrice(credits, picture);
+  const changeLine = changeCostLine(freeChangesLeft, picture);
   const steps = lines.flatMap((l) => { const m = STEP_LINE.exec(l); return m ? [{ text: m[1].trim(), secs: Number(m[2]) }] : []; });
   const facts = lines.filter((l) => !STEP_LINE.test(l) && /^\d+(?:\.\d+)? fps$/.test(l.trim()));
   const notes = lines.filter((l) => !STEP_LINE.test(l) && !facts.includes(l));
   const total = Math.round(steps.reduce((t, s) => t + s.secs, 0) * 10) / 10;
   return (
     <div className="v1-card v1-versions v1-gate" data-v1-gate="" data-workspace-theme-exempt="">
-      <div className="v1-gate-head"><span>Ready to animate</span><span className="v1-gate-cost">{creditsText(credits)}</span></div>
+      <div className="v1-gate-head"><span>Ready to animate</span><span className="v1-gate-cost">{creditsText(price)}</span></div>
       {picture && <GatePictureBox picture={picture} />}
       {steps.length > 0 && <ol className="v1-gate-steps">{steps.map((s, i) => <li key={i}><span className="v1-step-n" aria-hidden="true">{i + 1}</span><span>{s.text}</span><span className="v1-step-s">{s.secs} s</span></li>)}</ol>}
       {notes.map((n, i) => <p key={i} className="v1-gate-note">{n}</p>)}
@@ -426,9 +429,11 @@ function GateCard({ credits, lines, exact, notDrawn, colour, picture, busy, read
       {exact && exact.length > 0 && <details className="v1-gate-exact"><summary>Exact steps for the animator</summary><ol>{exact.map((l, i) => <li key={i}>{l}</li>)}</ol></details>}
       {notDrawn.length > 0 && <p className="v1-gate-not">Not drawn: {notDrawn.join(", ")}</p>}
       <div className="v1-actions" role="group" aria-label="Animate this plan">
-        <button type="button" title={drawing ? "The first picture is being drawn" : "Make this animation"} disabled={readOnly || busy || drawing} onClick={onAnimate} className="v1-primary"><PlayIcon />Animate</button>
+        <button type="button" title={drawing ? "The first picture is being drawn" : "Make this animation"} disabled={readOnly || busy || drawing} onClick={onAnimate} className="v1-primary"><PlayIcon />Animate · {creditsText(price)}</button>
         <button type="button" title="Type what should be different" disabled={readOnly || busy} onClick={onChange}><PencilIcon size={14} />Change it</button>
       </div>
+      {changeLine && <p className="v1-gate-note" data-v1-change-cost="">{changeLine}</p>}
+      {edit && <p className="v1-gate-note" data-v1-free-fix="">{FREE_FIX_LINE}</p>}
     </div>
   );
 }
@@ -493,7 +498,7 @@ export function V1AnimatorThread({ state, readOnly, onRevealed, onUndo, onRedo, 
         if (line.kind === "work") return <WorkLine key={line.id} line={line} />;
         if (line.kind === "note") return <div className="ai-animator-message v1-note" role="status" key={line.id}>{line.text}</div>;
         if (line.kind === "question") return line.answered ? null : <QuestionCard key={line.id} questions={line.questions} busy={Boolean(state.busy)} readOnly={readOnly} onDone={(a) => onAnswer?.(a)} onOwn={() => onChangePlan?.()} />;
-        if (line.kind === "gate") return line.state === "waiting" ? <GateCard key={line.id} credits={line.credits} lines={line.lines} exact={line.exact} notDrawn={line.notDrawn} colour={line.colour} picture={line.picture} busy={Boolean(state.busy)} readOnly={readOnly} onAnimate={() => onAnimate?.(line.id)} onChange={() => onChangePlan?.()} /> : null;
+        if (line.kind === "gate") return line.state === "waiting" ? <GateCard key={line.id} credits={line.credits} lines={line.lines} exact={line.exact} notDrawn={line.notDrawn} colour={line.colour} picture={line.picture} freeChangesLeft={line.freeChangesLeft} edit={line.edit} busy={Boolean(state.busy)} readOnly={readOnly} onAnimate={() => onAnimate?.(line.id)} onChange={() => onChangePlan?.()} /> : null;
         return <ResultLine key={line.id} line={line} isLatest={line.id === latestResult} state={state} readOnly={readOnly} onUndo={onUndo} onRedo={onRedo} />;
       })}
       {/* (Nov 2, Arthur: never interrupt the user — a version waiting for a busy canvas is placed by itself, no button) */}

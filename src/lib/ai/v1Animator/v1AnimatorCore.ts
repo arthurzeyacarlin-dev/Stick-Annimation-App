@@ -2,7 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { appendFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync, statfsSync } from "node:fs";
 import { join } from "node:path";
-import { AI_ACTION_CREDITS } from "../../account/plans.ts";
+import { AI_ACTION_CREDITS, FREE_PLAN_CHANGES } from "../../account/plans.ts";
 import { priceOf, storyLeftAfter, type V1Price } from "./v1Price.ts";
 import type { EngineBlockResult } from "../engineBlocks/engineBlocksContract.ts";
 import type {
@@ -53,7 +53,7 @@ export type V1LunaCallInput = {
   lastMirrored?: boolean; // the animation is shown mirrored: that picture is given as the animator sees it
   effort?: V1Effort | null; // (Nov 2 final round) the chat's Effort button (auto / low / medium / high); absent = low (today's call)
 };
-export type V1LunaCall = (input: V1LunaCallInput) => Promise<{ ok: true; turn: V1LunaTurn; costUsd?: number | null } | { ok: false; failure: string; detail: string }>;   // (Nov 22) costUsd = what the answer really cost
+export type V1LunaCall = (input: V1LunaCallInput) => Promise<{ ok: true; turn: V1LunaTurn; costUsd?: number | null; realCostUsd?: number | null } | { ok: false; failure: string; detail: string }>;   // (Nov 22) costUsd = what the answer really cost
 export type V1Books = { book: LunaBook; words: EngineWords };
 export type V1ViewerCall = (input: { ownerId: string; projectId: string; runId: string; sheetPath: string; words: string; moves: string[]; book: LunaBook; steps?: V1KimodoStep[] })
   => Promise<{ ok: true; showsRequest: boolean; missing: string; fixedSteps?: V1KimodoStep[] | null } | { ok: false; detail: string }>;
@@ -90,10 +90,12 @@ export type V1CoreDeps = {
 export type V1EngineRunEnd = { ownerId: string; projectId: string; runId: string; kind: "create" | "edit"; status: Exclude<V1JobStatus, "running">;
   report: V1Report | null; startedAtMs: number; finishedAtMs: number; price?: V1Price | null };
 export type V1UsageHooks = {
-  creditsShort?(ownerId: string, credits: number, held?: number): string | null;
-  turnAnswered?(input: { ownerId: string; projectId: string; turnId: string; costUsd?: number | null }): void;   // (Nov 22) costUsd = what this answer really cost
+  creditsShort?(ownerId: string, credits: number, held?: number, exceptPicture?: string | null, exceptProject?: string | null): string | null;   // (Nov 26) exceptPicture = the gate picture being animated
+  turnAnswered?(input: { ownerId: string; projectId: string; turnId: string; costUsd?: number | null; realCostUsd?: number | null; free?: boolean }): void;   // (Nov 22) costUsd = what this answer costs the user (Nov 26: warm); realCostUsd = what we paid; free = planning included in the card's price
   engineRun?(run: V1EngineRunEnd): void;
   pictureCharge?(ownerId: string, runId: string, credits: number): void; // (Nov 22) a paid gate picture that was not animated
+  pictureWaiting?(ownerId: string, pictureId: string, credits: number): void;
+  planningSettled?(ownerId: string, projectId: string): void; // (dad, Nov 26) Animate: the project's free planning is covered by the card's price // (dad, Nov 26, money only) a paid gate picture waiting at its card; 0 = no longer waiting; "free" = replaced by a change: never charged, counted toward the limits
 };
 
 export type V1TurnRequest = { ownerId: string; projectId: string; animationId: string | null; message: string; recentConversation: Conversation; canvas?: unknown; projectFps?: number; page?: [number, number];
@@ -102,7 +104,7 @@ export type V1TurnRequest = { ownerId: string; projectId: string; animationId: s
   queued?: boolean; // (Nov 20) the app's own "add the next part" turn of a long story: never saved as his chat line
   effort?: V1Effort | null }; // (Nov 2 final round) the chat's Effort button, as sent (the Sonnet brain resolves auto by the book's rule)
 export type V1TurnOutcome =
-  | { ok: true; turn: V1LunaTurn; animation: V1AnimationSnapshot | null; started: boolean; gate?: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: "first" | "new" } }   // (Nov 22) exact = the animator's own words, when the lines are the briefs
+  | { ok: true; turn: V1LunaTurn; animation: V1AnimationSnapshot | null; started: boolean; gate?: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: "first" | "new"; freeChangesLeft?: number; edit?: boolean } }   // (Nov 22) exact = the animator's own words, when the lines are the briefs
   | { ok: false; status: number; error: string };
 export type V1ActionOutcome =
   | { ok: true; animation: V1AnimationSnapshot }
@@ -783,7 +785,12 @@ export function createV1Animator(deps: V1CoreDeps) {
   const waiting: Job[] = [];
   // (Nov 20, money) what this account's running and waiting runs already hold, so two runs can never spend more than it has
   const heldBy = (ownerId: string) => [...runningJobs.keys(), ...waiting].reduce((t, j) => t + (j && j.anim.ownerId === ownerId ? j.price?.credits ?? 0 : 0), 0);
-  const creditsShortFor = (ownerId: string, credits: number) => deps.usage?.creditsShort?.(ownerId, credits, heldBy(ownerId)) ?? null;
+  // (dad, Nov 26) PLANNING IS IN THE CARD'S PRICE: the plan answers before Animate - the first plan plus FREE_PLAN_CHANGES changes - are
+  // not charged one by one (they still count toward the limits); a further change is charged at its warm cost, never above
+  // PAID_CHANGE_MAX_CREDITS (the card says so first). Counted per project, from one Animate to the next.
+  const planTurns = new Map<string, number>();
+  const freeTurnsLeft = (ownerId: string, projectId: string) => Math.max(0, 1 + FREE_PLAN_CHANGES - (planTurns.get(`${ownerId}|${projectId}`) ?? 0));
+  const creditsShortFor = (ownerId: string, credits: number, exceptPicture: string | null = null, exceptProject: string | null = null) => deps.usage?.creditsShort?.(ownerId, credits, heldBy(ownerId), exceptPicture, exceptProject) ?? null;
   // (Nov 20, money) a long story's next part: its own seconds, from what is left of the story's one price (never more than the first card)
   const nextPartCredits = (job: Job) => {
     const own = priceOf({ remadeSeconds: (job.parts?.[0] ?? []).reduce((t, s) => t + (Number(s.seconds) || 0), 0), added: true, chat: false }).credits;
@@ -1389,7 +1396,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     const briefOf = new Map((turn.kimodoSteps ?? []).map((s, i) => [String(s.text ?? "").trim(), String(turn.stepBriefs?.[i] ?? "").trim()] as const));
     let briefed = false;
     const short = lines.map((l) => { const m = /^([\s\S]*) \((\d+(?:\.\d+)?) s\)$/.exec(l); const b = m ? briefOf.get(m[1].trim()) : ""; if (!m || !b) return l; briefed = true; return `${b} (${m[2]} s)`; });
-    return { ok: true as const, turn, animation: g.isNew ? null : snapshot(g.anim), started: false, gate: { credits: g.price.credits, lines: [...short, ...(turn.lookBriefs ?? [])], ...(briefed ? { exact: lines } : {}), notDrawn: [], colour, ...(picture ? { picture } : {}) } };   // (Nov 14, Arthur: a card always means "I can make exactly this" - nothing on it is "not drawn")
+    return { ok: true as const, turn, animation: g.isNew ? null : snapshot(g.anim), started: false, gate: { credits: g.price.credits, lines: [...short, ...(turn.lookBriefs ?? [])], ...(briefed ? { exact: lines } : {}), notDrawn: [], colour, ...(picture ? { picture } : {}), freeChangesLeft: freeTurnsLeft(g.anim.ownerId, g.anim.projectId), ...(g.isNew ? {} : { edit: true }) } };   // (Nov 14, Arthur: a card always means "I can make exactly this" - nothing on it is "not drawn")
   };
   // (Nov 19 eve, Arthur: "one flowing system ... for any length" - measured: a part written before the part before it existed began with three
   // logs already stacked, then they vanished) THE NEXT PART OF A LONG STORY IS WRITTEN FROM THE REAL LAST PICTURE: the moment a part is done,
@@ -1431,9 +1438,11 @@ export function createV1Animator(deps: V1CoreDeps) {
     if (!g.isNew && busyWith(g.anim)) return { ok: false, status: 409, error: plain("edit_while_running") };   // (Nov 25) only HIS animation being made can wait; anyone else's never blocks
     const pic = gatePics.get(g);
     if (pic && !pic.state.done) return { ok: false, status: 409, error: "The first picture is still being drawn. Press Animate when it shows - nothing was charged." };
-    const runShort = creditsShortFor(ownerId, g.price.credits);
+    const runShort = creditsShortFor(ownerId, g.price.credits, pic ? pic.state.id : null, projectId);   // (Nov 26) its own picture and planning are in this price
     if (runShort) return { ok: false, status: 402, error: runShort };
     gated.delete(key);
+    planTurns.delete(key);   // (Nov 26) Animate: the next plan starts with its free changes again
+    try { deps.usage?.planningSettled?.(ownerId, projectId); } catch { /* best effort */ }   // ...and this plan's free planning is covered by its price
     if (pic) { pic.state.confirmed = true; chargeGatePicture(g, pic.state); }   // (Nov 22) a new animation's picture is included; a new thing's picture is paid once
     if (g.isNew) animations.set(g.anim.animationId, g.anim);
     startJob(g.anim, g.kind, g.plan, g.edits, { price: g.price, ...g.ctx }, g.still);
@@ -1453,12 +1462,17 @@ export function createV1Animator(deps: V1CoreDeps) {
   // (Nov 22, Arthur: "it needs to show everything that's about to show") a NEW animation whose story brings things in LATER (Sonnet's
   // newThings - never in the scene, so never in the first picture) shows the first picture WITH those things put in, standing still: the
   // same still as an edit's new things, drawn from the scene's last picture. The animation still starts from the scene, unchanged.
-  type GatePic = { done: boolean; picture: string | null; credits: number; kept: number; why: string; confirmed: boolean; rejected: boolean; charged: boolean };
+  // (dad, Nov 26, money only - nothing about how the picture is made changes) a picture that cost something is written down as WAITING
+  // (its real cost holds credits and counts toward the daily and trial limits) until it is animated or charged.
+  type GatePic = { id: string; done: boolean; picture: string | null; credits: number; kept: number; why: string; confirmed: boolean; rejected: boolean; charged: boolean };
   const gatePics = new WeakMap<Gated, { state: GatePic; promise: Promise<GatePic> }>();
   const gatePictureKind = (g: Gated): "first" | "new" | null =>
     g.isNew && g.kind === "create" && Boolean(String(g.plan.scene ?? "").trim()) ? "first" : g.kind === "edit" && Boolean(g.newThings?.trim()) ? "new" : null;
   const chargeGatePicture = (g: Gated, s: GatePic) => {
     if (s.charged || !s.done || s.credits <= 0) return;
+    if (s.confirmed || s.rejected) { try { deps.usage?.pictureWaiting?.(g.anim.ownerId, s.id, 0); } catch { /* best effort */ } }   // (Nov 26) no longer waiting
+    // (dad, Nov 26, option d: "no leaks where we're losing money secretly") the plan TEXT changes are free, but a first picture replaced
+    // by a change is charged its real cost, once - the card says so (with the number) before the change is sent
     const due = s.confirmed ? s.credits - s.kept : s.rejected ? s.credits : 0;
     if (due <= 0) return;
     s.charged = true;
@@ -1482,6 +1496,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     const credit = (usd: number) => usd > 0 ? Math.max(1, Math.ceil(usd * 100 - 1e-9)) : 0;
     const end = (picture: string | null, why: string, usd = 0, keptUsd = 0) => {
       state.done = true; state.picture = picture; state.why = why; state.credits = credit(usd); state.kept = Math.min(state.credits, credit(keptUsd));
+      if (state.credits > 0) { try { deps.usage?.pictureWaiting?.(g.anim.ownerId, state.id, state.credits); } catch { /* best effort */ } }   // (Nov 26)
       chargeGatePicture(g, state); return state;
     };
     const config = g.ctx.config, books = g.ctx.books;
@@ -1546,7 +1561,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     if (!kind) return null;
     let p = gatePics.get(g);
     if (!p) {
-      const state: GatePic = { done: false, picture: null, credits: 0, kept: 0, why: "", confirmed: false, rejected: false, charged: false };
+      const state: GatePic = { id: `gate-picture-${newId()}`, done: false, picture: null, credits: 0, kept: 0, why: "", confirmed: false, rejected: false, charged: false };
       p = { state, promise: drawGatePicture(g, state, kind) };
       gatePics.set(g, p);
     }
@@ -1651,7 +1666,11 @@ export function createV1Animator(deps: V1CoreDeps) {
       saveLine(request.ownerId, request.projectId, request.animationId, { role: "user", text: request.message }); saveLine(request.ownerId, request.projectId, request.animationId, { role: "assistant", text: error });
       return { ok: false, status: 502, error };
     }
-    if (!request.queued) { try { deps.usage?.turnAnswered?.({ ownerId: request.ownerId, projectId: request.projectId, turnId: newId(), costUsd: asked.costUsd ?? null }); } catch { /* metering never breaks a reply */ } }
+    if (!request.queued) {
+      const planKey = `${request.ownerId}|${request.projectId}`, n = (planTurns.get(planKey) ?? 0) + 1;
+      planTurns.set(planKey, n);
+      try { deps.usage?.turnAnswered?.({ ownerId: request.ownerId, projectId: request.projectId, turnId: newId(), costUsd: asked.costUsd ?? null, realCostUsd: asked.realCostUsd ?? asked.costUsd ?? null, free: n <= 1 + FREE_PLAN_CHANGES }); } catch { /* metering never breaks a reply */ }
+    }
     let said = asked.turn;
     // every turn is kept on disk (the user's words + what was said back), so a reload / restart shows the same chat
     // (kind "plan" = a story plan was proposed: a later long create is the agreed plan's part 1)
@@ -1692,8 +1711,9 @@ export function createV1Animator(deps: V1CoreDeps) {
       const stepSeconds = (steps: V1KimodoStep[] | null | undefined) => (steps ?? []).reduce((t, s) => t + (Number(s.seconds) || 0), 0);
       // (Nov 22, Arthur: "the credits always gotta pay for Sonnet and fal, but not ridiculous amounts" - measured: his turn was paid twice,
       // once when answered and once inside the card) the card is the animator's price only; his answer was already paid, at its real cost
-      const wholePrice = priceOf({ newSeconds: stepSeconds(allSteps ?? said.kimodoSteps) || planSeconds(firstPlan), chat: false });
-      const firstPrice = partsOf.length > 1 ? priceOf({ newSeconds: stepSeconds(partsOf[0]), chat: false }) : wholePrice;
+      // (dad, Nov 26) ...and its PLANNING is in that one price (chat: the flat planning amount, plans.ts PLANNING_CREDITS), charged with part 1
+      const wholePrice = priceOf({ newSeconds: stepSeconds(allSteps ?? said.kimodoSteps) || planSeconds(firstPlan), chat: true });
+      const firstPrice = partsOf.length > 1 ? priceOf({ newSeconds: stepSeconds(partsOf[0]), chat: true }) : wholePrice;
       const runShort = creditsShortFor(request.ownerId, wholePrice.credits);
       if (runShort) return { ok: false, status: 402, error: runShort };
       const animationId = newId();
@@ -1788,7 +1808,7 @@ export function createV1Animator(deps: V1CoreDeps) {
       const editPrice = priceOf({
         remadeSeconds: remade || (motionOps && !editSteps ? planSeconds(base.plan) : 0), added: added > 0, newTake: newLook,
         fillLooks: pictureLooks.filter((p) => lookKindOf(p) === "fill").length, redrawLooks: pictureLooks.filter((p) => lookKindOf(p) === "redraw").length,
-        animationSeconds: planSeconds(base.plan), removeOnly: !madeAgain.length && (said.removeSteps?.length ?? 0) > 0, chat: false,   // (Nov 22) his answer was already paid when answered
+        animationSeconds: planSeconds(base.plan), removeOnly: !madeAgain.length && (said.removeSteps?.length ?? 0) > 0, chat: true,   // (dad, Nov 26) the edit's planning is in its price (its answers are not charged one by one)
         ending: (added > 0 && !request.queued) || remakeAll,   // (Nov 22) its last clip ends the animation: the settle second fal is paid for
       });
       const payShort = creditsShortFor(request.ownerId, editPrice.credits);   // (Nov 11) never a card the account cannot pay for

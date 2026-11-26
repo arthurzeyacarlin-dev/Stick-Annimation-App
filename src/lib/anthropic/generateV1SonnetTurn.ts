@@ -45,6 +45,33 @@ type AnthropicUsage = { input_tokens?: number; output_tokens?: number; cache_cre
 export const sonnetCostUsd = (u: AnthropicUsage, brain: Pick<SonnetBrain, "priceIn" | "priceOut">) =>
   ((u.input_tokens ?? 0) * brain.priceIn + (u.cache_creation_input_tokens ?? 0) * brain.priceIn * CACHE_WRITE_X
     + (u.cache_read_input_tokens ?? 0) * brain.priceIn * CACHE_READ_X + (u.output_tokens ?? 0) * brain.priceOut) / 1_000_000;
+/** (Dad, Nov 26) "The cold-cache rulebook load is never charged to a user": the cost as if the cache were warm (the tokens WRITTEN to
+ *  the cache priced like a cache read). The real cost (sonnetCostUsd) is what we pay and what the ledger and the limits count. */
+export const sonnetWarmCostUsd = (u: AnthropicUsage, brain: Pick<SonnetBrain, "priceIn" | "priceOut">) =>
+  sonnetCostUsd({ ...u, cache_creation_input_tokens: 0, cache_read_input_tokens: (u.cache_read_input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) }, brain);
+
+// (Dad, Nov 26) THE RULEBOOK CACHE (Sonnet's ~55,000-token book, kept 1 hour). Only ONE cold load at a time: when the cache is cold (or
+// unknown) the first call loads it and calls starting at the same moment wait a few seconds for it (they then read it for a tenth of
+// the price) - never long: after COLD_WAIT_MS they go anyway. Every call that wrote or read it keeps it warm for its hour.
+export const COLD_WAIT_MS = 8_000;
+const CACHE_LIFE_MS = 55 * 60 * 1000;   // (its life is 1 hour from the last use; a little margin)
+type CacheState = { warmUntil: number; loading: Promise<void> | null; lastTouch: number };
+const cacheHolder = globalThis as typeof globalThis & { diamondSonnetCache?: CacheState };
+export const sonnetCacheState = (): CacheState => (cacheHolder.diamondSonnetCache ??= { warmUntil: 0, loading: null, lastTouch: 0 });
+const noteCacheUse = (u: AnthropicUsage, now = Date.now()) => {
+  if ((u.cache_creation_input_tokens ?? 0) > 0 || (u.cache_read_input_tokens ?? 0) > 0) { const c = sonnetCacheState(); c.warmUntil = now + CACHE_LIFE_MS; c.lastTouch = now; }
+};
+/** Before a call: wait (a few seconds at most) while another call is loading a cold cache. Returns a release function when THIS call
+ *  is the one loading it (call it once the answer has started), else null. */
+async function coldLoadTurn(now = Date.now()): Promise<(() => void) | null> {
+  const c = sonnetCacheState();
+  if (now < c.warmUntil) return null;
+  if (c.loading) { await Promise.race([c.loading, new Promise((r) => setTimeout(r, COLD_WAIT_MS))]); return null; }
+  let release!: () => void;
+  const mine: Promise<void> = new Promise<void>((done) => { release = () => { if (c.loading === mine) c.loading = null; done(); }; });
+  c.loading = mine;
+  return release;
+}
 
 // The budget the director obeys: CLAUDE_TEST_BUDGET_USD (book default), minus the book's margin. null = there is room.
 export function sonnetBudgetRefusal(ledger: unknown, brain: SonnetBrain, env: Env): string | null {
@@ -54,11 +81,11 @@ export function sonnetBudgetRefusal(ledger: unknown, brain: SonnetBrain, env: En
 }
 
 // book the money in the SHARED ledger (read again now, so the director's newer lines are kept)
-function bookSpend(io: LedgerIO, brain: SonnetBrain, u: AnthropicUsage, usd: number) {
+function bookSpend(io: LedgerIO, brain: SonnetBrain, u: AnthropicUsage, usd: number, who: string = brain.ledgerWho) {
   try {
     const L = asLedger(io.read(brain.ledger));
     L.total = +(Number(L.total ?? 0) + usd).toFixed(4);
-    (L.calls ??= []).push({ at: new Date().toISOString(), model: brain.model, usage: u, usd: +usd.toFixed(5), who: brain.ledgerWho } as never);
+    (L.calls ??= []).push({ at: new Date().toISOString(), model: brain.model, usage: u, usd: +usd.toFixed(5), who } as never);
     io.write(brain.ledger, L);
   } catch { /* the call is made; a ledger write error must not lose the answer */ }
 }
@@ -145,6 +172,39 @@ async function readAnswer(res: Awaited<ReturnType<FetchLike>>, live: V1SonnetLiv
   return msg;
 }
 
+/** THE request body of a Sonnet plan turn - ONE builder, used by every real turn AND by the keep-warm check, so the cached part (tools,
+ *  then the book's system text with its 1-hour cache mark) is byte for byte the same: the check really reads the cache the turns use. */
+export function v1SonnetRequestBody(books: V1SonnetBooks, opts: { level: V1EffortLevel; plain: boolean; live: boolean; messages: unknown[]; maxTokens?: number; stream?: boolean }) {
+  const { brain } = books;
+  const tool = { name: V1_SONNET_TOOL, description: "Your whole answer for this turn: intent, say, and blocks or ops.", input_schema: lunaTurnSchema(books.words, books.book) };
+  const system = lunaInstructions(books.book, books.words);
+  // max_tokens = budget + the book's answer room (always > budget). Thinking tokens are output tokens: booked as today.
+  const budget = opts.level === "low" || !books.effort ? 0 : books.effort.budgets[opts.level];
+  // (Nov 8) Sonnet 5.5 always refuses a FORCED tool call (400), so every turn was asked twice; it is now asked once, the supported way
+  // (auto + "call the tool") - byte for byte the request that answered every turn before
+  // (Nov 14, Arthur: "he has to be able to search the internet ... only when he needs to ... it says exactly what he's searching") the
+  // provider's own web search, used only when the story names something he does not know well enough to describe; what he searched is
+  // said in his reply. A turn the provider pauses in the middle of a search is carried on from where it stopped (twice at most).
+  const searchTool = { type: "web_search_20250305", name: "web_search", max_uses: 2 };
+  return {
+    model: brain.model,
+    max_tokens: opts.maxTokens ?? (budget > 0 ? Math.max(brain.maxTokens, budget + books.effort!.answerTokens) : Math.max(brain.maxTokens, 8000)),
+    // (Nov 14, found by a direct call: this model answers 400 to thinking.type "enabled" - "use thinking.type adaptive and
+    // output_config.effort" - so EVERY medium / high turn was refused once and then asked again at low: Sonnet never thought at all,
+    // and each message paid a wasted round trip) the thinking this model supports: adaptive, at the turn's own effort level
+    // (Nov 19, Arthur: "Sonnet takes forever") a request with no effort runs this model at its DEFAULT, high: quick messages were thinking as hard as stories. Low is now said out loud
+    ...(opts.plain || !books.effort ? {} : budget > 0 ? { thinking: { type: "adaptive" }, output_config: { effort: opts.level } } : { output_config: { effort: "low" } }),
+    // the book's instructions are the same every turn: cached (a cache read costs a tenth); (Nov 8) kept 1 hour, not 5 minutes - the
+    // first edit after a 6-minute make found the cache gone and paid the whole book again
+    system: [{ type: "text", text: `${system}\n\nINTERNET SEARCH: use the web_search tool ONLY when the user's story names a thing you do not know well enough to say what it looks like (a new game item, a character, a real product, something from after your knowledge) - one or two short searches for how it LOOKS, then describe it in the step sentences from what you found, with its name kept. Never search for ordinary things or moves, and never to check yourself.\n\nAnswer ONLY by calling the ${V1_SONNET_TOOL} tool exactly once.`, cache_control: { type: "ephemeral", ttl: "1h" } }],
+    // (Nov 2 final round) a canvas picture (when the turn has one) goes first as an image block: lunaTurnContent
+    messages: opts.messages,
+    tools: [opts.live ? { ...tool, eager_input_streaming: true } : tool, searchTool],   // (Nov 19) eager: his reply reaches the panel as it is written, not in one burst at the end
+    tool_choice: { type: "auto" },
+    ...((opts.stream ?? opts.live) ? { stream: true } : {}),   // (Nov 17) the same request, sent back in pieces (only when the panel is watching)
+  };
+}
+
 export const createV1SonnetTurnGenerator = (deps: { fetch?: FetchLike; recorder?: UsageEventRecorder; ledger?: LedgerIO; env?: Env } = {}) =>
   async (request: V1LunaRequest, books: V1SonnetBooks, options: { signal?: AbortSignal; live?: V1SonnetLive | null } = {}): Promise<V1SonnetOutcome> => {
     const live = options.live ?? null;
@@ -162,50 +222,24 @@ export const createV1SonnetTurnGenerator = (deps: { fetch?: FetchLike; recorder?
 
     const identity = usageIdentity(request);
     const startedAt = performance.now();
-    const tool = { name: V1_SONNET_TOOL, description: "Your whole answer for this turn: intent, say, and blocks or ops.", input_schema: lunaTurnSchema(books.words, books.book) };
-    const system = lunaInstructions(books.book, books.words);
     // (Nov 2 final round, owner) EFFORT: low = the plain call; medium / high = extended thinking with the book's budget.
-    // max_tokens = budget + the book's answer room (always > budget). Thinking tokens are output tokens: booked below as today.
     let level = resolveV1Effort(request.effort, request.message, books.effort ?? null, !request.current);
-    const thinkingBudget = () => (level === "low" || !books.effort ? 0 : books.effort.budgets[level]);
-    // (Nov 8) Sonnet 5.5 always refuses a FORCED tool call (400), so every turn was asked twice; it is now asked once, the supported way
-    // (auto + "call the tool") - byte for byte the request that answered every turn before
-    // (Nov 14, Arthur: "he has to be able to search the internet ... only when he needs to ... it says exactly what he's searching") the
-    // provider's own web search, used only when the story names something he does not know well enough to describe; what he searched is
-    // said in his reply. A turn the provider pauses in the middle of a search is carried on from where it stopped (twice at most).
-    const searchTool = { type: "web_search_20250305", name: "web_search", max_uses: 2 };
     let carried: unknown[] = [];
     let plain = false;   // (a model that refuses the effort setting is asked once without it)
-    const call = () => {
-      const budget = thinkingBudget();
-      return post(API_URL, {
-        method: "POST",
-        headers: { "x-api-key": key, "anthropic-version": API_VERSION, "content-type": "application/json" },
-        body: JSON.stringify({
-          model: brain.model,
-          max_tokens: budget > 0 ? Math.max(brain.maxTokens, budget + books.effort!.answerTokens) : Math.max(brain.maxTokens, 8000),
-          // (Nov 14, found by a direct call: this model answers 400 to thinking.type "enabled" - "use thinking.type adaptive and
-          // output_config.effort" - so EVERY medium / high turn was refused once and then asked again at low: Sonnet never thought at all,
-          // and each message paid a wasted round trip) the thinking this model supports: adaptive, at the turn's own effort level
-          // (Nov 19, Arthur: "Sonnet takes forever") a request with no effort runs this model at its DEFAULT, high: quick messages were thinking as hard as stories. Low is now said out loud
-          ...(plain || !books.effort ? {} : budget > 0 ? { thinking: { type: "adaptive" }, output_config: { effort: level } } : { output_config: { effort: "low" } }),
-          // the book's instructions are the same every turn: cached (a cache read costs a tenth); (Nov 8) kept 1 hour, not 5 minutes - the
-          // first edit after a 6-minute make found the cache gone and paid the whole book again
-          system: [{ type: "text", text: `${system}\n\nINTERNET SEARCH: use the web_search tool ONLY when the user's story names a thing you do not know well enough to say what it looks like (a new game item, a character, a real product, something from after your knowledge) - one or two short searches for how it LOOKS, then describe it in the step sentences from what you found, with its name kept. Never search for ordinary things or moves, and never to check yourself.\n\nAnswer ONLY by calling the ${V1_SONNET_TOOL} tool exactly once.`, cache_control: { type: "ephemeral", ttl: "1h" } }],
-          // (Nov 2 final round) a canvas picture (when the turn has one) goes first as an image block: lunaTurnContent
-          messages: [{ role: "user", content: lunaTurnContent(books.book, request) }, ...carried],
-          tools: [live ? { ...tool, eager_input_streaming: true } : tool, searchTool],   // (Nov 19) eager: his reply reaches the panel as it is written, not in one burst at the end
-          tool_choice: { type: "auto" },
-          ...(live ? { stream: true } : {}),   // (Nov 17) the same request, sent back in pieces (only when the panel is watching)
-        }),
-        ...(options.signal ? { signal: options.signal } : {}),
-      });
-    };
+    const call = () => post(API_URL, {
+      method: "POST",
+      headers: { "x-api-key": key, "anthropic-version": API_VERSION, "content-type": "application/json" },
+      body: JSON.stringify(v1SonnetRequestBody(books, { level, plain, live: Boolean(live), messages: [{ role: "user", content: lunaTurnContent(books.book, request) }, ...carried] })),
+      ...(options.signal ? { signal: options.signal } : {}),
+    });
     let status = 0;
     let body: Record<string, unknown>;
     try {
       meter(projectDispatchedEvent(identity, Date.now(), brain.model));
-      let res = await call();
+      // (dad, Nov 26) only ONE cold load of the rulebook at a time: the others wait a few seconds and then read it
+      const release = await coldLoadTurn();
+      let res: Awaited<ReturnType<FetchLike>>;
+      try { res = await call(); } finally { release?.(); }
       body = await readAnswer(res, live);
       // (effort) a model that refuses extended thinking is asked once more at low, so the turn never fails for it
       if (res.status === 400 && !plain && books.effort && /thinking|budget_tokens|output_config|effort/.test(JSON.stringify(body))) { level = "low"; plain = true; res = await call(); body = await readAnswer(res, live); }
@@ -229,8 +263,11 @@ export const createV1SonnetTurnGenerator = (deps: { fetch?: FetchLike; recorder?
     const usd = sonnetCostUsd(u, brain) + 0.01 * searched.length;   // (the provider's price of a search: $10 per 1,000)
     const inputTokens = (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0);
     const outputTokens = u.output_tokens ?? null;
-    const usage: AiAnimatorUsage = { inputTokens, outputTokens, totalTokens: outputTokens === null ? null : inputTokens + outputTokens, estimatedCostUsd: usd };
+    // (dad, Nov 26) warmCostUsd = what a user may be charged for this answer (never the cold rulebook load; searches included)
+    const usage: AiAnimatorUsage = { inputTokens, outputTokens, totalTokens: outputTokens === null ? null : inputTokens + outputTokens, estimatedCostUsd: usd,
+      warmCostUsd: sonnetWarmCostUsd(u, brain) + 0.01 * searched.length };
     bookSpend(io, brain, u, usd);
+    noteCacheUse(u);
     const responseId = typeof body.id === "string" ? body.id : null;
     const returnedModel = typeof body.model === "string" ? body.model : null;
     meter(projectProviderObservedEvent(identity, { requestedModel: brain.model, returnedModel, responseId, usage, pricingVersion: PRICING_VERSION }));
@@ -318,3 +355,59 @@ export const createV1SonnetViewer = (deps: { fetch?: FetchLike; recorder?: Usage
       ? fx.map((s) => ({ text: String((s as V1KimodoStep).text).trim(), seconds: (s as V1KimodoStep).seconds, travels: (s as V1KimodoStep).travels === true })) : null;
     return { ok: true, showsRequest: answer.shows_request, missing: typeof answer.missing === "string" ? answer.missing.trim().slice(0, 300) : "", fixedSteps, usage };
   };
+
+// (Dad, Nov 26) THE KEEP-WARM CHECK: about every 55 minutes one tiny call sends exactly the cached part of a plan turn (the same builder,
+// the same bytes), so the 1-hour cache never goes cold and nobody's first message pays the ~$0.35 rulebook load. Skipped when a real
+// turn used the cache in the last 55 minutes. Booked in the same ledger as "keep-warm"; the Claude budget refusal applies; one line in
+// the log per check. It never changes what Sonnet answers anyone: it is a separate call whose answer is thrown away.
+export const KEEP_WARM_WHO = "keep-warm";
+/** ONE switch: DIAMOND_SONNET_KEEP_WARM=off turns it off. It runs by itself only on the live server (DIAMOND_PUBLIC_ORIGIN set), or with
+ *  DIAMOND_SONNET_KEEP_WARM=on - never on a copy by surprise. */
+export const sonnetKeepWarmOn = (env: Env = process.env) => {
+  const value = env.DIAMOND_SONNET_KEEP_WARM?.trim().toLowerCase();
+  return value === "on" || (value !== "off" && Boolean(env.DIAMOND_PUBLIC_ORIGIN?.trim()));
+};
+export const KEEP_WARM_EVERY_MS = 55 * 60 * 1000;
+export type KeepWarmResult = "skipped" | "hit" | "miss" | "budget" | "no-key" | "failed";
+export async function sonnetKeepWarm(books: V1SonnetBooks, deps: { fetch?: FetchLike; ledger?: LedgerIO; env?: Env; now?: number; log?: (line: string) => void } = {}): Promise<KeepWarmResult> {
+  const env = deps.env ?? process.env, io = deps.ledger ?? fileLedger, post = deps.fetch ?? (fetch as unknown as FetchLike), now = deps.now ?? Date.now();
+  const log = deps.log ?? ((line: string) => console.info(line));
+  const { brain } = books;
+  const c = sonnetCacheState();
+  // the last use of the cache: this process's own calls, else the ledger (after a restart)
+  if (now - c.lastTouch >= KEEP_WARM_EVERY_MS) {
+    try {
+      const calls = asLedger(io.read(brain.ledger)).calls ?? [];
+      for (let i = calls.length - 1; i >= 0 && i >= calls.length - 200; i -= 1) {
+        const call = calls[i] as { who?: string; at?: string; usage?: AnthropicUsage };
+        if (call.who !== brain.ledgerWho && call.who !== KEEP_WARM_WHO) continue;
+        const at = Date.parse(String(call.at ?? ""));
+        if (Number.isFinite(at) && ((call.usage?.cache_read_input_tokens ?? 0) > 0 || (call.usage?.cache_creation_input_tokens ?? 0) > 0)) { c.lastTouch = Math.max(c.lastTouch, at); break; }
+      }
+    } catch { /* unknown = check */ }
+  }
+  if (now - c.lastTouch < KEEP_WARM_EVERY_MS) { log(`[keep-warm] skipped: the cache was used ${Math.round((now - c.lastTouch) / 60000)} min ago`); return "skipped"; }
+  const key = env.ANTHROPIC_API_KEY;
+  if (!key) { log("[keep-warm] skipped: no key"); return "no-key"; }
+  let refusal: string | null;
+  try { refusal = sonnetBudgetRefusal(io.read(brain.ledger), brain, env); } catch { refusal = "the ledger could not be read"; }
+  if (refusal) { log(`[keep-warm] skipped: ${refusal}`); return "budget"; }
+  try {
+    const res = await post(API_URL, {
+      method: "POST", headers: { "x-api-key": key, "anthropic-version": API_VERSION, "content-type": "application/json" },
+      // the app's own live-turn request (that is how the panel asks), with a one-word message and the smallest answer the API allows
+      body: JSON.stringify(v1SonnetRequestBody(books, { level: "low", plain: false, live: true, stream: false, maxTokens: 1, messages: [{ role: "user", content: "ok" }] })),
+    });
+    const body = (await res.json().catch(() => ({}))) as { usage?: AnthropicUsage };
+    if (!res.ok) { log(`[keep-warm] failed: API ${res.status}`); return "failed"; }
+    const u = body.usage ?? {};
+    bookSpend(io, brain, u, sonnetCostUsd(u, brain), KEEP_WARM_WHO);
+    noteCacheUse(u, now);
+    const hit = (u.cache_read_input_tokens ?? 0) > 0;
+    log(`[keep-warm] ${hit ? "hit" : "miss"}: read ${u.cache_read_input_tokens ?? 0}, wrote ${u.cache_creation_input_tokens ?? 0} tokens, $${sonnetCostUsd(u, brain).toFixed(4)}`);
+    return hit ? "hit" : "miss";
+  } catch (error) {
+    log(`[keep-warm] failed: ${netDetail(error)}`);
+    return "failed";
+  }
+}

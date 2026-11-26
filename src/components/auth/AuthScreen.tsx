@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
-import { ACCOUNT_PLANS, CYCLE_WORD, PAID_PLAN_IDS, PLAN_CYCLE, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
+import { ACCOUNT_PLANS, CYCLE_WORD, NO_TRIAL_MESSAGE, PAID_PLAN_IDS, PLAN_CYCLE, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
+import { EmailConfirmBox } from "@/src/components/account/EmailConfirm";
 import { PaymentDialog } from "@/src/components/account/PaymentDialog";
 import { AuthShowcase } from "./AuthShowcase";
 import { creditsText } from "@/src/lib/account/credits";
@@ -57,7 +58,9 @@ export function AuthScreen() {
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
   // Arthur (2026-10-27): Create account has two steps — the account, then the plan (free trial or a paid plan), all
   // before the app opens. Paid plans go to Stripe's page (test mode: no real money).
-  const [step, setStep] = useState<"account" | "plan">("account");
+  const [step, setStep] = useState<"account" | "plan" | "confirm">("account");
+  // (dad, Nov 26) the free trial starts once the email is confirmed; an inbox that already had a trial gets none (Plans instead)
+  const [trialState, setTrialState] = useState<{ state: "confirm" | "confirmed" | "no_trial"; email: string } | null>(null);
   const [plan, setPlan] = useState<PlanChoice>("trial");
   const [interval, setInterval] = useState<BillingInterval>(PLAN_CYCLE);
   // SPEC-0031: a code from a link (?code=FIRSTDIAMOND) is kept through sign-up; at step 2 (signed in) the prices show it.
@@ -108,13 +111,21 @@ export function AuthScreen() {
         setError(mode === "signup" && code.startsWith("USER_ALREADY_EXISTS") ? "That email already has an account. Log in instead."
           : code === "PASSWORD_TOO_SHORT" ? "Use a password with at least 8 characters."
           : code === "AGE_CHECK_NEEDED" ? "Please start again and answer the birth year question."
+          : code === "DISPOSABLE_EMAIL" ? "Please use your real email address. Throwaway email addresses can't start a free trial."
           : mode === "signup" ? "We couldn't create that account. Check your details or try another email."
           : "That email and password don't match. New here? Create an account first.");
         setBusy(false);
         return;
       }
       try { window.localStorage.setItem(RETURNING_KEY, "1"); } catch { /* storage blocked */ }
-      if (mode === "signup") { setStep("plan"); setBusy(false); return; }
+      if (mode === "signup") {
+        try {
+          const confirm = (await (await fetch("/api/account/email-confirm", { cache: "no-store" })).json()) as { state?: "confirm" | "confirmed" | "no_trial"; email?: string };
+          if (confirm.state) setTrialState({ state: confirm.state, email: confirm.email ?? email.trim() });
+          if (confirm.state === "no_trial") setPlan("starter");
+        } catch { /* the app's confirm card asks later */ }
+        setStep("plan"); setBusy(false); return;
+      }
       window.location.assign("/");
     } catch {
       setError("We couldn't reach Diamond Animator. Check your connection and try again.");
@@ -126,7 +137,7 @@ export function AuthScreen() {
   const [paying, setPaying] = useState(false);
   const startPlan = () => {
     if (busy) return;
-    if (plan === "trial") { window.location.assign("/"); return; }
+    if (plan === "trial") { if (trialState?.state === "confirm") setStep("confirm"); else window.location.assign("/"); return; }
     setError(null);
     setPaying(true);
   };
@@ -149,7 +160,16 @@ export function AuthScreen() {
         <AuthShowcase />
       </section>
 
-      {step === "plan" ? (
+      {step === "confirm" && trialState ? (
+      <section className={styles.card} aria-label="Confirm your email">
+        <div className={styles.cardHead}><p className={styles.stepTag}>Last step</p></div>
+        <EmailConfirmBox email={trialState.email} place="card"
+          onDone={(state) => window.location.assign(state === "no_trial" ? "/plans" : "/?confirmed=1")} />
+        <div className={styles.cardFoot}>
+          <p className={styles.fine}>No email? Check your spam folder. <button type="button" className={styles.inlineLink} onClick={() => window.location.assign("/")}>Look around first</button> (the AI starts once you confirm).</p>
+        </div>
+      </section>
+      ) : step === "plan" ? (
       <section className={styles.card} aria-labelledby="plan-heading">
         <div className={styles.cardHead}>
           <p className={styles.stepTag}>Step 2 of 2</p>
@@ -163,7 +183,8 @@ export function AuthScreen() {
           <button type="button" aria-pressed={interval === "year"} onClick={() => setInterval("year")}>Yearly · 2 months free</button>
         </div>
         <div className={styles.planList} role="radiogroup" aria-label="Plans">
-          {(["trial", ...PAID_PLAN_IDS] as PlanChoice[]).map((id) => {
+          {trialState?.state === "no_trial" && <p className={styles.codeSaved} role="status">{NO_TRIAL_MESSAGE}</p>}
+          {((trialState?.state === "no_trial" ? [] : ["trial"]).concat(PAID_PLAN_IDS) as PlanChoice[]).map((id) => {
             const info = ACCOUNT_PLANS[id];
             const deal = id === "trial" ? null : offerPrice(id, interval, offerFromCodes({ first50: saved?.offer === "first50", youtube: saved?.offer === "youtube" }, interval));
             const price = id === "trial" ? "Free" : deal ? offerMoney(deal.firstCents) : interval === "year" ? money(info.yearlyUsd) : money(info.monthlyUsd);

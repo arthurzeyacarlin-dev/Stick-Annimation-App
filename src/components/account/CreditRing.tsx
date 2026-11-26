@@ -29,7 +29,7 @@ export function creditRingLines(status: AccountPlanStatus): [string, string, str
   const refill = status.refillsAt ?? status.windowEnd;
   return [
     `${creditsText(status.creditsLeft)} left`,
-    `of ${status.creditsTotal.toLocaleString("en-US")} ${trial ? "on your free trial" : `on ${status.label}`}${status.topUpCredits > 0 ? ` · ${creditsText(status.topUpCredits)} from packs` : ""}`,
+    `of ${status.creditsTotal.toLocaleString("en-US")} ${trial ? "on your free trial" : `on ${status.label}`}${status.topUpCredits > 0 ? ` · ${creditsText(status.topUpCredits)} extra` : ""}`,
     trial ? `Trial ends ${shortDay(status.windowEnd)}` : status.cancelAtPeriodEnd ? `Plan ends ${shortDay(refill)}` : `Refills ${shortDay(refill)}`,
   ];
 }

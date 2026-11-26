@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { BackButton } from "@/src/components/ui/BackButton";
 import { createStoredZip } from "@/src/lib/export/exportImages";
-import type { TestimonialStatus, TestimonialSummary, WallOfLoveEntry } from "@/src/lib/account/testimonials";
+import { TESTIMONIAL_DISCLOSURE, type TestimonialStatus, type TestimonialSummary, type WallOfLoveEntry } from "@/src/lib/account/testimonials";
 import styles from "@/src/components/support/ProblemReportsScreen.module.css";
 import own from "./TestimonialsScreen.module.css";
 
@@ -83,7 +83,7 @@ export function TestimonialsScreen() {
     setExportNote("Making the export…");
     try {
       const response = await fetch("/api/account/testimonials?export=1", { cache: "no-store" });
-      const body = await response.json().catch(() => null) as { schema?: string; entries?: WallOfLoveEntry[]; error?: string } | null;
+      const body = await response.json().catch(() => null) as { schema?: string; disclosureRule?: string; entries?: WallOfLoveEntry[]; error?: string } | null;
       if (!response.ok || body?.schema !== "diamond-wall-of-love/v1" || !Array.isArray(body.entries)) throw new Error(body?.error ?? "The export couldn't be made. Try again.");
       const files: { name: string; data: Uint8Array }[] = [];
       const entries = body.entries.map((entry) => {
@@ -91,7 +91,8 @@ export function TestimonialsScreen() {
         if (file) files.push(file);
         return { ...entry, photo: file ? file.name : null };
       });
-      const json = JSON.stringify({ schema: "diamond-wall-of-love/v1", exportedAt: new Date().toISOString(), entries }, null, 2);
+      // Nov 26: the disclosure rule travels with the quotes, so the website wall and every ad keep the "free credits" note
+      const json = JSON.stringify({ schema: "diamond-wall-of-love/v1", exportedAt: new Date().toISOString(), disclosureRule: body.disclosureRule ?? null, entries }, null, 2);
       files.unshift({ name: "testimonials.json", data: new TextEncoder().encode(json) });
       const zip = createStoredZip(files);
       const url = URL.createObjectURL(new Blob([zip.slice().buffer], { type: "application/zip" }));
@@ -153,6 +154,7 @@ export function TestimonialsScreen() {
                     <span className={row.featurable ? own.ok : own.private}>
                       {row.featurable ? "Can be featured (13+ box ticked)" : !row.featureOk ? "Private: the 13+ box was not ticked — never shown" : row.stars < 4 ? "Private: under 4 stars" : "Private: no words to quote"}
                     </span>
+                    {row.creditsGiven > 0 && <span className={own.private}>Got {row.creditsGiven} free credits as a thank-you · shown with the quote: “{TESTIMONIAL_DISCLOSURE}”</span>}
                   </div>
                 </div>
                 {row.featurable && (

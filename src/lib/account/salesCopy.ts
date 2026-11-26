@@ -55,7 +55,7 @@ export function trialNudgeCopy(stage: TrialNudgeStage, facts: { trialEndsAt: num
     case "lastDay": return { title: "Last day of your free trial",
       text: `At ${clock(facts.trialEndsAt)}, making new animations pauses. Your projects stay safe, and you can still watch and export them. Pick a plan to keep going.` };
     case "creditsLow": return { title: `${facts.creditsLeft} credit${facts.creditsLeft === 1 ? "" : "s"} left`,
-      text: `A 10-second animation uses ${SHORT_ANIMATION_CREDITS} credits. A plan gives you ${least} to ${most} fresh credits every ${CYCLE_WORD}, so you never have to stop mid-story.` };
+      text: `A 10-second animation uses ${SHORT_ANIMATION_CREDITS} credits, planning included. A plan gives you ${least} to ${most} fresh credits every ${CYCLE_WORD}, so you never have to stop mid-story.` };
     case "creditsOut": return { title: "You used every free credit!",
       text: "Nice work: you made the most of your trial. Your projects are safe. Pick a plan and your new credits are ready the moment you pay." };
   }

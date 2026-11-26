@@ -134,6 +134,7 @@ const sections: LegalSection[] = [
       <ul>
         <li>Account and project data: while your account is open, and then deleted within a reasonable time after you ask us to delete it or close your account.</li>
         <li>Data from accounts whose trial ended without a subscription: kept for a limited time so you can come back and subscribe, then deleted.</li>
+        <li>Free trial check: each email inbox gets one free trial. To stop the same inbox from getting a second one, we keep a scrambled code made from the inbox (never the email address itself) once its trial has started, also after the account is deleted. It can&rsquo;t be turned back into your address.</li>
         <li>Billing records: as long as tax and accounting laws require.</li>
         <li>Backups and logs: kept for a limited time and then overwritten.</li>
         <li>Children&rsquo;s data: only as long as reasonably needed for the purpose it was collected, then deleted.</li>

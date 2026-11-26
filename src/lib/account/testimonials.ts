@@ -17,6 +17,23 @@ export const TESTIMONIAL_RATE_WINDOW_MS = 60 * 60 * 1000;
 /** The exact words of the one box (the consent). Saved with every answer, so it is clear what was agreed to. */
 export const TESTIMONIAL_CONSENT_WORDS = "I'm 13 or older, and Diamond Animator may show my words, first name and photo on its website and ads.";
 
+/** Nov 26 (dad: "Yeah, 30 free credits is fine"): THE THANK-YOU. Every answer gets the same credits, 1 star or 5 stars, featured
+ *  or private (US FTC rule on reviews: a reward may never depend on the rating or on agreeing to be featured). Once per
+ *  account, paid in the same save as the answer. Only for an account the ask was really shown to (asked through the normal
+ *  card, and the account has made at least one AI animation on the server, so a script can't farm it). Taking the testimonial
+ *  back later keeps the credits. They are free credits: never refunded as money. */
+export const TESTIMONIAL_THANK_YOU_CREDITS = 30;
+/** Said on the ask BEFORE they answer. */
+export const TESTIMONIAL_THANK_YOU_LINE = `As a thank-you for your time, you get ${TESTIMONIAL_THANK_YOU_CREDITS} free credits, whatever you rate us.`;
+/** Shown with every featured testimonial whose writer got the credits (the wall, the plans page, anything exported for ads). */
+export const TESTIMONIAL_DISCLOSURE = `Got ${TESTIMONIAL_THANK_YOU_CREDITS} free credits for leaving a review`;
+/** Written into the export, so whoever makes the website wall or an ad keeps the note. */
+export const TESTIMONIAL_DISCLOSURE_RULE = "Every entry with a \"disclosure\" must show that note next to the quote wherever it is used (website, checkout, ads). The person got free credits for leaving a review, whatever they rated (US FTC rule on reviews).";
+/** The one-time record of the thank-you in the credits database (one per account). */
+export const testimonialThankYouEvent = (userId: string) => `testimonial-thanks:${userId}`;
+/** The note for one testimonial: only when the person really got the credits (older answers got nothing, so no note). */
+export const testimonialDisclosure = (t: { creditsGiven: number }) => (t.creditsGiven > 0 ? TESTIMONIAL_DISCLOSURE : null);
+
 export type TestimonialWhere = "animation" | "export";
 export type TestimonialStatus = "new" | "approved" | "hidden";
 export const isTestimonialWhere = (value: unknown): value is TestimonialWhere => value === "animation" || value === "export";
@@ -32,6 +49,12 @@ export function shouldAskTestimonial(state: TestimonialAskState | null, where: T
   const s = state ?? { skips: 0, answered: false, exportSeen: false };
   if (s.answered || s.skips >= TESTIMONIAL_MAX_SKIPS) return false;
   return where === "animation" || !s.exportSeen;
+}
+
+/** May this account answer now (the ask was due through the normal card)? Not after an answer or two skips. The export ask
+ *  marks itself "seen" the moment it is on screen, so at Send only this is checked. */
+export function canAnswerTestimonial(state: TestimonialAskState | null): boolean {
+  return shouldAskTestimonial(state, "animation");
 }
 
 export type TestimonialInput = { stars: number; text: string; featureOk: boolean; where: TestimonialWhere };
@@ -101,7 +124,9 @@ export type TestimonialSummary = {
   displayName: string;
   usePhoto: boolean;
   featurable: boolean;
+  /** Free credits given as the thank-you (0 for answers from before Nov 26). */
+  creditsGiven: number;
 };
 
 /** One entry of testimonials.json in the Wall of Love export. */
-export type WallOfLoveEntry = { id: string; name: string; stars: number; quote: string; date: string; photo: string | null };
+export type WallOfLoveEntry = { id: string; name: string; stars: number; quote: string; date: string; photo: string | null; disclosure: string | null };

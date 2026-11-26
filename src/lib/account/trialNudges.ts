@@ -6,11 +6,11 @@ export const TRIAL_NUDGE_STAGES = ["creditsOut", "lastDay", "creditsLow", "days3
 export type TrialNudgeStage = (typeof TRIAL_NUDGE_STAGES)[number];
 export const isTrialNudgeStage = (value: unknown): value is TrialNudgeStage => (TRIAL_NUDGE_STAGES as readonly unknown[]).includes(value);
 
-type NudgeStatus = Pick<AccountPlanStatus, "plan" | "locked" | "creditsLeft" | "windowEnd">;
+type NudgeStatus = Pick<AccountPlanStatus, "plan" | "locked" | "creditsLeft" | "windowEnd"> & { emailConfirmNeeded?: boolean };
 
 /** Every stage that is true right now (a running free trial only). */
 export function trialNudgeStagesNow(status: NudgeStatus, now = Date.now()): TrialNudgeStage[] {
-  if (status.plan !== "trial" || status.locked) return [];
+  if (status.plan !== "trial" || status.locked || status.emailConfirmNeeded) return [];   // (Nov 26) not started yet: no "trial ending" card
   const left = status.windowEnd - now;
   const stages: TrialNudgeStage[] = [];
   if (status.creditsLeft <= 0) stages.push("creditsOut");

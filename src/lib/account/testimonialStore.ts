@@ -8,13 +8,13 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import {
-  canBeFeatured, isTestimonialStatus, isTestimonialWhere, testimonialDisplayName, testimonialRateOk, TESTIMONIAL_CONSENT_WORDS,
+  canAnswerTestimonial, canBeFeatured, isTestimonialStatus, isTestimonialWhere, testimonialDisplayName, testimonialRateOk, TESTIMONIAL_CONSENT_WORDS,
   TESTIMONIAL_RATE_WINDOW_MS, type TestimonialAskState, type TestimonialInput, type TestimonialStatus, type TestimonialSummary,
 } from "./testimonials.ts";
 
 type Row = {
   id: string; created_at: number; user_id: string; user_name: string; user_email: string; stars: number; text: string;
-  feature_ok: number; where_asked: string; status: string; display_name: string; use_photo: number;
+  feature_ok: number; where_asked: string; status: string; display_name: string; use_photo: number; credits_given: number;
 };
 type AskRow = { skips: number; answered_at: number | null; export_seen: number };
 type TestimonialsGlobal = typeof globalThis & { diamondTestimonialsDatabase?: Database.Database };
@@ -55,6 +55,9 @@ export function openTestimonialDatabase(file?: string) {
       recent TEXT NOT NULL DEFAULT '[]'
     );
   `);
+  // Nov 26: the free credits given as the thank-you (0 for older answers, so they never carry the disclosure note).
+  const columns = db.prepare("PRAGMA table_info(testimonial_v1)").all() as { name: string }[];
+  if (!columns.some((column) => column.name === "credits_given")) db.exec("ALTER TABLE testimonial_v1 ADD COLUMN credits_given INTEGER NOT NULL DEFAULT 0");
   if (!file) fs.chmodSync(target, 0o600);
   return db;
 }
@@ -68,7 +71,7 @@ function database() {
   return (owner.diamondTestimonialsDatabase ??= openTestimonialDatabase());
 }
 
-const COLUMNS = "id, created_at, user_id, user_name, user_email, stars, text, feature_ok, where_asked, status, display_name, use_photo";
+const COLUMNS = "id, created_at, user_id, user_name, user_email, stars, text, feature_ok, where_asked, status, display_name, use_photo, credits_given";
 const toSummary = (row: Row): TestimonialSummary => {
   const base = { stars: row.stars, text: row.text, featureOk: row.feature_ok === 1 };
   return {
@@ -83,6 +86,7 @@ const toSummary = (row: Row): TestimonialSummary => {
     displayName: row.display_name,
     usePhoto: row.use_photo === 1,
     featurable: canBeFeatured(base),
+    creditsGiven: row.credits_given ?? 0,
   };
 };
 
@@ -125,13 +129,18 @@ export function markTestimonialExportSeen(userId: string) {
     ON CONFLICT(user_id) DO UPDATE SET export_seen = 1`).run(userId);
 }
 
-export type SaveTestimonialResult = { ok: true; testimonial: TestimonialSummary } | { ok: false; reason: "answered" | "rate" };
+export type SaveTestimonialResult = { ok: true; testimonial: TestimonialSummary } | { ok: false; reason: "answered" | "not_asked" | "rate" };
 
-/** Saves the one answer of this account (a second answer is refused: they are never asked again). */
-export function saveTestimonial(input: TestimonialInput & { userId: string; userName: string; userEmail: string }, now = Date.now()): SaveTestimonialResult {
+/** Saves the one answer of this account (a second answer is refused: they are never asked again). Only while the ask is due
+ *  (not after two skips). `thankYou` (Nov 26) pays the free credits INSIDE this save: it runs after the answer is written and
+ *  before it is kept, so a failure keeps nothing; it returns the credits the account got (once per account, see
+ *  giveGiftCreditsOnce). It never sees the stars or the box, so the thank-you can't depend on them. */
+export function saveTestimonial(input: TestimonialInput & { userId: string; userName: string; userEmail: string }, now = Date.now(), thankYou?: () => number): SaveTestimonialResult {
   const db = database();
   return db.transaction((): SaveTestimonialResult => {
-    if (askRow(db, input.userId)?.answered_at != null) return { ok: false, reason: "answered" };
+    const ask = askRow(db, input.userId);
+    if (ask?.answered_at != null) return { ok: false, reason: "answered" };
+    if (!canAnswerTestimonial(ask ? { skips: ask.skips, answered: false, exportSeen: ask.export_seen === 1 } : null)) return { ok: false, reason: "not_asked" };
     if (!takeTry(db, input.userId, now)) return { ok: false, reason: "rate" };
     const id = `tm_${randomUUID().replace(/-/g, "")}`;
     db.prepare(`INSERT INTO testimonial_v1 (id, created_at, user_id, user_name, user_email, stars, text, feature_ok, consent_words, where_asked, status, display_name, use_photo)
@@ -139,6 +148,8 @@ export function saveTestimonial(input: TestimonialInput & { userId: string; user
       .run(id, now, input.userId, input.userName, input.userEmail, input.stars, input.text, input.featureOk ? 1 : 0,
         input.featureOk ? TESTIMONIAL_CONSENT_WORDS : null, input.where, testimonialDisplayName(input.userName));
     db.prepare("UPDATE testimonial_ask_v1 SET answered_at = ? WHERE user_id = ?").run(now, input.userId);
+    const credits = thankYou ? Math.max(0, Math.round(thankYou())) : 0;
+    if (credits > 0) db.prepare("UPDATE testimonial_v1 SET credits_given = ? WHERE id = ?").run(credits, id);
     return { ok: true, testimonial: toSummary(db.prepare(`SELECT ${COLUMNS} FROM testimonial_v1 WHERE id = ?`).get(id) as Row) };
   }).immediate();
 }

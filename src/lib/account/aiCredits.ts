@@ -13,8 +13,8 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   ACCOUNT_PLANS, accountPlanStatus, addCycles, AI_ACTION_CREDITS, checkAiCredit, checkDailyLimit, creditWindow, DAILY_CREDIT_LIMIT, DAY_MS,
-  isAccountPlanId, isAiActionKind, PLAN_CYCLE, topUpPacksFor, TRIAL_DAYS,
-  type AccountPlanId, type AccountPlanRecord, type AccountPlanStatus, type AiActionKind, type BillingInterval, type BillingStatus, type PaidPlanId,
+  isAccountPlanId, isAiActionKind, isTrialGate, PLAN_CYCLE, SHORT_ANIMATION_CREDITS, topUpPacksFor, TRIAL_DAYS,
+  type AccountPlanId, type AccountPlanRecord, type AccountPlanStatus, type AiActionKind, type BillingInterval, type BillingStatus, type PaidPlanId, type TrialGate,
 } from "./plans.ts";
 import { creditsText } from "./credits.ts";
 import { ownerAlert } from "./ownerAlerts.ts";
@@ -30,7 +30,7 @@ type PlanRow = {
   top_up_credits: number; billing_interval: string | null; billing_status: string | null; past_due_since: number | null;
   cancel_at_period_end: number; plan_ended: number; stripe_customer_id: string | null; stripe_subscription_id: string | null;
   billing_synced_at: number | null; paid_plan: string | null; paid_from: number | null; paid_until: number | null; disputed: number;
-  period_ends_at: number | null; billing_notice: string | null; billing_notice_at: number | null;
+  period_ends_at: number | null; billing_notice: string | null; billing_notice_at: number | null; trial_gate: string | null; free_credits: number;
 };
 type PaymentRow = {
   stripe_id: string; owner_id: string; kind: string; amount_cents: number; credits: number; plan: string | null;
@@ -45,7 +45,7 @@ const owner = globalThis as CreditsGlobal;
 const TEST_PAID_UNTIL = Date.UTC(2100, 0, 1);
 /** Raise this whenever a table or column is added: a server that keeps running (or new code dropped into it) adds them at once.
  *  (Nov 20, live: the app copy's running server kept its open database from before the payments table, so every plan read failed.) */
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 6;   // (Nov 26: the money-leaks columns + the testimonial free_credits column, in one combined deploy)
 
 function database() {
   const cached = owner.diamondAccountPlansDatabase;
@@ -103,6 +103,17 @@ function database() {
       free_refund_cents INTEGER NOT NULL DEFAULT 0
     );
     CREATE INDEX IF NOT EXISTS account_payment_v1_owner ON account_payment_v1(owner_id, paid_at);
+    -- (dad, Nov 26) real AI money spent for an account that was NOT charged as credits: a gate picture still waiting
+    -- (why 'waiting_picture'; removed once it is animated or charged) and a run stopped or failed after the AI started ('stopped_run')
+    CREATE TABLE IF NOT EXISTS account_ai_cost_v1 (
+      owner_id TEXT NOT NULL,
+      job_id TEXT NOT NULL,
+      at INTEGER NOT NULL,
+      credits INTEGER NOT NULL,
+      why TEXT NOT NULL,
+      PRIMARY KEY (owner_id, job_id)
+    );
+    CREATE INDEX IF NOT EXISTS account_ai_cost_v1_time ON account_ai_cost_v1(at);
   `);
   // Columns added in place over time; old rows keep working.
   const addColumn = (table: string, column: string, definition: string) => {
@@ -128,9 +139,22 @@ function database() {
   // Which money a row's Stripe facts belong to ("test" or "live"); rows from before Nov 21 are all test mode (NULL).
   addColumn("account_plan_v1", "money_mode", "TEXT");
   addColumn("account_payment_v1", "money_mode", "TEXT");
+  // Nov 26: how many of the extra credits were given free (the testimonial thank-you), so they never come back as money.
+  addColumn("account_plan_v1", "free_credits", "INTEGER NOT NULL DEFAULT 0");
   addColumn("account_credit_use_v1", "credits", "INTEGER NOT NULL DEFAULT 1");
   addColumn("account_credit_use_v1", "kind", "TEXT NOT NULL DEFAULT 'chat'");
   addColumn("account_credit_use_v1", "source", "TEXT NOT NULL DEFAULT 'plan'");
+  addColumn("account_plan_v1", "trial_gate", "TEXT");
+  // (dad, Nov 26) ONCE, when the email rule arrives: an account from before it that has no plan, no payment and no AI use yet
+  // confirms its email on its next animation (its trial dates stay). Accounts with a plan or real activity count as confirmed.
+  db.exec("CREATE TABLE IF NOT EXISTS account_meta_v1 (key TEXT PRIMARY KEY, value TEXT NOT NULL)");
+  if (!db.prepare("SELECT 1 FROM account_meta_v1 WHERE key = 'trial-gate-legacy'").get()) {
+    db.transaction(() => {
+      db.prepare(`UPDATE account_plan_v1 SET trial_gate = 'confirm_legacy' WHERE trial_gate IS NULL AND plan = 'trial' AND plan_ended = 0
+        AND stripe_customer_id IS NULL AND NOT EXISTS (SELECT 1 FROM account_credit_use_v1 u WHERE u.owner_id = account_plan_v1.owner_id AND u.kind NOT IN ('test', 'refund'))`).run();
+      db.prepare("INSERT INTO account_meta_v1 (key, value) VALUES ('trial-gate-legacy', ?)").run(String(Date.now()));
+    })();
+  }
   db.exec("CREATE INDEX IF NOT EXISTS account_plan_v1_customer ON account_plan_v1(stripe_customer_id)");
   // A paid plan from before Nov 20 set without Stripe (test buttons) has no paid time yet: it stays usable as before.
   db.exec(`UPDATE account_plan_v1 SET paid_plan = plan, paid_from = 0, paid_until = ${TEST_PAID_UNTIL}
@@ -154,7 +178,7 @@ export function forgetTestMoney(db: Database.Database = database(), now = Date.n
     const accounts = db.prepare(`UPDATE account_plan_v1 SET plan = 'trial', paid_plan = NULL, paid_from = NULL, paid_until = NULL,
         billing_interval = NULL, billing_status = NULL, past_due_since = NULL, cancel_at_period_end = 0, plan_ended = 0,
         stripe_customer_id = NULL, stripe_subscription_id = NULL, billing_synced_at = NULL, disputed = 0, period_ends_at = NULL,
-        billing_notice = NULL, billing_notice_at = NULL, top_up_credits = 0, test_used_extra = 0, money_mode = 'live', updated_at = ?
+        billing_notice = NULL, billing_notice_at = NULL, top_up_credits = 0, free_credits = 0, test_used_extra = 0, money_mode = 'live', updated_at = ?
       WHERE COALESCE(money_mode, 'test') != 'live' AND (stripe_customer_id IS NOT NULL OR stripe_subscription_id IS NOT NULL
         OR paid_plan IS NOT NULL OR plan != 'trial' OR top_up_credits != 0 OR test_used_extra != 0 OR plan_ended != 0
         OR billing_status IS NOT NULL OR disputed != 0)`).run(now).changes;
@@ -181,6 +205,7 @@ const toRecord = (row: PlanRow): AccountPlanRecord => ({
   paidFrom: row.paid_from,
   paidUntil: row.paid_until,
   disputed: Boolean(row.disputed),
+  trialGate: isTrialGate(row.trial_gate) ? row.trial_gate : null,
 });
 
 function readPlanRow(ownerId: string, now: number): PlanRow {
@@ -194,6 +219,46 @@ export function readAccountPlanRecord(ownerId: string, now = Date.now()): Accoun
   return toRecord(readPlanRow(ownerId, now));
 }
 
+// ---------- (dad, Nov 26) the free trial's email rule (the confirm step itself lives in emailConfirm.ts) ----------
+
+/** A NEW sign-up: its free trial waits for the email ("confirm"), or it gets none because the inbox already had one ("no_trial"). */
+export function setTrialGate(ownerId: string, gate: TrialGate | null, now = Date.now()) {
+  readPlanRow(ownerId, now);
+  database().prepare("UPDATE account_plan_v1 SET trial_gate = ?, updated_at = ? WHERE owner_id = ?").run(gate, now, ownerId);
+}
+
+/** An account from before the rule that never had a plan row (it never opened the app after signing up): it confirms too.
+ *  Its trial counts from when it was made. Accounts that have a row already are left exactly as they are. */
+export function ensureLegacyTrialGate(ownerId: string, createdAt: number, now = Date.now()) {
+  const at = Number.isFinite(createdAt) && createdAt > 0 && createdAt <= now ? createdAt : now;
+  database().prepare("INSERT OR IGNORE INTO account_plan_v1 (owner_id, plan, trial_started_at, period_started_at, test_used_extra, updated_at, trial_gate) VALUES (?, 'trial', ?, ?, 0, ?, 'confirm_legacy')")
+    .run(ownerId, at, at, now);
+}
+
+/** The email is confirmed: a new sign-up's 14 days start NOW; an older account keeps its dates. True when a trial started. */
+export function startTrialAfterConfirm(ownerId: string, now = Date.now()): boolean {
+  const record = readAccountPlanRecord(ownerId, now);
+  if (record.trialGate === "confirm") {
+    database().prepare("UPDATE account_plan_v1 SET trial_gate = NULL, trial_started_at = ?, period_started_at = CASE WHEN plan = 'trial' THEN ? ELSE period_started_at END, updated_at = ? WHERE owner_id = ?")
+      .run(now, now, now, ownerId);
+    return record.plan === "trial";
+  }
+  if (record.trialGate === "confirm_legacy") {
+    database().prepare("UPDATE account_plan_v1 SET trial_gate = NULL, updated_at = ? WHERE owner_id = ?").run(now, ownerId);
+    return record.plan === "trial";
+  }
+  return false;
+}
+
+/** Has this account used (or paid past) its free trial? (A confirmed trial, a plan, a payment or real AI use.) */
+export function accountUsedTrial(ownerId: string): boolean {
+  const row = database().prepare("SELECT plan, trial_gate, stripe_customer_id, plan_ended FROM account_plan_v1 WHERE owner_id = ?").get(ownerId) as
+    { plan: string; trial_gate: string | null; stripe_customer_id: string | null; plan_ended: number } | undefined;
+  if (!row) return false;
+  if (row.trial_gate === null) return true;
+  return row.plan !== "trial" || Boolean(row.stripe_customer_id) || Boolean(row.plan_ended);
+}
+
 /** Plan credits spent in a window (pack credits are tracked as a balance instead). */
 const planCreditsUsed = (ownerId: string, start: number, end: number) =>
   (database().prepare("SELECT COALESCE(SUM(credits), 0) AS used FROM account_credit_use_v1 WHERE owner_id = ? AND source = 'plan' AND used_at >= ? AND used_at < ?")
@@ -205,10 +270,40 @@ export function getAccountPlanStatus(ownerId: string, now = Date.now()): Account
   return accountPlanStatus(record, planCreditsUsed(ownerId, start, end), now);
 }
 
-/** Credits this account spent in the last 24 hours (the daily limit). Test rows and refunds don't count. */
+/** Credits this account spent in the last 24 hours (the daily limit). Test rows and refunds don't count. (Dad, Nov 26) the real
+ *  AI money of its waiting gate pictures and of runs stopped or failed after the AI started counts too, though it was never charged. */
 const creditsUsedLastDay = (ownerId: string, now: number) =>
   (database().prepare("SELECT COALESCE(SUM(credits), 0) AS used FROM account_credit_use_v1 WHERE owner_id = ? AND used_at >= ? AND kind NOT IN ('test', 'refund')")
-    .get(ownerId, now - DAY_MS) as { used: number }).used;
+    .get(ownerId, now - DAY_MS) as { used: number }).used
+  + (database().prepare("SELECT COALESCE(SUM(credits), 0) AS used FROM account_ai_cost_v1 WHERE owner_id = ? AND at >= ?").get(ownerId, now - DAY_MS) as { used: number }).used;
+
+/** Why real AI money was not charged (dad, Nov 26): a gate picture still waiting; a run stopped or failed after the AI started; a plan
+ *  answer or a replaced picture that the card's planning amount covers; the cold load of Sonnet's rulebook (we pay it). */
+export type UnchargedWhy = "waiting_picture" | "stopped_run" | "free_plan" | "cold_load" | "pending_plan";
+/** (Dad, Nov 26) Real AI money spent for this account that was NOT charged: a gate picture still waiting at its card
+ *  ('waiting_picture'), or a run stopped or failed after the AI started ('stopped_run'). It is never taken from the balance; it
+ *  counts toward the daily limit and the free trials' hourly limit, and a waiting picture holds its credits until it is animated or
+ *  charged. `credits` 0 = settled (the row goes). */
+export function noteUnchargedAiCost(ownerId: string, jobId: string, credits: number, why: UnchargedWhy, now = Date.now()) {
+  const amount = Math.max(0, Math.ceil(Number(credits) || 0));
+  if (amount <= 0) database().prepare("DELETE FROM account_ai_cost_v1 WHERE owner_id = ? AND job_id = ?").run(ownerId, jobId);
+  else database().prepare("INSERT OR REPLACE INTO account_ai_cost_v1 (owner_id, job_id, at, credits, why) VALUES (?, ?, ?, ?, ?)").run(ownerId, jobId, now, amount, why);
+}
+
+/** (dad, Nov 26) Animate was pressed in this project: its free planning is now covered by the card's planning amount (it stops holding
+ *  credits; it still counts toward the limits). */
+export function settlePlanning(ownerId: string, projectId: string) {
+  database().prepare("UPDATE account_ai_cost_v1 SET why = 'free_plan' WHERE owner_id = ? AND why = 'pending_plan' AND job_id LIKE ?")
+    .run(ownerId, `plan:${projectId.replace(/[%_]/g, "")}:%`);
+}
+
+/** The credits this account's waiting gate pictures hold (only those made in the current credit window, so a picture from an
+ *  earlier month never holds the new month's credits). `except` = the picture being animated right now (its price includes it). */
+// (dad, Nov 26) also the free planning of a project that has not been animated yet ("pending_plan": its free plan answers):
+// it holds credits until that project's Animate, so opening project after project can never be free planning without end.
+const waitingPictureCredits = (ownerId: string, since: number, except: string | null, exceptProject: string | null = null) =>
+  (database().prepare("SELECT COALESCE(SUM(credits), 0) AS n FROM account_ai_cost_v1 WHERE owner_id = ? AND why IN ('waiting_picture', 'pending_plan') AND at >= ? AND job_id != ? AND job_id NOT LIKE ?")
+    .get(ownerId, since, except ?? "", exceptProject ? `plan:${exceptProject.replace(/[%_]/g, "")}:%` : "\u0000") as { n: number }).n;
 
 /** (Nov 12 security, Nov 20 in credits) the trial fuse: ALL free-trial accounts together spend at most this many credits an
  *  hour, so a flood of fake accounts cannot burn the AI money; paid plans are never limited by it. */
@@ -221,15 +316,21 @@ const dailyLimit = () => {
 
 /** Throws a friendly 402 error when an AI action that costs `cost` credits can't start for this account.
  *  `reservedCredits` = what this account's running and waiting actions already hold. */
-export function assertAiCreditAvailable(ownerId: string, reservedCredits: number, cost: number = AI_ACTION_CREDITS.chat, now = Date.now()) {
+export function assertAiCreditAvailable(ownerId: string, reservedCredits: number, cost: number = AI_ACTION_CREDITS.chat, now = Date.now(),
+  options: { exceptPicture?: string | null; exceptProject?: string | null } = {}) {
   const status = getAccountPlanStatus(ownerId, now);
-  const check = checkAiCredit(status, reservedCredits, cost);
+  // (dad, Nov 26) a gate picture waiting at its card holds its real cost, like a running job (opening new projects is never free pictures)
+  const pictures = waitingPictureCredits(ownerId, status.windowStart, options.exceptPicture ?? null, options.exceptProject ?? null);
+  const check = checkAiCredit(status, reservedCredits + pictures, cost);
   if (!check.ok) throw creditError(check.message, check.code);
   const daily = checkDailyLimit(creditsUsedLastDay(ownerId, now) + Math.max(0, reservedCredits), cost, dailyLimit());
   if (!daily.ok) throw creditError(daily.message, daily.code);
   if (status.plan === "trial") {
     const hour = (database().prepare("SELECT COALESCE(SUM(u.credits), 0) AS n FROM account_credit_use_v1 u JOIN account_plan_v1 p ON p.owner_id = u.owner_id WHERE p.plan = 'trial' AND u.used_at >= ? AND u.kind NOT IN ('test', 'refund')")
-      .get(now - HOUR_MS) as { n: number }).n;
+      .get(now - HOUR_MS) as { n: number }).n
+      // (dad, Nov 26) plus the real AI money the trials spent that was never charged (waiting pictures, stopped runs)
+      + (database().prepare("SELECT COALESCE(SUM(c.credits), 0) AS n FROM account_ai_cost_v1 c LEFT JOIN account_plan_v1 p ON p.owner_id = c.owner_id WHERE COALESCE(p.plan, 'trial') = 'trial' AND c.at >= ?")
+        .get(now - HOUR_MS) as { n: number }).n;
     if (hour + cost > TRIAL_HOUR_CREDITS) throw creditError("Busy hour for free trials - try again in a few minutes. Nothing was charged.", "busy_hour");
   }
 }
@@ -391,6 +492,32 @@ export function addTopUpCredits(ownerId: string, credits: number, eventId: strin
   }).immediate();
 }
 
+/** Nov 26 (dad: "30 free credits is fine"): free credits given as a thank-you (for a testimonial). They go into the same extra
+ *  balance as pack credits (kept at a refill, spent after plan credits) and are given at most once per `eventId` (the same
+ *  one-time record a pack uses, so a retry or double click can never give them twice). Never money: there is no payment, so
+ *  nothing is ever refunded for them. The row is marked with today's money mode like a pack, so a live server keeps them after
+ *  a restart. Deleting the account deletes them with everything else. True when the account has them (now or already before). */
+export function giveGiftCreditsOnce(ownerId: string, credits: number, eventId: string, now = Date.now()) {
+  const db = database();
+  return db.transaction(() => {
+    if (!claimBillingEvent(ownerId, eventId, "gift", now)) {
+      return Boolean(db.prepare("SELECT 1 FROM account_billing_event_v1 WHERE event_id = ? AND owner_id = ?").get(eventId, ownerId));
+    }
+    readPlanRow(ownerId, now);
+    const amount = Math.max(0, Math.round(credits));
+    db.prepare("UPDATE account_plan_v1 SET top_up_credits = top_up_credits + ?, free_credits = free_credits + ?, money_mode = ?, updated_at = ? WHERE owner_id = ?")
+      .run(amount, amount, moneyMode(), now, ownerId);
+    return true;
+  }).immediate();
+}
+
+/** The extra credits still unused that were PAID for (what deleting the account may give back as money). Free credits are
+ *  counted as the last ones left (spent last), so they never turn into money: the paid ones are the balance above them. */
+export function paidExtraCreditsLeft(ownerId: string, now = Date.now()) {
+  const row = readPlanRow(ownerId, now);
+  return Math.max(0, (row.top_up_credits ?? 0) - Math.max(0, row.free_credits ?? 0));
+}
+
 export type PaymentRecord = {
   stripeId: string; ownerId: string; kind: "plan" | "pack"; amountCents: number; credits: number; plan: string | null;
   periodFrom: number | null; periodUntil: number | null; paidAt: number; chargeId: string | null; paymentIntentId: string | null;
@@ -491,11 +618,20 @@ export function readBillingFacts(ownerId: string, now = Date.now()): BillingFact
 }
 
 export type AiCreditGate = {
-  assertAvailable(ownerId: string, reservedCredits: number, cost?: number): void;
+  assertAvailable(ownerId: string, reservedCredits: number, cost?: number, options?: { exceptPicture?: string | null; exceptProject?: string | null }): void;
   spend(ownerId: string, jobId: string, credits?: number, kind?: AiActionKind): void;
+  /** (dad, Nov 26) real AI money that is not charged (see noteUnchargedAiCost). */
+  noteCost?(ownerId: string, jobId: string, credits: number, why: UnchargedWhy): void;
+  /** (dad, Nov 26) Animate: the project's free planning is covered by the card's price. */
+  settlePlanning?(ownerId: string, projectId: string): void;
 };
 
-export const accountAiCreditGate: AiCreditGate = { assertAvailable: assertAiCreditAvailable, spend: spendAiCredit };
+export const accountAiCreditGate: AiCreditGate = {
+  assertAvailable: (ownerId, reserved, cost, options) => assertAiCreditAvailable(ownerId, reserved, cost, Date.now(), options),
+  spend: spendAiCredit,
+  noteCost: (ownerId, jobId, credits, why) => noteUnchargedAiCost(ownerId, jobId, credits, why),
+  settlePlanning,
+};
 
 // ---------- Development-only test switch (the /dev/plan page and the AI Dashboard's test controls). ----------
 // Nothing here is charged and nothing calls the AI or Stripe: it only changes this account's local plan record.
@@ -505,7 +641,7 @@ export const TEST_SPEND_ACTIONS = ["spend_chat", "spend_assistant", "spend_simpl
 export type TestSpendAction = (typeof TEST_SPEND_ACTIONS)[number];
 const TEST_SPEND: Record<TestSpendAction, { kind: AiActionKind; credits: number }> = {
   spend_chat: { kind: "chat", credits: AI_ACTION_CREDITS.chat }, spend_assistant: { kind: "assistant", credits: AI_ACTION_CREDITS.assistant },
-  spend_simple: { kind: "animation", credits: 67 }, spend_big: { kind: "animation", credits: 507 },
+  spend_simple: { kind: "animation", credits: SHORT_ANIMATION_CREDITS }, spend_big: { kind: "animation", credits: 507 },
 };
 export const isTestSpendAction = (value: unknown): value is TestSpendAction => (TEST_SPEND_ACTIONS as readonly unknown[]).includes(value);
 
@@ -623,6 +759,7 @@ export function deleteAccountPlan(ownerId: string) {
   const db = database();
   db.transaction(() => {
     db.prepare("DELETE FROM account_credit_use_v1 WHERE owner_id = ?").run(ownerId);
+    db.prepare("DELETE FROM account_ai_cost_v1 WHERE owner_id = ?").run(ownerId);
     db.prepare("DELETE FROM account_billing_event_v1 WHERE owner_id = ?").run(ownerId);
     db.prepare("DELETE FROM account_payment_v1 WHERE owner_id = ?").run(ownerId);
     db.prepare("DELETE FROM account_plan_v1 WHERE owner_id = ?").run(ownerId);

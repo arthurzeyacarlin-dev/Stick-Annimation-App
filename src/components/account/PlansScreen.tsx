@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ACCOUNT_PLANS, CYCLE_WORD, PAID_PLAN_IDS, PLAN_CYCLE, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
+import { ACCOUNT_PLANS, CYCLE_WORD, NO_TRIAL_MESSAGE, PAID_PLAN_IDS, PLAN_CYCLE, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
 import { creditsText, dollarsText } from "@/src/lib/account/credits";
 import { billingDay, canPay, forgetCheckoutReturn, postBilling, takeCheckoutReturn, useBillingInfo } from "./billingClient";
 import { ACCOUNT_PLAN_CHANGED_EVENT, useAccountPlan } from "./useAccountPlan";
@@ -135,6 +135,8 @@ export function PlansScreen() {
   const lead = !status ? " "
     : status.lockReason === "trial_ended" ? "Your free trial has ended. Pick a plan to keep animating. Your projects are safe."
     : status.lockReason === "plan_ended" ? "Your plan has ended. Pick a plan to keep animating. Your projects are safe."
+    : status.lockReason === "no_trial" ? NO_TRIAL_MESSAGE
+    : status.emailConfirmNeeded ? "Confirm your email address to start your free trial (the code is in the email we sent you), or pick a plan now."
     : status.aiLocked ? "A payment on your account is being checked by your bank, so the AI waits until that's settled. Your projects are safe."
     : status.paymentProblem ? `Your last payment didn't go through. Use Change card on your plan below and this ${CYCLE_WORD}'s credits come right away.`
     : status.waitingForPayment ? `This ${CYCLE_WORD}'s credits come the moment your payment goes through (usually within a minute).`
@@ -263,7 +265,7 @@ export function PlansScreen() {
 }
 
 type SwitchPreview = { plan: PaidPlanId; interval: BillingInterval; label: string; credits: number; chargeCents: number;
-  refundCents: number; paidCents: number; aiCostCents: number; feeCents: number; packCredits: number };
+  refundCents: number; paidCents: number; feeCents: number; creditsPaidFor: number; unusedCredits: number; packCredits: number };
 
 /** Switching plans (Nov 21, Arthur: "If I want to switch right now, I want that to be possible. I don't want it scheduled."):
  *  first exactly what happens (what is paid today, the new credits, what comes back), then one button. Nothing changes before it. */
@@ -314,7 +316,9 @@ function SwitchDialog({ target, current, onClose, onDone }: {
             <div><dt>Next payment</dt><dd>{nextPayment}</dd></div>
             {preview.refundCents > 0 && <div><dt>Back to your card</dt><dd>{dollarsText(preview.refundCents)}</dd></div>}
           </dl>
-          {preview.refundCents > 0 && <p className={styles.dialogText}>From your {current} payment: you paid {dollarsText(preview.paidCents)}, used {creditsText(preview.aiCostCents)} (that&apos;s {dollarsText(preview.aiCostCents)}) and the card fee was {dollarsText(preview.feeCents)}, so {dollarsText(preview.refundCents)} comes back. Refunds reach your card in about 5 to 10 days.</p>}
+          {/* Dad, Nov 26: a switch gives back only the unused part of the old payment (never the used credits). */}
+          {preview.refundCents > 0 && <p className={styles.dialogText}>From your {current} payment: you paid {dollarsText(preview.paidCents)} for {creditsText(preview.creditsPaidFor)} and {creditsText(preview.unusedCredits)} are still unused, so that part of the payment comes back, minus the same part of the {dollarsText(preview.feeCents)} card fee: {dollarsText(preview.refundCents)}. Refunds reach your card in about 5 to 10 days.</p>}
+          {preview.unusedCredits <= 0 && preview.paidCents > 0 && <p className={styles.dialogText}>You already used the credits of your {current} payment, so nothing of it comes back.</p>}
           {preview.packCredits > 0 && <p className={styles.dialogText}>Your {creditsText(preview.packCredits)} from packs stay.</p>}
           <p className={styles.dialogText}>It&apos;s paid with the card you already use. If the card is declined, nothing changes.</p>
           {preview.chargeCents > 0 && <label className={styles.dialogLabel}>Your Diamond Animator password

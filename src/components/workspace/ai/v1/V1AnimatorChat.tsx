@@ -17,6 +17,7 @@ import type { V1CanvasLimits } from "@/src/lib/ai/v1Animator/v1AnimatorContract"
 import { V1AnimatorThread, v1LineIdFromReply, v1ThreadStyles, type V1ReplyComponent } from "./V1AnimatorThread";
 import { useAccountPlan } from "@/src/components/account/useAccountPlan";
 import { V1OutOfCreditsCard, announceAccountPlanChanged, v1OutOfCreditsView } from "./V1OutOfCreditsCard";
+import { useSavedOffer } from "@/src/components/account/offerCode";
 import { SHORT_ANIMATION_CREDITS } from "@/src/lib/account/plans";
 import { creditsText } from "@/src/lib/account/credits";
 import { sendAiStatus, useAiPrefill } from "../aiDock";
@@ -63,7 +64,9 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
   const [state, setState] = useState<V1PanelState>(emptyV1PanelState);
   // (Nov 3) the account's credits: under one chat message's cost (and not locked) = the out-of-credits card above the box
   const { status: plan } = useAccountPlan();
-  const outOfCredits = v1OutOfCreditsView(plan);
+  // (dad, Nov 26) while an animation is being made the card says it WILL finish; a trial account with the beta code sees its beta price here
+  const { saved: savedOffer } = useSavedOffer();
+  const outOfCredits = v1OutOfCreditsView(plan, { making: Boolean(state.progress), betaCode: savedOffer?.offer === "first50" ? savedOffer.code : null });
   // (Nov 2 final round, owner) the SAME Effort picker as the Help assistant; the chosen level is remembered per project
   const [effort, setEffort] = useState<ChatEffort>("auto");
   useEffect(() => { setEffort(readV1Effort(effortStorage(), projectId)); }, [projectId]);
@@ -203,7 +206,7 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
                   <button key={text} type="button" disabled={readOnly} onClick={() => { onInputChange(text); composerRef.current?.focus(); }}>{text}</button>
                 ))}
               </div>
-              <span className="drawing-ai-cost">About {creditsText(SHORT_ANIMATION_CREDITS)} for a 10-second animation, replies included · the card shows the exact price before anything is made</span>
+              <span className="drawing-ai-cost">{creditsText(SHORT_ANIMATION_CREDITS)} for a 10-second animation, planning included · the card shows the exact price before anything is made</span>
               <span className="drawing-ai-esc">Rather draw it yourself? Press Esc and pick a tool on the left.</span>
             </div>
           )}

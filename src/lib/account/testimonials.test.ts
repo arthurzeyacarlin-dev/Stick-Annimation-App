@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   canBeFeatured, checkDisplayName, checkTestimonialInput, isExported, isTestimonialId, shouldAskTestimonial, testimonialDisplayName,
-  testimonialRateOk, wantsPhotoNudge, TESTIMONIAL_TEXT_MAX,
+  testimonialDisclosure, testimonialRateOk, testimonialThankYouEvent, wantsPhotoNudge, TESTIMONIAL_TEXT_MAX, TESTIMONIAL_THANK_YOU_CREDITS,
 } from "./testimonials.ts";
 import {
   deleteTestimonialsForUser, listTestimonials, markTestimonialExportSeen, openTestimonialDatabase, readOwnTestimonial, readTestimonialAsk, removeOwnTestimonial,
@@ -112,5 +112,71 @@ test("store: one answer per account, skip twice, owner approval, take-back and a
   } finally {
     useTestimonialDatabaseForTests(null);
     db.close();
+  }
+});
+
+test("THE THANK-YOU (Nov 26): the same credits for every answer, paid once inside the save, never after two skips", () => {
+  const db = openTestimonialDatabase(":memory:");
+  useTestimonialDatabaseForTests(db);
+  try {
+    let paid = 0;
+    const thankYou = () => { paid += 1; return TESTIMONIAL_THANK_YOU_CREDITS; };
+    // 1 star, private: the same 30 credits as 5 stars + featured
+    const low = saveTestimonial({ userId: "a", userName: "Ann Lee", userEmail: "a@example.com", stars: 1, text: "Too slow", featureOk: false, where: "animation" }, 1000, thankYou);
+    const high = saveTestimonial({ userId: "b", userName: "Bo Kim", userEmail: "b@example.com", stars: 5, text: "Love it", featureOk: true, where: "export" }, 1000, thankYou);
+    assert.equal(low.ok && low.testimonial.creditsGiven, TESTIMONIAL_THANK_YOU_CREDITS);
+    assert.equal(high.ok && high.testimonial.creditsGiven, TESTIMONIAL_THANK_YOU_CREDITS);
+    assert.equal(paid, 2);
+    // a retry / double click: refused before the thank-you runs, so it is never paid twice
+    assert.deepEqual(saveTestimonial({ userId: "a", userName: "Ann Lee", userEmail: "a@example.com", stars: 5, text: "", featureOk: false, where: "animation" }, 2000, thankYou), { ok: false, reason: "answered" });
+    assert.equal(paid, 2);
+    // taken back: still never asked or paid again (the credits stay)
+    removeOwnTestimonial("a");
+    assert.deepEqual(saveTestimonial({ userId: "a", userName: "Ann Lee", userEmail: "a@example.com", stars: 5, text: "", featureOk: false, where: "animation" }, 3000, thankYou), { ok: false, reason: "answered" });
+    assert.equal(paid, 2);
+    // skipped twice = the ask is gone, so a direct POST can't answer (or farm the credits)
+    skipTestimonialAsk("c", "animation", 1000);
+    skipTestimonialAsk("c", "animation", 1001);
+    assert.deepEqual(saveTestimonial({ userId: "c", userName: "Cy", userEmail: "c@example.com", stars: 5, text: "", featureOk: false, where: "animation" }, 2000, thankYou), { ok: false, reason: "not_asked" });
+    assert.equal(paid, 2);
+    // a failing payment keeps nothing (the answer and the "answered" mark roll back), so the person can try again
+    assert.throws(() => saveTestimonial({ userId: "d", userName: "Di", userEmail: "d@example.com", stars: 4, text: "Nice", featureOk: true, where: "animation" }, 1000, () => { throw new Error("credits db busy"); }));
+    assert.equal(readOwnTestimonial("d"), null);
+    assert.equal(readTestimonialAsk("d").answered, false);
+    // no thank-you (the account never made an AI animation): saved with 0 credits and no disclosure note
+    const none = saveTestimonial({ userId: "e", userName: "Ed", userEmail: "e@example.com", stars: 5, text: "Great", featureOk: true, where: "export" }, 1000);
+    assert.equal(none.ok && none.testimonial.creditsGiven, 0);
+    assert.equal(testimonialDisclosure(readOwnTestimonial("e")!), null);
+    assert.equal(testimonialDisclosure(readOwnTestimonial("b")!), "Got 30 free credits for leaving a review");
+    assert.equal(testimonialThankYouEvent("b"), "testimonial-thanks:b");
+  } finally {
+    useTestimonialDatabaseForTests(null);
+    db.close();
+  }
+});
+
+test("an old testimonials file (before Nov 26) gets the credits column; its answers carry no disclosure", async () => {
+  const { default: Database } = await import("better-sqlite3");
+  const fs = await import("node:fs");
+  const os = await import("node:os");
+  const path = await import("node:path");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "testimonials-"));
+  const file = path.join(dir, "t.sqlite");
+  const old = new Database(file);
+  old.exec(`CREATE TABLE testimonial_v1 (id TEXT PRIMARY KEY, created_at INTEGER NOT NULL, user_id TEXT NOT NULL, user_name TEXT NOT NULL,
+    user_email TEXT NOT NULL, stars INTEGER NOT NULL, text TEXT NOT NULL, feature_ok INTEGER NOT NULL, consent_words TEXT, where_asked TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'new', display_name TEXT NOT NULL, use_photo INTEGER NOT NULL DEFAULT 1, status_changed_at INTEGER);
+    INSERT INTO testimonial_v1 VALUES ('tm_${"1".repeat(32)}', 1, 'old', 'Old One', 'o@example.com', 5, 'Yes', 1, NULL, 'animation', 'approved', 'Old O.', 1, NULL);`);
+  old.close();
+  const db = openTestimonialDatabase(file);
+  useTestimonialDatabaseForTests(db);
+  try {
+    const t = readOwnTestimonial("old")!;
+    assert.equal(t.creditsGiven, 0);
+    assert.equal(testimonialDisclosure(t), null);
+  } finally {
+    useTestimonialDatabaseForTests(null);
+    db.close();
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 });

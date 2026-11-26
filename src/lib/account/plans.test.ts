@@ -15,8 +15,8 @@ const trial = (overrides: Partial<AccountPlanRecord> = {}): AccountPlanRecord =>
 const paid = (plan: "starter" | "creator" | "studio", overrides: Partial<AccountPlanRecord> = {}): AccountPlanRecord =>
   trial({ plan, billingStatus: "active", paidPlan: plan, paidFrom: start, paidUntil: nextMonth, ...overrides });
 
-test("dad's prices (website, Nov 20): trial 150; Basic 470 / Pro 1,200 / Creator 2,400; chat 15; Help 1; voice typing 1; drawing AI 1", () => {
-  assert.equal(accountPlanStatus(trial(), 0, start).creditsTotal, 150);
+test("dad's prices (website, Nov 20; trial 300 since dad, Nov 26): Basic 470 / Pro 1,200 / Creator 2,400; chat 15; Help 1; voice typing 1; drawing AI 1", () => {
+  assert.equal(accountPlanStatus(trial(), 0, start).creditsTotal, 300);
   assert.equal(accountPlanStatus(paid("starter"), 0, start).creditsTotal, 470);
   assert.equal(accountPlanStatus(paid("creator"), 0, start).creditsTotal, 1200);
   assert.equal(accountPlanStatus(paid("studio"), 0, start).creditsTotal, 2400);
@@ -25,16 +25,22 @@ test("dad's prices (website, Nov 20): trial 150; Basic 470 / Pro 1,200 / Creator
   assert.deepEqual(AI_ACTION_CREDITS, { chat: 15, assistant: 1, dictation: 1, drawing: 1 });
 });
 
-test("a new animation costs 4 a second plus the 3-second scene and one chat turn: 10 s = 67 (the website's number)", () => {
-  assert.equal(newAnimationCredits(10), 67);
-  assert.equal(newAnimationCredits(120), 507);
-  assert.equal(SHORT_ANIMATION_CREDITS, 67);
-  assert.deepEqual([approxAnimations(470), approxAnimations(1200), approxAnimations(2400)], [7, 18, 36], "the website's 'about N short animations'");
+test("(Nov 26) a new animation's card: 4 a second + the 3-second scene + the 1-second ending (10 s = 56) + its planning (15) = 71", async () => {
+  assert.equal(newAnimationCredits(10), 56);
+  assert.equal(newAnimationCredits(120), 496);
+  assert.equal(SHORT_ANIMATION_CREDITS, 71, "dad, Nov 26: planning is included in the price");
+  // the SAME number as the AI Animator's own price function (one formula: the texts can never drift from the card again)
+  const { priceOf } = await import("../ai/v1Animator/v1Price.ts");
+  assert.equal(priceOf({ newSeconds: 10, chat: false }).credits, newAnimationCredits(10));
+  assert.equal(priceOf({ newSeconds: 7.3, chat: false }).credits, newAnimationCredits(7.3));
+  assert.equal(priceOf({ newSeconds: 10 }).credits, SHORT_ANIMATION_CREDITS, "the card (planning in) = the number every text says");
+  // (Nov 26) honest: 71 a 10-second animation, planning included (the website's old "about 7 / 18 / 36" used 67)
+  assert.deepEqual([approxAnimations(470), approxAnimations(1200), approxAnimations(2400)], [7, 17, 34]);
 });
 
-test("a new trial has 150 credits and 14 days", () => {
+test("a new trial has 300 credits and 14 days (dad, Nov 26; was 150)", () => {
   const status = accountPlanStatus(trial(), 0, start);
-  assert.equal(status.creditsLeft, 150);
+  assert.equal(status.creditsLeft, 300);
   assert.equal(status.trialDaysLeft, 14);
   assert.equal(status.locked, false);
   assert.equal(status.waitingForPayment, false);
@@ -42,7 +48,7 @@ test("a new trial has 150 credits and 14 days", () => {
 });
 
 test("an action needs its whole price; credits held by running runs count as used; never 'pay what's left'", () => {
-  const status = accountPlanStatus(trial(), 83, start);
+  const status = accountPlanStatus(trial(), 233, start);
   assert.equal(status.creditsLeft, 67);
   assert.equal(checkAiCredit(status, 0, 67).ok, true);
   assert.equal(checkAiCredit(status, 1, 67).ok, false, "1 credit held elsewhere = this 67 can't start");
@@ -124,15 +130,15 @@ test("the daily limit: at most 1,500 credits in 24 hours", () => {
 });
 
 test("low credits shows when 10% or less is left", () => {
-  assert.equal(accountPlanStatus(trial(), 135, start).low, true);
-  assert.equal(accountPlanStatus(trial(), 134, start).low, false);
-  assert.equal(accountPlanStatus(trial(), 150, start).low, false);
+  assert.equal(accountPlanStatus(trial(), 270, start).low, true);
+  assert.equal(accountPlanStatus(trial(), 269, start).low, false);
+  assert.equal(accountPlanStatus(trial(), 300, start).low, false);
 });
 
 test("the test-only buttons: used-up and extra credits", () => {
-  assert.equal(accountPlanStatus(trial({ testUsedExtra: 150 }), 0, start).creditsLeft, 0);
+  assert.equal(accountPlanStatus(trial({ testUsedExtra: 300 }), 0, start).creditsLeft, 0);
   const plus = accountPlanStatus(trial({ testUsedExtra: -25 }), 0, start);
-  assert.equal(plus.creditsLeft, 175);
+  assert.equal(plus.creditsLeft, 325);
   assert.equal(plus.creditsUsed, 0);
 });
 
@@ -182,7 +188,7 @@ test("the credits circle is full whenever you have at least your plan's credits 
 test("plans say exactly what the credits make: how many, how long each, credits each, total (Arthur, Nov 21)", async () => {
   const { planAnimationsText } = await import("./plans.ts");
   for (const id of ["trial", "starter", "creator", "studio"] as const) assert.equal(ACCOUNT_PLANS[id].about, planAnimationsText(ACCOUNT_PLANS[id].credits));
-  assert.equal(planAnimationsText(470), "Enough for 7 animations, each 10 seconds long, 67 credits each: 1 minute 10 seconds of animation in total");
+  assert.equal(planAnimationsText(470), "Enough for 6 animations, each 10 seconds long (71 credits each, planning included): 1 minute of animation in total");
   for (const id of ["trial", "starter", "creator", "studio"] as const) assert.doesNotMatch(ACCOUNT_PLANS[id].about, /short animations|about \d+ animations/i);
 });
 

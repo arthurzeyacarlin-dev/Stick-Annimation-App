@@ -8,7 +8,7 @@ import styles from "./SalesRecap.module.css";
 // SPEC-0031: the plans page's mini sales page under the plans: what you get (two-part bullets), what animators say (only real
 // quotes Arthur approved; nothing when there are none) and the promises. Words live in salesCopy.ts.
 
-type Proof = { id: string; name: string; stars: number; quote: string };
+type Proof = { id: string; name: string; stars: number; quote: string; disclosure?: string | null };
 
 /** `compact` = no title, small; `wide` = 3 columns on a computer (the trial-ended screen). */
 export function ValueBullets({ compact = false, wide = false }: { compact?: boolean; wide?: boolean }) {
@@ -42,6 +42,7 @@ function ProofStrip() {
             <span className={styles.stars} aria-label={`${one.stars} out of 5 stars`}>{"★".repeat(one.stars)}</span>
             <q>{one.quote}</q>
             <span className={styles.who}><span className={styles.initial} aria-hidden="true">{one.name.charAt(0)}</span>{one.name}</span>
+            {one.disclosure && <span className={styles.disclosure}>{one.disclosure}</span>}
           </li>
         ))}
       </ul>

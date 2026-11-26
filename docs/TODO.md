@@ -1,5 +1,17 @@
 # TODO
 
+## Money leaks + email confirm (SPEC-0033, dad Nov 26) — built, waits for dad's walkthrough to end
+
+- [x] **SWITCH-FAIR-REFUND** — built: a switch gives back only the unused share (paid x unused / credits paid for, minus that share of the fee).
+- [x] **WAITING-PICTURE-HELD** — built: a waiting gate picture holds its real cost and counts toward the daily + trial limits (making unchanged).
+- [x] **STOPPED-RUN-COUNTED** — built: a stopped/failed run stays free, its real AI money counts toward the limits.
+- [x] **EMAIL-CONFIRM-TRIAL** — built: trial starts on confirm (link + 6-digit code); one trial per real inbox; throwaway domains refused; owner exemptions; same-address alert.
+- [x] **HONEST-10S-PRICE** — built: 56 credits for 10 s plus replies; one formula shared with the card's price.
+- [x] **TRIAL-300 / PLANNING-IN-PRICE / KEEP-WARM / OUT-OF-CREDITS-CARD / FREE-FIX-LINE** — built Nov 26 (SPEC-0033 batch 2).
+- [x] **HEAVY-PLANNING-RISK** — fixed with option (d): a replaced first picture is charged its real cost (said on the card first); heavy planners now 34% (full) / 12% (beta).
+- [ ] **KLAVIYO-TRIAL-300** — Klaviyo "Your free trial has started" says 150 credits (dad's session updates it). Website: no fixed numbers since diamond-website 9443597.
+- [ ] **MONEY-LEAKS-LIVE** — Website pm: after dad says his walkthrough is finished, commit + deploy; set `DIAMOND_TRIAL_EXEMPT_EMAILS` on the server.
+
 ## First steps and sign-up film (D-0249, 2026-11-23)
 
 - [x] **GUIDED-START** — done 2026-11-23: Home's line auto-starts the AI Animator in a new project, the window opens by itself, the "It's yours" card, random ideas, the welcome card's two buttons.

@@ -90,3 +90,34 @@ server (asked first): a test account gets the "It's yours" card from the app's o
 plus one real video export, sees the ask, sends, gets the photo
 nudge, adds a photo; skip-twice never asks again; owner approves; export zip opened and checked; under-13 (no tick) never exported.
 Phone width checked. Time: about 2–2.5 hours of building + testing.
+
+## The 30-credit thank-you (dad, Nov 26 14:30: "Yeah, 30 free credits is fine") — BUILT + TESTED, not committed
+- **Every answer gets the same 30 free credits**: 1 star or 5, featured or private (US FTC rule on reviews: a reward never
+  depends on the rating or on agreeing to be featured). The card says so BEFORE they answer: "As a thank-you for your time, you
+  get 30 free credits, whatever you rate us." After Send: "Thank you! 30 credits added." (balance refreshes at once).
+- **Once per account, paid inside the same save** (`saveTestimonial(..., thankYou)`): the answer, the "answered" mark and the
+  payment are kept together or not at all. Second lock: `giveGiftCreditsOnce` (aiCredits.ts) writes a one-time record
+  `testimonial-thanks:<account>` in the same table packs use, so a retry / double click never pays twice. Taking the
+  testimonial back keeps the credits and never pays again.
+- **Not farmable**: only an account that has made at least one AI animation (server record, `hasMadeAnimation`) gets it, and
+  only while the ask is due (not after two skips; a direct POST then gets 409). Plus the existing 5-an-hour guard. An account
+  that never used the AI (export-only) is still asked, but the card shows no credit line and gets none (dad can change that).
+- **Credits**: the existing extra balance (same as packs: kept at a refill, spent after plan credits; marked with the money
+  mode like a pack, so a live server keeps them after a restart). Never money: no payment, so never refunded; a refund of a
+  bought pack takes back only that pack's credits. Deleting the account deletes them. The balance labels say "extra" instead
+  of "from packs" (Profile, credit ring, AI dashboard "Extra (packs + free)"). There is no user "credits added" history list
+  in the app (packs have none either); the server keeps the dated one-time record.
+- **Disclosure**: "Got 30 free credits for leaving a review" under every shown quote whose writer got the credits (plans page
+  proof strip, owner page, each export entry) + `disclosureRule` at the top of testimonials.json so the website wall and ads
+  keep it. Answers from before today got no credits, so no note. New column `credits_given` is added automatically.
+- **Kids rule unchanged**; parent accounts are paid the same way.
+- Tested Nov 26 14:38-14:41 on one local dev server (throwaway accounts, $0): 1-star private answer = +30 (83 -> 113), two
+  Sends at once paid once, retry paid nothing more, Remove kept the credits; card line shown before answering and
+  "30 credits added" + balance 83 -> 113 on screen; never-animated account: no line, 0 credits; skipped-twice account: 409,
+  0 credits; owner approve -> plans page and export carry the note + rule. 9 new unit tests (testimonials + giftCredits).
+- **Never money (dad's check, 14:41)**: deleting an account gives back unused PACK credits as money, and the free 30 sat in the
+  same balance (the old code would have paid 60¢ for them after a used-up 200 pack). Now each account remembers how many free
+  credits it was given (`free_credits`, new column, SCHEMA_VERSION 4) and the delete refund counts only the extra credits
+  above that (`paidExtraCreditsLeft`; free ones count as spent last). Real money switch clears it with the test packs. Money
+  scenario 36: pack used + 30 free left → $0 for them; half a pack left + 30 free → the same money as without the gift;
+  trial with only the 30 → $0. All 38 money scenarios pass.

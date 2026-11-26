@@ -725,7 +725,7 @@ test("effort UI: the AI Animator chat renders the SAME ChatEffortPicker (same co
 const FIXTURE_PLAN = (patch: Partial<import("../../../../lib/account/plans.ts").AccountPlanStatus>): import("../../../../lib/account/plans.ts").AccountPlanStatus => ({
   plan: "starter", label: "Starter", creditsTotal: 180, creditsUsed: 180, creditsLeft: 0, planCreditsLeft: 0, topUpCredits: 0, locked: false, lockReason: null,
   aiLocked: false, low: false, windowStart: Date.UTC(2026, 10, 1, 12), windowEnd: Date.UTC(2026, 11, 1, 12), trialEndsAt: null, trialDaysLeft: null,
-  refillsAt: Date.UTC(2026, 11, 1, 12), interval: "month", billingStatus: "active", paymentProblem: false, waitingForPayment: false, cancelAtPeriodEnd: false, ...patch,
+  refillsAt: Date.UTC(2026, 11, 1, 12), interval: "month", billingStatus: "active", paymentProblem: false, waitingForPayment: false, cancelAtPeriodEnd: false, emailConfirmNeeded: false, ...patch,
 });
 
 test("out-of-credits card: shows under one chat message's cost, hidden from it up / unknown / locked; both links /credits; paid vs trial words", async () => {
@@ -873,4 +873,51 @@ test("(Nov 23) a short Wi-Fi blip while a NEW animation is made: the panel keeps
   assert.deepEqual(placed, [1], "once the connection is back the animation is put on the canvas, exactly once");
   assert.equal(controller.current.busy, null);
   assert.ok(controller.current.lines.every((l) => !(l.kind === "ai" && /send your message again/i.test(l.text))), "never tells him to send it again");
+});
+
+test("(dad, Nov 26) the out-of-credits card while an animation is being made says it WILL finish; a trial with the beta code sees the beta price there", async () => {
+  const { v1OutOfCreditsView, V1OutOfCreditsCard } = await import("./V1OutOfCreditsCard.tsx");
+  const now = Date.UTC(2026, 10, 3, 12);
+  const trial = FIXTURE_PLAN({ plan: "trial", label: "Free trial", creditsLeft: 4, refillsAt: null, interval: null, trialEndsAt: Date.UTC(2026, 10, 10, 12), trialDaysLeft: 7 });
+  const making = v1OutOfCreditsView(trial, { making: true, betaCode: "FIRSTDIAMOND", now });
+  assert.ok(making);
+  assert.equal(making.title, "Your animation will finish.");
+  assert.equal(making.line, "To make the next one, choose a plan.");
+  assert.doesNotMatch(`${making.title} ${making.line}`, /out of|not enough|failed/i, "never looks like it failed");
+  assert.equal(making.beta?.title, "Your beta price is reserved: 25% off for a full year.");
+  assert.equal(making.beta?.href, "/plans?code=FIRSTDIAMOND", "straight to the beta-price checkout");
+  assert.match(making.beta?.text ?? "", /disappears when your free trial ends in 7 days/);
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const html = renderToStaticMarkup(React.createElement(V1OutOfCreditsCard, { view: making }));
+  assert.match(html, /Your animation will finish\./);
+  assert.match(html, /href="\/plans\?code=FIRSTDIAMOND"[^>]*>Lock it in<\/a>/);
+  // no code saved = no beta line; a paid plan never shows the beta price; after the animation the usual words come back
+  assert.equal(v1OutOfCreditsView(trial, { making: true })?.beta, null);
+  assert.equal(v1OutOfCreditsView(FIXTURE_PLAN({ creditsLeft: 0 }), { making: true, betaCode: "FIRSTDIAMOND" })?.beta, null);
+  assert.match(v1OutOfCreditsView(FIXTURE_PLAN({ creditsLeft: 0 }), { making: true })?.line ?? "", /buy a pack or wait for your refill on December 1/);
+  assert.equal(v1OutOfCreditsView(trial, { making: false })?.title, "Not enough credits to keep animating");
+  // a trial still waiting for its email confirm has its own card, not this one
+  assert.equal(v1OutOfCreditsView(FIXTURE_PLAN({ plan: "trial", creditsLeft: 0, emailConfirmNeeded: true })), null);
+});
+
+test("(dad, Nov 26) the plan card: ONE price on Animate (planning + the picture), the free changes counted down, and the free-fix line on edit cards", async () => {
+  const { animatePrice, changeCostLine, FREE_FIX_LINE } = await import("./v1GatePrice.ts");
+  assert.equal(animatePrice(55), 55);
+  assert.equal(animatePrice(55, { state: "ready", src: "x", credits: 24, animateCredits: 12, kind: "first" }), 67, "a picture's still is in the one price");
+  assert.equal(animatePrice(55, { state: "ready", src: "x", credits: 12, animateCredits: 0, kind: "first" }), 55, "a first picture is included");
+  assert.equal(animatePrice(55, { state: "drawing", kind: "first" }), 55);
+  assert.equal(changeCostLine(3), "Changing the plan is free: 3 changes left.");
+  assert.equal(changeCostLine(1), "Changing the plan is free: 1 change left.");
+  assert.equal(changeCostLine(0), "A change now costs what it really costs, never more than 20 credits.");
+  assert.equal(changeCostLine(undefined), null);
+  // (dad, Nov 26, option d) a first picture already drawn is replaced by a change: its exact cost is said BEFORE the change is sent
+  assert.equal(changeCostLine(2, { state: "ready", src: "x", credits: 24, animateCredits: 0, kind: "first" }),
+    "Changing the plan is free: 2 changes left. A change draws a new first picture: this one costs 24 credits.");
+  assert.equal(changeCostLine(2, { state: "drawing", kind: "first" }), "Changing the plan is free: 2 changes left.");
+  assert.equal(FREE_FIX_LINE, "Small fix? Click the frame on the timeline and erase or draw it yourself: it's free.");
+  const thread = readFileSync(resolvePath(dirname(fileURLToPath(import.meta.url)), "V1AnimatorThread.tsx"), "utf8");
+  assert.match(thread, /<PlayIcon \/>Animate · \{creditsText\(price\)\}/, "the price is ON the Animate button");
+  assert.match(thread, /\{edit && <p className="v1-gate-note" data-v1-free-fix="">\{FREE_FIX_LINE\}<\/p>\}/, "shown on every edit card");
+  assert.match(thread, /changeCostLine\(freeChangesLeft, picture\)/, "the card's change line knows the picture it would replace");
 });

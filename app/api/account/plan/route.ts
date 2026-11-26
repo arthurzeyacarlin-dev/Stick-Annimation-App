@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAccountRequest } from "@/src/lib/account/access";
-import { getAccountPlanStatus } from "@/src/lib/account/aiCredits";
+import { ensureLegacyTrialGate, getAccountPlanStatus } from "@/src/lib/account/aiCredits";
 import { sendAccountEmailSignals, startEmailSignalSweeper } from "@/src/lib/account/emailSignalsServer";
 import { billingFacts, billingMode, ensureBillingPublicKey, startBillingSweeper, syncWithStripe } from "@/src/lib/account/stripeBilling";
 
@@ -17,6 +17,7 @@ export async function GET(request: Request) {
   try { await syncWithStripe(ownerId, { fresh }); } catch { /* keep the last saved plan */ }
   startBillingSweeper();
   try {
+    ensureLegacyTrialGate(ownerId, new Date(access.session.user.createdAt).getTime());   // (dad, Nov 26) see aiCredits.ts
     const status = getAccountPlanStatus(ownerId);
     // Follow-up emails (dad, Nov 21; SPEC-0030): tell the email service each new fact once (trial, first animation, plan,
     // paid month, payment problem, cancelled, ended). Never waits. The 6-hourly check covers accounts that don't open the app.

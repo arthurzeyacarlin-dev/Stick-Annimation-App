@@ -226,6 +226,40 @@ export function deletionRefund(planPayments: RefundablePayment[], planCreditsUse
   return { planPaidCents, aiCostCents, feeCents, planRefundCents, packRefundCents, refundCents: planRefundCents + packRefundCents, lines };
 }
 
+// ---------- Switching plans: only the UNUSED part comes back (dad, Nov 26) ----------
+
+export type SwitchRefund = {
+  /** What was paid for the plan's paid time (a month, or a yearly plan's year) and Stripe's fee on it. */
+  planPaidCents: number; feeCents: number;
+  /** The plan credits that payment bought (a yearly plan: every month of its year), and how many are gone (used, or in a
+   *  month that already ended). */
+  creditsPaidFor: number; creditsGone: number; unusedCredits: number;
+  refundCents: number; lines: DeletionRefundLine[];
+};
+
+/** Dad, Nov 26: a switch is not a deletion. The deletion rule (paid - AI at cost - fee) sold the used credits at cost, so a
+ *  switch gives back only the UNUSED share: paid x unused credits / credits paid for, minus that share of Stripe's fee,
+ *  never more than was paid. Each payment gives back its own share (newest first). */
+export function switchRefund(planPayments: RefundablePayment[], creditsPaidFor: number, creditsGone: number): SwitchRefund {
+  const left = (payment: RefundablePayment) => Math.max(0, payment.amountCents - payment.refundedCents);
+  const paidFor = Math.max(0, Math.round(creditsPaidFor));
+  const gone = Math.min(paidFor, Math.max(0, Math.round(creditsGone)));
+  const unusedCredits = paidFor - gone;
+  const lines: DeletionRefundLine[] = [];
+  for (const payment of planPayments) {
+    if (!payment.paymentIntentId || paidFor <= 0) continue;
+    // Whole cents, worked out in whole numbers (no rounding drift): (paid - fee) x unused / paid for, rounded down.
+    const cents = Math.min(left(payment), Math.max(0, Math.floor(((payment.amountCents - payment.feeCents) * unusedCredits) / paidFor)));
+    if (cents > 0) lines.push({ stripeId: payment.stripeId, paymentIntentId: payment.paymentIntentId, cents });
+  }
+  return {
+    planPaidCents: planPayments.reduce((sum, payment) => sum + left(payment), 0),
+    feeCents: planPayments.reduce((sum, payment) => sum + payment.feeCents, 0),
+    creditsPaidFor: paidFor, creditsGone: gone, unusedCredits,
+    refundCents: lines.reduce((sum, line) => sum + line.cents, 0), lines,
+  };
+}
+
 // ---------- The two discount codes (website: first 50 = 25% off the first year; YouTube = 10% off the first month) ----------
 
 // "Do both" = 30% off the first month (25% code at checkout + 5% of the list price refunded once). The numbers (5% extra, 25% for 12 months, 10%) live in offerDisplay.ts (browser-safe), so the coupons and every price shown

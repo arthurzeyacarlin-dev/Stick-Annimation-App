@@ -1,7 +1,7 @@
 // THE AI ANIMATOR'S PRICE (Nov 20, dad's credits plan): what the gate card shows, what is held while the run is made, and
 // exactly what is charged when it is done - never more. 1 credit = 1 cent of real AI cost (plans.ts CREDIT_RATES).
 // Plain numbers in, credits out: nothing here reads or changes how an animation is made.
-import { AI_ACTION_CREDITS, CREDIT_RATES, type AiActionKind } from "../../account/plans.ts";
+import { AI_ACTION_CREDITS, CREDIT_RATES, newAnimationCredits, type AiActionKind } from "../../account/plans.ts";
 
 export type V1Price = { credits: number; kind: Extract<AiActionKind, "animation" | "addon" | "edit" | "look"> };
 
@@ -29,7 +29,7 @@ export type V1PriceInput = {
 
 // (Nov 22, Arthur: "the credits always gotta pay for Sonnet and fal") measured: the last clip of a new animation or an added part is
 // made 1 s longer than its steps (kimodo/wan.py settle_s: room to come to rest), and fal is paid for it - 4 credits the price never held.
-export const END_SECONDS = 1;
+export const END_SECONDS = CREDIT_RATES.endSeconds;   // (Nov 26: the one rate table, plans.ts, so every price text says the same)
 
 const seconds = (value: number | undefined) => Math.max(0, Number(value) || 0);
 
@@ -38,7 +38,7 @@ export function priceOf(input: V1PriceInput): V1Price {
   const rate = CREDIT_RATES.perSecond;
   const chat = input.chat === false ? 0 : AI_ACTION_CREDITS.chat;
   if (input.newSeconds !== undefined) {
-    return { credits: Math.ceil(rate * (seconds(input.newSeconds) + CREDIT_RATES.sceneSeconds + END_SECONDS) + chat), kind: "animation" };
+    return { credits: newAnimationCredits(seconds(input.newSeconds)) + chat, kind: "animation" };   // (Nov 26) the same function the app's texts use
   }
   const length = seconds(input.animationSeconds);
   // a new take makes the whole animation again, scene clip included: a new animation's price

@@ -25,12 +25,12 @@ export const TRIAL_DAYS = 14;
 export const LOW_CREDITS_SHARE = 0.1;
 
 export type PlanInfo = { label: string; credits: number; price: string; monthlyUsd: number; yearlyUsd: number; about: string };
-// Dad, Nov 17 (website live Nov 20). monthlyUsd = the price of one cycle.
+// Dad, Nov 17 (website live Nov 20). monthlyUsd = the price of one cycle. (Dad, Nov 26: the free trial has 300 credits, was 150.)
 export const ACCOUNT_PLANS: Record<AccountPlanId, PlanInfo> = {
-  trial: { label: "Free trial", credits: 150, price: "Free for 14 days", monthlyUsd: 0, yearlyUsd: 0, about: "Enough for 2 animations, each 10 seconds long, 67 credits each: 20 seconds of animation in total" },
-  starter: { label: "Basic", credits: 470, price: `$9.99 a ${CYCLE_WORD}`, monthlyUsd: 9.99, yearlyUsd: 99, about: "Enough for 7 animations, each 10 seconds long, 67 credits each: 1 minute 10 seconds of animation in total" },
-  creator: { label: "Pro", credits: 1200, price: `$24.99 a ${CYCLE_WORD}`, monthlyUsd: 24.99, yearlyUsd: 249, about: "Enough for 17 animations, each 10 seconds long, 67 credits each: 2 minutes 50 seconds of animation in total" },
-  studio: { label: "Creator", credits: 2400, price: `$49.99 a ${CYCLE_WORD}`, monthlyUsd: 49.99, yearlyUsd: 499, about: "Enough for 35 animations, each 10 seconds long, 67 credits each: 5 minutes 50 seconds of animation in total" },
+  trial: { label: "Free trial", credits: 300, price: "Free for 14 days", monthlyUsd: 0, yearlyUsd: 0, about: "Enough for 4 animations, each 10 seconds long (71 credits each, planning included): 40 seconds of animation in total" },
+  starter: { label: "Basic", credits: 470, price: `$9.99 a ${CYCLE_WORD}`, monthlyUsd: 9.99, yearlyUsd: 99, about: "Enough for 6 animations, each 10 seconds long (71 credits each, planning included): 1 minute of animation in total" },
+  creator: { label: "Pro", credits: 1200, price: `$24.99 a ${CYCLE_WORD}`, monthlyUsd: 24.99, yearlyUsd: 249, about: "Enough for 16 animations, each 10 seconds long (71 credits each, planning included): 2 minutes 40 seconds of animation in total" },
+  studio: { label: "Creator", credits: 2400, price: `$49.99 a ${CYCLE_WORD}`, monthlyUsd: 49.99, yearlyUsd: 499, about: "Enough for 33 animations, each 10 seconds long (71 credits each, planning included): 5 minutes 30 seconds of animation in total" },
 };
 
 /** What the AI really costs, in credits (1 credit = 1 cent). One table, so a provider price change is one edit. */
@@ -39,6 +39,8 @@ export const CREDIT_RATES = {
   perSecond: 4,
   /** A new animation also makes a 3-second scene clip that is not on the timeline. */
   sceneSeconds: 3,
+  /** (Nov 22, measured) the last clip of a new animation or an added part is made 1 s longer than its steps (room to come to rest). */
+  endSeconds: 1,
   /** Filling or erasing a thing's look (the selector only): 1 credit a second of the animation. */
   fillPerSecond: 1,
   /** Redrawing or reshaping a thing (H3 edit mode + the selector, about 7.5 c a second): 8 credits a second. */
@@ -85,11 +87,22 @@ export const creditSourceOf = (kind: string): "animator" | "assistant" | null =>
 /** The AI Animator's kinds (the dashboard adds them up as "AI Animator"). */
 export const ANIMATOR_KINDS: readonly AiActionKind[] = AI_ACTION_KINDS.filter((kind) => creditSourceOf(kind) === "animator");
 
-/** A new animation of `seconds`: 4 × (seconds + 3-second scene) + one chat turn. 10 s = 67 credits (the website's number). */
+/** The ANIMATOR's part of a new animation of `seconds` (the AI Animator's own price, v1Price.ts priceOf, uses this): 4 credits a
+ *  second for its steps + the 3-second scene + the 1-second ending. 10 s = 56 credits. */
 export const newAnimationCredits = (seconds: number) =>
-  CREDIT_RATES.perSecond * (Math.max(0, seconds) + CREDIT_RATES.sceneSeconds) + AI_ACTION_CREDITS.chat;
-export const SHORT_ANIMATION_CREDITS = newAnimationCredits(10);
-/** About how many 10-second animations a number of credits buys. */
+  Math.ceil(CREDIT_RATES.perSecond * (Math.max(0, Number(seconds) || 0) + CREDIT_RATES.sceneSeconds + CREDIT_RATES.endSeconds));
+/** (Dad, Nov 26) PLANNING IS INCLUDED in the animation's price: one flat amount on the Animate (or edit) card covers Sonnet's plan
+ *  answers and the first pictures before Animate - the first plan plus FREE_PLAN_CHANGES changes. 15 credits: measured on the Sonnet
+ *  ledger (Nov 19-26, 360 answers), a warm answer costs 9 credits on average (median 8, 9 in 10 under 14), so a first plan plus most
+ *  of a typical change; the cold load of Sonnet's rulebook is never charged to anyone (we pay it). */
+export const PLANNING_CREDITS = AI_ACTION_CREDITS.chat;
+export const FREE_PLAN_CHANGES = 3;
+/** A change after the free ones is charged its warm real cost, never more than this (shown on the card before it is sent). */
+export const PAID_CHANGE_MAX_CREDITS = 20;
+/** What a new animation of `seconds` costs on its card, planning included. 10 s = 71 credits. */
+export const animationPriceCredits = (seconds: number) => newAnimationCredits(seconds) + PLANNING_CREDITS;
+export const SHORT_ANIMATION_CREDITS = animationPriceCredits(10);
+/** About how many 10-second animations a number of credits buys (planning included). */
 export const approxAnimations = (credits: number) => Math.round(credits / SHORT_ANIMATION_CREDITS);
 
 /** Arthur, Nov 21: never just "about 60 animations". Always say how many, how long each one is, what each costs in credits,
@@ -104,7 +117,7 @@ const durationText = (seconds: number) => {
 };
 export const planAnimationsText = (credits: number) => {
   const count = Math.floor(Math.max(0, credits) / SHORT_ANIMATION_CREDITS);
-  return `Enough for ${count} animation${count === 1 ? "" : "s"}, each ${EXAMPLE_ANIMATION_SECONDS} seconds long, ${SHORT_ANIMATION_CREDITS} credits each: ${durationText(count * EXAMPLE_ANIMATION_SECONDS)} of animation in total`;
+  return `Enough for ${count} animation${count === 1 ? "" : "s"}, each ${EXAMPLE_ANIMATION_SECONDS} seconds long (${SHORT_ANIMATION_CREDITS} credits each, planning included): ${durationText(count * EXAMPLE_ANIMATION_SECONDS)} of animation in total`;
 };
 
 /** Extra credit packs (they never expire; members only, not the trial). Arthur, Nov 21: each plan gets packs that fit its
@@ -159,7 +172,13 @@ export type AccountPlanRecord = {
   paidUntil?: number | null;
   /** A payment on this account is disputed with the bank: the AI waits until it is settled. */
   disputed?: boolean;
+  /** (dad, Nov 26) the free trial's email rule: "confirm" = a new account; its 14 days start when the email is confirmed.
+   *  "confirm_legacy" = an account from before the rule with no AI use yet: it confirms on its next animation (its dates stay).
+   *  "no_trial" = this inbox already had a free trial: no trial credits, a plan instead. null = confirmed (or from before the rule). */
+  trialGate?: TrialGate | null;
 };
+export type TrialGate = "confirm" | "confirm_legacy" | "no_trial";
+export const isTrialGate = (value: unknown): value is TrialGate => value === "confirm" || value === "confirm_legacy" || value === "no_trial";
 
 export type AccountPlanStatus = {
   plan: AccountPlanId;
@@ -174,7 +193,10 @@ export type AccountPlanStatus = {
   topUpCredits: number;
   /** True when the free trial (or a canceled plan) is over: creating is locked; watching and exporting stay open. */
   locked: boolean;
-  lockReason: "trial_ended" | "plan_ended" | null;
+  /** (dad, Nov 26) "no_trial" = this inbox already had its free trial: the account is sent to Plans. */
+  lockReason: "trial_ended" | "plan_ended" | "no_trial" | null;
+  /** (dad, Nov 26) the free trial waits for the email to be confirmed: no trial credits until then (looking around is open). */
+  emailConfirmNeeded: boolean;
   /** A disputed payment: the AI waits until it is settled. */
   aiLocked: boolean;
   low: boolean;
@@ -229,14 +251,17 @@ export function accountPlanStatus(record: AccountPlanRecord, usedInWindow: numbe
   const trial = record.plan === "trial";
   const paid = isCyclePaid(record, start);
   const paidPlan = !trial && record.paidPlan && isAccountPlanId(record.paidPlan) && record.paidPlan !== "trial" ? record.paidPlan : record.plan;
-  const total = paid ? ACCOUNT_PLANS[paidPlan].credits : 0;
+  // (dad, Nov 26) a free trial gives its credits only once the email is confirmed, and only to an inbox that never had one
+  const gate = trial ? record.trialGate ?? null : null;
+  const emailConfirmNeeded = gate === "confirm" || gate === "confirm_legacy";
+  const total = paid && !emailConfirmNeeded && gate !== "no_trial" ? ACCOUNT_PLANS[paidPlan].credits : 0;
   const used = usedInWindow + record.testUsedExtra;
   const creditsUsed = Math.min(total, Math.max(0, used));
   // A negative test count gives extra credits above the plan (the test "+ credits" button).
   const planCreditsLeft = Math.max(0, total - used);
   const topUpCredits = Math.max(0, record.topUpCredits ?? 0);
   const creditsLeft = planCreditsLeft + topUpCredits;
-  const lockReason = record.planEnded ? "plan_ended" as const : trial && now >= end ? "trial_ended" as const : null;
+  const lockReason = record.planEnded ? "plan_ended" as const : gate === "no_trial" ? "no_trial" as const : trial && now >= end ? "trial_ended" as const : null;
   const billingStatus = record.billingStatus ?? "none";
   return {
     plan: record.plan,
@@ -248,6 +273,7 @@ export function accountPlanStatus(record: AccountPlanRecord, usedInWindow: numbe
     topUpCredits,
     locked: lockReason !== null,
     lockReason,
+    emailConfirmNeeded: emailConfirmNeeded && lockReason === null,
     aiLocked: Boolean(record.disputed),
     low: creditsLeft > 0 && total > 0 && creditsLeft <= Math.ceil(total * LOW_CREDITS_SHARE),
     windowStart: start,
@@ -265,7 +291,11 @@ export function accountPlanStatus(record: AccountPlanRecord, usedInWindow: numbe
 
 export type CreditCheck =
   | { ok: true }
-  | { ok: false; code: "trial_ended" | "plan_ended" | "payment_hold" | "waiting_for_payment" | "no_credits" | "daily_limit"; message: string };
+  | { ok: false; code: "trial_ended" | "plan_ended" | "no_trial" | "confirm_email" | "payment_hold" | "waiting_for_payment" | "no_credits" | "daily_limit"; message: string };
+
+/** (dad, Nov 26) the kind words for a second account on an inbox that already had its free trial. */
+export const NO_TRIAL_MESSAGE = "This email address already had its free trial, so this account starts without one. Pick a plan to start animating: everything you make stays yours.";
+export const CONFIRM_EMAIL_MESSAGE = "Confirm your email address to start your free trial: open the link in the email we sent you, or type its 6-digit code in the \"Confirm your email\" box on Home. Nothing was charged.";
 
 export const refillDay = (at: number) => new Date(at).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
 
@@ -277,6 +307,8 @@ export function checkAiCredit(status: AccountPlanStatus, reservedCredits = 0, co
   if (status.lockReason === "plan_ended") {
     return { ok: false, code: "plan_ended", message: "Your plan has ended. Choose a plan to keep animating. Your projects are safe." };
   }
+  if (status.lockReason === "no_trial") return { ok: false, code: "no_trial", message: NO_TRIAL_MESSAGE };
+  if (status.emailConfirmNeeded) return { ok: false, code: "confirm_email", message: CONFIRM_EMAIL_MESSAGE };
   if (status.aiLocked) {
     return { ok: false, code: "payment_hold", message: "A payment on your account is being checked by your bank, so the AI waits until that's settled. Your projects are safe. Questions: support@diamondanimator.com" };
   }

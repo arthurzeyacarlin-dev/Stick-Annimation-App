@@ -51,7 +51,7 @@ async function buyPack(owner: string, pack = "pack_200") {   // (Nov 21) the tes
 test("1. paying for Basic: charged once, 470 credits arrive, the payment shows; coming back 5 times changes nothing", async () => {
   at(T0);
   const o = "u_basic";
-  assert.equal(status(o).creditsTotal, 150, "a new account starts on the 150-credit trial");
+  assert.equal(status(o).creditsTotal, 300, "a new account starts on the 300-credit trial (dad, Nov 26; was 150)");
   const { sessionId, invoice } = await buy(o);
   for (let i = 0; i < 5; i++) {
     const done = await billing.completeCheckout(o, sessionId);
@@ -383,7 +383,7 @@ test("19. every AI action lands on the AI Dashboard with its own name; the daily
   const rows = new Map(credits.getCreditUseByKind(o).map((row) => [row.kind, row.credits]));
   assert.deepEqual(Object.fromEntries(rows), { chat: 15, assistant: 1, dictation: 1, drawing: 1, animation: 67 });
   for (const kind of rows.keys()) assert.ok(AI_ACTION_LABELS[kind as keyof typeof AI_ACTION_LABELS], `${kind} has a dashboard name`);
-  assert.equal(status(o).creditsLeft, 150 - 85);
+  assert.equal(status(o).creditsLeft, 300 - 85);
   // The daily limit: 1,500 credits in 24 hours.
   const big = "u_daily";
   credits.applyTestPlanAction(big, "studio");
@@ -422,7 +422,7 @@ test("every request to Stripe pins one API version, and every money-moving reque
 
 // ---------- Nov 21 (Arthur): switching, cancelling and changing the card, all inside Diamond Animator ----------
 
-test("21. switching NOW: the new plan's full price is paid at once, a new month starts with its full credits, the rest of the old payment comes back by the delete rule, packs stay", async () => {
+test("21. switching NOW: the new plan's full price is paid at once, a new month starts with its full credits, the UNUSED part of the old payment comes back, packs stay", async () => {
   at(T0);
   const o = "u_switch";
   const { sub, invoice } = await buy(o);
@@ -433,13 +433,14 @@ test("21. switching NOW: the new plan's full price is paid at once, a new month 
   at(T0 + 10 * DAY);
   const preview = await billing.previewPlanSwitch(o, "creator", "month");
   assert.deepEqual([preview.label, preview.credits, preview.chargeCents], ["Pro", 1200, 2499]);
-  assert.deepEqual([preview.paidCents, preview.aiCostCents, preview.feeCents, preview.refundCents], [999, 100, 59, 999 - 100 - 59]);
+  // (dad, Nov 26) 370 of 470 credits unused: (999 - 59 fee) x 370 / 470 = 740 (the old delete rule gave 840: used credits at cost)
+  assert.deepEqual([preview.paidCents, preview.feeCents, preview.creditsPaidFor, preview.unusedCredits, preview.refundCents], [999, 59, 470, 370, 740]);
   assert.equal(stripe.switches, 0, "a preview changes nothing");
   const done = await billing.switchPlanNow(o, "creator", "month");
-  assert.deepEqual([done.label, done.paidCents, done.refundCents], ["Pro", 2499, 840]);
+  assert.deepEqual([done.label, done.paidCents, done.refundCents], ["Pro", 2499, 740]);
   const s = status(o);
   assert.deepEqual([s.plan, s.creditsTotal, s.planCreditsLeft, s.topUpCredits], ["creator", 1200, 1200, 200], "Pro's full credits now; the pack stays");
-  assert.equal(stripe.charges.get(invoice.charge)!.amount_refunded, 840, "the rest of the Basic payment came back");
+  assert.equal(stripe.charges.get(invoice.charge)!.amount_refunded, 740, "the unused part of the Basic payment came back");
   assert.equal(stripe.refunds.at(-1)!.metadata.why, "plan_switch");
   assert.equal(stripe.subs.get(sub.id)!.current_period_start * 1000, T0 + 10 * DAY, "the new month starts today");
   // asking again, coming back, syncing: never a second charge, never a second refund, never credits taken back
@@ -466,7 +467,8 @@ test("22. switching down works the same; a declined card changes NOTHING and cha
   credits.spendAiCredit(o, "d-1", 300, "animation");
   at(T0 + 2 * DAY);
   const done = await billing.switchPlanNow(o, "starter", "month");
-  assert.deepEqual([done.paidCents, done.refundCents], [999, 2499 - 300 - Math.round(2499 * 0.029 + 30)]);
+  // 900 of 1,200 unused: (2499 - 102 fee) x 900 / 1200 = 1797
+  assert.deepEqual([done.paidCents, done.refundCents], [999, 1797]);
   assert.deepEqual([status(o).plan, status(o).planCreditsLeft], ["starter", 470]);
 });
 
@@ -771,4 +773,91 @@ test("35. (dad, Nov 26) the beta price is claimable from sign-up until the trial
   assert.equal(billing.whichOfferCode(o, "FIRST50TEST"), null);
   await assert.rejects(billing.startPlanPayment(o, user(o), "starter", "month", beta), /trial has ended/);
   await assert.rejects(billing.createPlanCheckout(o, user(o), "starter", "month", ORIGIN, beta), /trial has ended/);
+});
+
+test("36. (dad, Nov 26) a switch gives back ONLY the unused part: used everything = 0, half = half, nothing = all but the fee; up, down and yearly", async () => {
+  const fee = (cents: number) => Math.round(cents * 0.029 + 30);
+  const unusedShare = (paid: number, unused: number, of: number) => Math.floor(((paid - fee(paid)) * unused) / of);
+  const switchAfter = async (o: string, from: string, fromInterval: string, used: number, to: string, toInterval = "month") => {
+    at(T0);
+    const { invoice } = await buy(o, from, fromInterval);
+    await sync(o);
+    if (used > 0) credits.spendAiCredit(o, `${o}-use`, used, "animation");
+    at(T0 + 3 * DAY);
+    const preview = await billing.previewPlanSwitch(o, to, toInterval);
+    const done = await billing.switchPlanNow(o, to, toInterval);
+    assert.equal(done.refundCents, preview.refundCents, "the switch gives back exactly what its preview showed");
+    assert.equal(stripe.charges.get(invoice.charge)!.amount_refunded, preview.refundCents);
+    assert.ok(preview.refundCents <= invoice.amount_paid, "never more than was paid");
+    return preview;
+  };
+  // Basic (470 credits, $9.99) used up, then up to Pro: nothing comes back (the old rule gave back $9.99 - $4.70 - fee).
+  const all = await switchAfter("u_sw_all", "starter", "month", 470, "creator");
+  assert.deepEqual([all.unusedCredits, all.refundCents], [0, 0]);
+  // Half used: half of what was paid, minus half the fee.
+  const half = await switchAfter("u_sw_half", "starter", "month", 235, "creator");
+  assert.deepEqual([half.unusedCredits, half.refundCents], [235, unusedShare(999, 235, 470)]);
+  assert.equal(half.refundCents, 470);
+  // Nothing used: everything but the card fee.
+  const none = await switchAfter("u_sw_none", "starter", "month", 0, "creator");
+  assert.deepEqual([none.unusedCredits, none.refundCents], [470, 999 - fee(999)]);
+  // Downgrade: Creator (2,400 credits, $49.99) with 600 used, down to Basic.
+  const down = await switchAfter("u_sw_down", "studio", "month", 600, "starter");
+  assert.deepEqual([down.creditsPaidFor, down.unusedCredits, down.refundCents], [2400, 1800, unusedShare(4999, 1800, 2400)]);
+  assert.deepEqual([status("u_sw_down").plan, status("u_sw_down").planCreditsLeft], ["starter", 470]);
+  // Upgrade: Pro (1,200 credits, $24.99) with 900 used, up to Creator.
+  const up = await switchAfter("u_sw_up", "creator", "month", 900, "studio");
+  assert.deepEqual([up.unusedCredits, up.refundCents], [300, unusedShare(2499, 300, 1200)]);
+  // Yearly Basic ($99 for 12 x 470): in month 2 with 100 used, month 1's 470 are gone (it ended) and 100 of month 2.
+  at(T0);
+  const y = "u_sw_year";
+  const { invoice } = await buy(y, "starter", "year");
+  await sync(y);
+  at(T0 + 40 * DAY);
+  await sync(y);
+  credits.spendAiCredit(y, "y-use", 100, "animation");
+  const year = await billing.previewPlanSwitch(y, "creator", "year");
+  assert.deepEqual([year.creditsPaidFor, year.unusedCredits, year.refundCents], [5640, 5640 - 470 - 100, unusedShare(9900, 5070, 5640)]);
+  assert.ok(year.refundCents < invoice.amount_paid);
+  // Deleting keeps its own zero-profit rule (paid - AI at cost - fee), unchanged.
+  const del = await billing.previewAccountDeletion(y);
+  assert.equal(del.planRefundCents, 9900 - 100 - fee(9900));
+});
+
+test("37. (dad, Nov 26) the 30 free thank-you credits NEVER come back as money: pack bought + used, 30 free left, delete = $0 for them", async () => {
+  at(T0);
+  // Pack used up, only the 30 free credits left: deleting gives nothing back for packs.
+  const o = "u_gift_delete";
+  await buy(o);
+  await sync(o);
+  await buyPack(o);
+  await sync(o);
+  assert.equal(credits.giveGiftCreditsOnce(o, 30, `testimonial-thanks:${o}`), true);
+  assert.equal(credits.giveGiftCreditsOnce(o, 30, `testimonial-thanks:${o}`), true, "a retry adds nothing");
+  assert.equal(status(o).topUpCredits, 230);
+  credits.spendAiCredit(o, "g-1", 670, "animation");   // the plan's 470 + the whole 200 pack
+  assert.equal(status(o).topUpCredits, 30, "the 30 free ones are what is left");
+  assert.equal(credits.paidExtraCreditsLeft(o), 0);
+  const preview = await billing.previewAccountDeletion(o);
+  assert.equal(preview.packRefundCents, 0, "no money for free credits");
+  const done = await billing.closeBillingForDeletion(o);
+  assert.equal(done.packRefundCents, 0);
+  assert.equal(done.planRefundCents, 999 - 470 - 59, "the plan's own rule is unchanged");
+  // Half the pack unused + the 30 free: exactly the same money back as without the gift (scenario 14), never more.
+  const o2 = "u_gift_delete_half";
+  await buy(o2);
+  await sync(o2);
+  await buyPack(o2);
+  await sync(o2);
+  credits.giveGiftCreditsOnce(o2, 30, `testimonial-thanks:${o2}`);
+  credits.spendAiCredit(o2, "g-2", 570, "animation");   // the plan's 470 + 100 of the pack
+  assert.equal(status(o2).topUpCredits, 130);
+  assert.equal(credits.paidExtraCreditsLeft(o2), 100);
+  const two = await billing.closeBillingForDeletion(o2);
+  assert.equal(two.packRefundCents, Math.floor(449 * 0.5 - 43 * 0.5));
+  // No pack at all, only the free 30 (a trial account): nothing to give back.
+  const o3 = "u_gift_trial";
+  credits.giveGiftCreditsOnce(o3, 30, `testimonial-thanks:${o3}`);
+  assert.equal(status(o3).topUpCredits, 30);
+  assert.equal((await billing.previewAccountDeletion(o3)).refundCents, 0);
 });

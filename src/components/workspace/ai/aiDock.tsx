@@ -6,7 +6,7 @@
 // ONLY WHERE THE AI ANIMATOR SITS CHANGES: the same AI panel (DrawingAiPanel / V1AnimatorChat: its chat, card, picture, Animate,
 // progress) is moved with a React portal into ONE host element, so it is never made again and nothing it does changes.
 // Phones (<= 640 px) keep the bottom sheet's "AI" tab exactly as before.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 import { CloseButton } from "@/src/components/ui/CloseButton";
@@ -16,6 +16,8 @@ import workspaceThemeStyles from "../workspaceTheme.module.css";
 import { noteLanded, takeAnimateStart } from "./aiStart";
 import { ShowcaseReel } from "@/src/components/auth/AuthShowcase";
 import { TestimonialAsk } from "@/src/components/testimonials/TestimonialAsk";
+import { FirstAnimationGuide } from "@/src/components/learn/FirstAnimationGuide";
+import { getGuidePhase, subscribeGuidePhase } from "@/src/components/learn/firstAnimationGuideRules";
 
 export type AiLayout = "panel" | "spot";
 const DOCK_EVENT = "diamond-ai-dock";
@@ -237,6 +239,8 @@ export function AiAnimatorDock({ layout, onPlay, onExport }: { layout: AiLayout;
   // a small card shows only when the ask is due.
   const askSkip = useRef<(() => void) | null>(null);
   const [phoneAsk, setPhoneAsk] = useState(false);
+  // (dad, Nov 26 14:54) the after-first-animation guide goes FIRST; the card (and its ask) wait until it is closed
+  const guideIdle = useSyncExternalStore(subscribeGuidePhase, () => getGuidePhase() === "idle", () => true);
   useEffect(() => {
     if (layout === "spot" || !landed.at || landed.count > 3) return;
     let alive = true;
@@ -253,7 +257,8 @@ export function AiAnimatorDock({ layout, onPlay, onExport }: { layout: AiLayout;
   if (!mounted || layout !== "spot") return (
     <>
       <style>{aiDockStyles}</style>
-      {mounted && phoneAsk && createPortal(
+      {mounted && <FirstAnimationGuide landedEvent={LANDED_EVENT} />}
+      {mounted && phoneAsk && guideIdle && createPortal(
         <div className={workspaceThemeStyles.workspace} style={{ display: "contents" }}>
           <div className="ai-landed" role="status" data-workspace-theme-exempt="">
             <span className="ai-landed-check" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6l4.6-5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
@@ -293,7 +298,7 @@ export function AiAnimatorDock({ layout, onPlay, onExport }: { layout: AiLayout;
               </footer>
             </section>
           </div>
-          {card && !open && (
+          {card && !open && guideIdle && (
             <div className="ai-landed" role="status" data-workspace-theme-exempt="">
               <span className="ai-landed-check" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6l4.6-5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
               <div className="ai-landed-text">
@@ -313,6 +318,7 @@ export function AiAnimatorDock({ layout, onPlay, onExport }: { layout: AiLayout;
         </div>,
         document.body,
       )}
+      <FirstAnimationGuide landedEvent={LANDED_EVENT} />
     </>
   );
 }

@@ -4,10 +4,13 @@
 // stars) the one box that lets us feature them. Short and skippable: "Not now" (or the card's X) counts as a skip; after
 // an answer or two skips it never comes back (the server remembers it per account). A happy person with no profile
 // photo then gets "Add a photo" (the same picture the Profile page saves).
+// Nov 26 (dad): the thank-you. When the server says Send will give it, one line says so BEFORE they answer (the same 30 credits
+// whatever they rate); after Send, "30 credits added" and the credit balance refreshes.
 import { useEffect, useRef, useState, type ChangeEvent, type MutableRefObject } from "react";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { saveProfilePicture } from "@/src/lib/account/profilePicture";
-import { TESTIMONIAL_CONSENT_WORDS, TESTIMONIAL_FEATURE_MIN_STARS, TESTIMONIAL_TEXT_MAX, type TestimonialWhere } from "@/src/lib/account/testimonials";
+import { creditsText } from "@/src/lib/account/credits";
+import { TESTIMONIAL_CONSENT_WORDS, TESTIMONIAL_FEATURE_MIN_STARS, TESTIMONIAL_TEXT_MAX, TESTIMONIAL_THANK_YOU_LINE, type TestimonialWhere } from "@/src/lib/account/testimonials";
 import styles from "./TestimonialAsk.module.css";
 
 type Step = "checking" | "gone" | "stars" | "form" | "sending" | "photo" | "thanks";
@@ -29,17 +32,23 @@ export function TestimonialAsk({ where, checked = false, skipRef, onGone }: {
   const [text, setText] = useState("");
   const [featureOk, setFeatureOk] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [thankYou, setThankYou] = useState(0);
+  const [added, setAdded] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
   const goneRef = useRef(onGone);
   useEffect(() => { goneRef.current = onGone; });
 
   useEffect(() => {
-    if (checked) return;
     let alive = true;
     fetch(`${API}?ask=${where}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
-      .then((body: { ask?: boolean } | null) => { if (alive) setStep(body?.ask ? "stars" : "gone"); })
-      .catch(() => { if (alive) setStep("gone"); });
+      .then((body: { ask?: boolean; thankYouCredits?: number } | null) => {
+        if (!alive) return;
+        setThankYou(body?.ask && typeof body.thankYouCredits === "number" ? body.thankYouCredits : 0);
+        // a caller that already checked keeps the ask open (only the thank-you line comes from here)
+        if (!checked) setStep(body?.ask ? "stars" : "gone");
+      })
+      .catch(() => { if (alive && !checked) setStep("gone"); });
     return () => { alive = false; };
   }, [checked, where]);
 
@@ -65,8 +74,11 @@ export function TestimonialAsk({ where, checked = false, skipRef, onGone }: {
     setError(null);
     try {
       const response = await post({ stars, text, featureOk: stars >= TESTIMONIAL_FEATURE_MIN_STARS && featureOk, where });
-      const body = await response.json().catch(() => null) as { photoNudge?: boolean; error?: string } | null;
+      const body = await response.json().catch(() => null) as { photoNudge?: boolean; error?: string; credits?: number } | null;
       if (!response.ok) { setError(body?.error ?? "That couldn't be sent. Try again."); setStep("form"); return; }
+      const credits = typeof body?.credits === "number" && body.credits > 0 ? body.credits : 0;
+      setAdded(credits);
+      if (credits > 0) window.dispatchEvent(new CustomEvent("diamond-account-plan-changed"));
       setStep(body?.photoNudge && !account?.image ? "photo" : "thanks");
     } catch { setError("We couldn't reach Diamond Animator. Try again."); setStep("form"); }
   };
@@ -83,10 +95,11 @@ export function TestimonialAsk({ where, checked = false, skipRef, onGone }: {
   };
 
   if (step === "checking" || step === "gone") return null;
-  if (step === "thanks") return <div className={styles.ask} role="status"><p className={styles.thanks}>Thank you! That means a lot to us.</p></div>;
+  const addedLine = added > 0 ? ` ${creditsText(added)} added.` : "";
+  if (step === "thanks") return <div className={styles.ask} role="status"><p className={styles.thanks}>Thank you!{addedLine || " That means a lot to us."}</p></div>;
   if (step === "photo") return (
     <div className={styles.ask}>
-      <p className={styles.thanks}>Thank you! Add a photo so people can see who said it.</p>
+      <p className={styles.thanks} role="status">Thank you!{addedLine} Add a photo so people can see who said it.</p>
       <div className={styles.row}>
         <button type="button" className={styles.primary} onClick={() => fileRef.current?.click()}>Add a photo</button>
         <button type="button" className={styles.quiet} onClick={() => setStep("thanks")}>No thanks</button>
@@ -110,6 +123,7 @@ export function TestimonialAsk({ where, checked = false, skipRef, onGone }: {
         </span>
         {step === "stars" && <button type="button" className={styles.quiet} onClick={skip}>Not now</button>}
       </div>
+      {thankYou > 0 && <p className={styles.thankYou}>{TESTIMONIAL_THANK_YOU_LINE}</p>}
       {step !== "stars" && (
         <>
           <input className={styles.input} value={text} maxLength={TESTIMONIAL_TEXT_MAX} onChange={(e) => setText(e.target.value)}

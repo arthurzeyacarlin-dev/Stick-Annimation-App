@@ -33,7 +33,9 @@ type NotificationCenterContextValue = {
 const initialSnapshot: ValidatedNotificationSnapshotV1 = { rows: [], envelopes: [], connectivityIncident: null, revision: 0, fault: null };
 const NotificationCenterContext = createContext<NotificationCenterContextValue | null>(null);
 
-export function NotificationCenterProvider({ children }: { children: ReactNode }) {
+// SPEC-0027 (Nov 26): `owner` comes from the server (layout.tsx); only the owner's browser asks for problem reports, so nobody
+// else gets a red "404" in the console on every page.
+export function NotificationCenterProvider({ children, owner = false }: { children: ReactNode; owner?: boolean }) {
   const router = useRouter();
   const accountId = useAccountSession()?.id ?? null;
   const [snapshot, setSnapshot] = useState(initialSnapshot);
@@ -81,7 +83,7 @@ export function NotificationCenterProvider({ children }: { children: ReactNode }
   }, [assistantTargetKey, router]);
 
   // SPEC-0020 Phase 6: the owner's bell for new problem reports (asks the server; see problemReportObserver.ts).
-  useEffect(() => startProblemReportObserverV1(accountId), [accountId]);
+  useEffect(() => startProblemReportObserverV1(owner ? accountId : null), [accountId, owner]);
   useEffect(() => {
     const targets = JSON.parse(problemReportTargetKey) as NotificationTargetV1[];
     const handles = targets.map(target => registerNotificationNavigationHandlerV1({

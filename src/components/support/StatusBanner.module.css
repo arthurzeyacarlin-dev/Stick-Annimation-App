@@ -1,0 +1,11 @@
+/* SPEC-0027: the status banner floats at the top centre, over the page (nothing below it moves). */
+.banner { position: fixed; z-index: 120; top: calc(70px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; width: max-content; max-width: min(640px, calc(100vw - 32px));
+  padding: 6px 6px 6px 14px; border: 1px solid var(--da-warning-border); border-radius: 12px; background: var(--da-panel);
+  color: var(--da-text); box-shadow: var(--da-shadow-pop); font-size: 13.5px; line-height: 1.4; }
+.banner[data-tone="resolved"] { border-color: var(--da-success-border); }
+.dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--da-warning); }
+.banner[data-tone="resolved"] .dot { background: var(--da-success); }
+.text { margin: 0; }
+.link { color: var(--da-link); font-weight: 600; white-space: nowrap; }
+:global(html[data-device="phone"]) .banner { top: calc(62px + var(--phone-safe-top, env(safe-area-inset-top, 0px))); width: calc(100vw - 2 * var(--phone-pad, 16px)); font-size: 14px; }

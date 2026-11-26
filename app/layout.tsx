@@ -19,6 +19,9 @@ import { LearnMode } from "@/src/components/learn/LearnMode";
 import { IconNames } from "@/src/components/chrome/IconNames";
 import { DEVICE_MODE_SCRIPT } from "@/src/components/phone/deviceMode";
 import { PhoneTabBar } from "@/src/components/phone/PhoneTabBar";
+import { isOwnerEmail } from "@/src/lib/account/owner";
+import { HelpBubble } from "@/src/components/support/HelpBubble";
+import { StatusBanner } from "@/src/components/support/StatusBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,8 +71,10 @@ export default async function RootLayout({
       >
         <AccountSessionProvider user={session ? toAccountPublicUser(session) : null}>
           {session && <AppearanceSync />}
-          <NotificationCenterProvider>
+          <NotificationCenterProvider owner={!!session && isOwnerEmail(session.user.email)}>
             <ChunkReloadGuard />
+            {/* SPEC-0027 (Nov 26): "We're fixing X" / "Resolved" on every page, signed in or not. */}
+            <StatusBanner />
             {children}
             <PageLoadingMark />
             <ChoicePills />
@@ -77,6 +82,8 @@ export default async function RootLayout({
             <IconNames />
             {session && <LearnMode />}
             {session && <PhoneTabBar />}
+            {/* SPEC-0027: the help bubble (AI Help first, then "Talk to a person") on every signed-in page. */}
+            {session && <HelpBubble />}
           </NotificationCenterProvider>
         </AccountSessionProvider>
       </body>

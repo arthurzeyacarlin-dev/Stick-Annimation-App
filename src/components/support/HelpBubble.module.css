@@ -1,0 +1,107 @@
+/* SPEC-0027 (Nov 26): the help bubble + its panel. They float over the page (nothing below moves; the canvas never resizes).
+   Colors only from the --da-* tokens. Only clickable things get boxes (Arthur). */
+.bubble {
+  position: fixed; z-index: 124; right: calc(18px + env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; padding: 0;
+  border: 1px solid var(--da-accent); border-radius: 50%; background: var(--da-accent); color: #ffffff; cursor: pointer;
+  box-shadow: var(--da-shadow-pop), var(--da-glow-primary);
+}
+.bubble:hover { background: var(--da-accent-hover); border-color: var(--da-accent-hover); }
+.bubble:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 3px; }
+.dot { position: absolute; top: 2px; right: 2px; width: 13px; height: 13px; border: 2px solid var(--da-page); border-radius: 50%; background: var(--da-danger-solid, var(--da-danger)); }
+
+.panel {
+  position: fixed; z-index: 125; right: calc(18px + env(safe-area-inset-right, 0px)); bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; width: min(420px, calc(100vw - 36px)); height: min(640px, calc(100vh - 120px));
+  border: 1px solid var(--da-line); border-radius: var(--da-radius-card, 16px); background: var(--da-panel); color: var(--da-text);
+  box-shadow: var(--da-shadow-pop); overflow: hidden;
+}
+.panel[hidden] { display: none; }
+.head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 8px 8px 10px; border-bottom: 1px solid var(--da-line); }
+.tabs { display: flex; gap: 2px; min-width: 0; padding: 3px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-page); }
+.tab { position: relative; height: 30px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: var(--da-text-3); font: inherit; font-size: 12.5px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--da-selected-bg); color: var(--da-on-selected, var(--da-text)); }
+.tab:hover { background: var(--da-hover); color: white; }
+.tab:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 1px; }
+.tabDot { display: inline-block; width: 7px; height: 7px; margin-left: 6px; border-radius: 50%; background: var(--da-danger-solid, var(--da-danger)); vertical-align: middle; }
+.body { position: relative; display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+
+/* Ask AI: the Help assistant's own pieces, made small. */
+.askView { display: flex; flex: 1; min-height: 0; }
+.askView[hidden] { display: none; }
+.ask { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.ask h1 { font-size: 20px !important; }
+.ask article { font-size: 14px; }
+.ask section[data-assistant-conversation-region] { padding: 12px 14px; }
+.ask form { margin: 0; }
+.ask > div:nth-child(2) { width: 100%; margin: 0; padding: 6px 10px 2px; }
+.askFoot { margin: 0; padding: 4px 12px 10px; color: var(--da-muted); font-size: 12px; line-height: 1.5; text-align: center; }
+
+.person, .thanks, .thread, .empty { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 18px; }
+.lead { margin: 0; color: var(--da-text-2); font-size: 13.5px; line-height: 1.5; }
+.thanks p { margin: 0; color: var(--da-text-2); font-size: 14px; line-height: 1.55; }
+.muted { margin: 0; padding: 16px; color: var(--da-muted); font-size: 14px; }
+.empty .muted { padding: 0; }
+.error { margin: 0; padding: 0 2px; color: var(--da-danger); font-size: 13px; }
+.link { color: var(--da-link); font-weight: 600; }
+.linkButton { padding: 0; border: 0; background: none; color: var(--da-link); font: inherit; font-weight: 600; cursor: pointer; align-self: flex-start; }
+.linkButton:hover { text-decoration: underline; }
+.linkButton:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+
+.button {
+  display: inline-flex; align-items: center; justify-content: center; align-self: flex-start; min-height: 40px; padding: 0 16px;
+  border: 1px solid var(--da-border); border-radius: var(--da-radius-control); background: var(--da-panel); color: var(--da-text-2);
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: white; box-shadow: var(--da-glow-hover); }
+.button:disabled { opacity: .6; cursor: default; }
+.button:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.primary:not(:disabled) { border-color: var(--da-accent); background: var(--da-accent); color: #ffffff; }
+.primary:hover:not(:disabled) { border-color: var(--da-accent-hover); background: var(--da-accent-hover); }
+
+/* My messages: each ticket is a clickable row. */
+.ticketList { margin: 0; padding: 8px; list-style: none; }
+.ticketRow { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 12px; border: 1px solid transparent; border-radius: 10px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.ticketRow:hover { border-color: var(--da-border); background: var(--da-card-fill); }
+.ticketRow:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 1px; }
+.ticketTop { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+.ticketArea { color: var(--da-text); font-weight: 600; }
+.ticketStatus { color: var(--da-muted); font-weight: 600; }
+.ticketStatus[data-status="done"] { color: var(--da-success); }
+.ticketText { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--da-text-2); font-size: 13.5px; line-height: 1.45; overflow-wrap: anywhere; }
+.ticketWhen { color: var(--da-muted); font-size: 12px; }
+
+.threadHead { margin: 0; color: var(--da-text); font-size: 14px; font-weight: 700; }
+.messages { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.messages li { max-width: 88%; padding: 9px 12px; border-radius: 12px; }
+.messages p { margin: 2px 0 0; font-size: 14px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mine { align-self: flex-end; background: var(--da-selected-bg); color: var(--da-on-selected, var(--da-text)); }
+.theirs { align-self: flex-start; background: var(--da-card-fill); color: var(--da-text); }
+.from { display: block; color: var(--da-muted); font-size: 11.5px; }
+.mine .from { color: inherit; opacity: .75; }
+.replyForm { display: flex; flex-direction: column; gap: 8px; }
+.textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--da-border); border-radius: var(--da-radius-control); background: var(--da-page); color: var(--da-text); font: inherit; font-size: 14px; line-height: 1.5; resize: vertical; }
+.textarea:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 1px; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* In the editor (every device) the bubble steps aside: every corner holds a tool or the timeline, and the editor has its
+   own Help menu. It is back on every other screen. An open panel stays open. */
+:global(html[data-home-view="animationWorkspace"]) .bubble[data-open="false"] { display: none; }
+
+/* ===== PHONE + TABLET ONLY: the button sits above the bottom bar; the panel is a sheet from the bottom. ===== */
+:global(html[data-device="phone"]) .bubble, :global(html[data-device="tablet"]) .bubble {
+  right: calc(var(--phone-pad, 16px) + var(--phone-safe-right, 0px)); bottom: calc(14px + max(var(--phone-tabbar-space, 0px), var(--phone-safe-bottom, 0px)));
+  width: 48px; height: 48px;
+}
+/* typing somewhere else on the page: the button steps aside so the typing box gets the room */
+:global(html[data-device="phone"][data-typing="on"]) .bubble[data-open="false"] { display: none; }
+:global(html[data-device="phone"]) .panel {
+  inset: auto 0 0 0; width: 100%; height: min(86dvh, calc(100dvh - var(--phone-safe-top, 0px) - 24px));
+  border-width: 1px 0 0; border-radius: 18px 18px 0 0; padding-bottom: var(--phone-safe-bottom, 0px); z-index: 126;
+}
+:global(html[data-device="phone"]) .bubble[data-open="true"] { display: none; }
+:global(html[data-device="phone"]) .tab { height: 38px; padding: 0 10px; font-size: 13.5px; }
+:global(html[data-device="phone"]) .button { min-height: 44px; }
+:global(html[data-device="phone"]) .ticketRow { padding: 14px 12px; }
+:global(html[data-device="phone"]) .messages p, :global(html[data-device="phone"]) .textarea { font-size: 16px; }
+:global(html[data-device="tablet"]) .panel { bottom: calc(76px + max(var(--phone-tabbar-space, 0px), var(--phone-safe-bottom, 0px))); }

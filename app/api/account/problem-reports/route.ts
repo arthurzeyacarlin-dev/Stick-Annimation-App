@@ -7,11 +7,14 @@ import { checkProblemReportInput, isProblemReportId, isProblemReportStatus, prob
 import {
   countNewProblemReports, listProblemReports, listUnseenProblemReports, markProblemReportsSeen, saveProblemReport, setProblemReportStatus,
 } from "@/src/lib/account/problemReportStore";
+import { isTicketArea } from "@/src/lib/support/supportRules";
+import { afterNewTicket } from "@/src/lib/support/supportService";
 
 // SPEC-0020 Phase 6: "Report a Problem".
-//   POST  — any signed-in account sends a report (max 5 per hour).
-//   GET   — owner only: the inbox list (?status=new|done|all), or ?summary=1 for the menu count + the bell.
-//   PATCH — owner only: { id, status: "new" | "done" } or { seenIds: [...] } (the bell has shown these).
+//   POST  — any signed-in account sends a report (max 5 per hour). SPEC-0027: it is a ticket now — an optional `area`
+//           (from the help bubble), and the owner gets an instant alert email.
+//   GET   — owner only: the inbox list (?status=new|working|done|all), or ?summary=1 for the menu count + the bell.
+//   PATCH — owner only: { id, status: "new" | "working" | "done" } or { seenIds: [...] } (the bell has shown these).
 // Anyone who isn't the owner gets a plain "not found" for GET/PATCH.
 export const runtime = "nodejs";
 
@@ -33,6 +36,7 @@ export async function POST(request: Request) {
   if ("tooBig" in read) return json({ error: "The report is too big. Try a smaller screenshot." }, 413);
   const check = checkProblemReportInput(read.body);
   if (!check.ok) return json({ error: check.message }, 400);
+  const area = (read.body as { area?: unknown }).area;
   try {
     const { user } = access.session;
     const saved = saveProblemReport({
@@ -41,8 +45,10 @@ export async function POST(request: Request) {
       userName: typeof user.name === "string" ? user.name.trim().slice(0, 80) : "",
       userEmail: user.email,
       appVersion: typeof packageInfo.version === "string" ? packageInfo.version : null,
+      ...(isTicketArea(area) ? { area } : {}),
     });
     if (!saved.ok) return json({ error: saved.message }, 429);
+    afterNewTicket(saved.report);
     return json({ schema: "diamond-problem-report/v1", id: saved.report.id }, 201);
   } catch {
     return json({ error: "Your report couldn't be sent. Try again in a moment." }, 503);

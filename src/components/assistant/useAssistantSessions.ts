@@ -19,7 +19,9 @@ const creditMessage = async (response: Response) => {
 };
 const readableError = (error: unknown) => error instanceof AssistantError ? error.message : "The Assistant could not connect. Your saved chats and unsent draft are kept. Try again when the connection returns.";
 export const ASSISTANT_LONG_WAIT_MS = 8000;
-export function useAssistantSessions() {
+// SPEC-0027 (Nov 26): `inPage: false` = the help bubble's small chat: the same chats, but it never reads or writes the page's
+// "#chat=" address (the bubble floats over other pages, such as the editor, whose address must stay as it is).
+export function useAssistantSessions({ inPage = true }: { inPage?: boolean } = {}) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [ready, setReady] = useState(false); const [storageBlocked, setStorageBlocked] = useState(false);
@@ -56,6 +58,7 @@ export function useAssistantSessions() {
   useEffect(() => {
     mounted.current = true;
     const selectHashChat = () => {
+      if (!inPage) return;
       const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
       const id = hash.get("chat");
       if (isId(id)) setSelectedId(id);
@@ -69,7 +72,7 @@ export function useAssistantSessions() {
       if (next.notice) setNotice(next.notice);
     });
     return () => { mounted.current = false; unsubscribe(); unsubscribeObserver(); window.removeEventListener("hashchange", selectHashChat); window.removeEventListener("popstate", selectHashChat); };
-  }, [refresh]);
+  }, [refresh, inPage]);
   useEffect(() => {
     const currentJobs = new Set<string>(); const completed: Record<string, string> = {};
     for (const session of sessions) {
@@ -82,8 +85,8 @@ export function useAssistantSessions() {
     if (Object.keys(completed).length) setReveal(current => ({ ...current, ...completed }));
   }, [sessions]);
   const select = useCallback((id: string | null) => {
-    setSelectedId(id); setReveal({}); setProgressJobId(null); setNotice(""); window.history.replaceState(null, "", `${window.location.pathname}${id ? `#chat=${id}` : ""}`);
-  }, []);
+    setSelectedId(id); setReveal({}); setProgressJobId(null); setNotice(""); if (inPage) window.history.replaceState(null, "", `${window.location.pathname}${id ? `#chat=${id}` : ""}`);
+  }, [inPage]);
   useEffect(() => {
     if (ready && selectedId && !selected && !storageBlocked) { select(null); setNotice("That chat is no longer saved. You can start a new conversation."); }
   }, [ready, selected, selectedId, storageBlocked, select]);

@@ -55,3 +55,32 @@
 :global(html[data-device="phone"]) .actions button, :global(html[data-device="phone"]) .actions a { min-height: 44px; }
 :global(html[data-device="tablet"]) .segmented button { height: 44px; }
 :global(html[data-device="tablet"]) .actions button, :global(html[data-device="tablet"]) .actions a { min-height: 44px; }
+
+/* ===== SPEC-0027 (Nov 26): ticket conversations + the app status switches ===== */
+.thread { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; padding: 14px 0 0 14px; border-left: 2px solid var(--da-line); }
+.threadList { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.threadItem { display: flex; flex-direction: column; gap: 4px; }
+.threadItem[data-kind="owner"] .threadWho { color: var(--da-link); }
+.threadItem[data-kind="note"] .threadWho, .threadItem[data-kind="draft"] .threadWho { color: var(--da-warning); }
+.threadWho { color: var(--da-muted); font-size: 12.5px; font-weight: 600; }
+.replyForm { display: flex; flex-direction: column; gap: 8px; }
+.replyLabel { color: var(--da-text); font-size: 13px; font-weight: 700; }
+.textarea, .statusNote { width: 100%; padding: 10px 12px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-page); color: var(--da-text); font: inherit; font-size: 14px; line-height: 1.5; }
+.textarea { resize: vertical; }
+.textarea:focus-visible, .statusNote:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 1px; }
+.primary:not(:disabled) { border-color: var(--da-accent); background: var(--da-accent); color: #ffffff; }
+.primary:hover:not(:disabled) { border-color: var(--da-accent-hover); background: var(--da-accent-hover); }
+.statusPanel { display: flex; flex-direction: column; gap: 0; margin: 0 0 22px; }
+.sectionTitle { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin: 0 0 6px; color: var(--da-text); font-size: 17px; font-weight: 700; }
+.statusLink { color: var(--da-link); font-size: 13px; font-weight: 600; }
+.statusRow { display: grid; grid-template-columns: minmax(150px, 1fr) 2fr; align-items: center; gap: 8px 16px; padding: 12px 2px; border-top: 1px solid var(--da-line); }
+.statusRow:last-child { border-bottom: 1px solid var(--da-line); }
+.statusName { color: var(--da-text); font-size: 14px; font-weight: 600; }
+.statusState { color: var(--da-text-2); font-size: 13.5px; }
+.statusRow[data-state="fixing"] .statusState, .statusRow[data-state="suspected"] .statusState { color: var(--da-warning); font-weight: 700; }
+.statusRow[data-state="resolved"] .statusState { color: var(--da-success); font-weight: 700; }
+.statusNote { grid-column: 1 / -1; padding: 8px 10px; font-size: 13px; }
+.statusRow .actions { grid-column: 1 / -1; }
+:global(html[data-device="phone"]) .statusRow { grid-template-columns: 1fr; }
+:global(html[data-device="phone"]) .thread { padding-left: 10px; }
+:global(html[data-device="phone"]) .textarea, :global(html[data-device="phone"]) .statusNote { font-size: 16px; }

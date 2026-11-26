@@ -1,0 +1,20 @@
+/* SPEC-0027: the public status page. Same page shell as Problem reports; colors only from the --da-* tokens. */
+.main { min-height: 100vh; padding: 48px clamp(20px, 4vw, 56px) 64px; background: var(--da-page); }
+.frame { display: flex; flex-direction: column; gap: 6px; width: min(680px, 100%); margin: 0 auto; }
+.eyebrow { margin: 0; color: var(--da-label); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.title { margin: 0; color: var(--da-text); font-size: 34px; font-weight: 700; letter-spacing: -.03em; }
+.lead { margin: 4px 0 18px; color: var(--da-text-2); font-size: 15px; }
+.muted { margin: 22px 0 0; color: var(--da-muted); font-size: 14px; line-height: 1.6; }
+.list { margin: 0; padding: 0; list-style: none; }
+.row { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 16px 2px; border-top: 1px solid var(--da-line); }
+.row:last-child { border-bottom: 1px solid var(--da-line); }
+.name { color: var(--da-text); font-size: 15px; font-weight: 600; }
+.state { display: inline-flex; align-items: center; gap: 8px; color: var(--da-text-2); font-size: 14px; font-weight: 600; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--da-success, #3ecf8e); }
+.row[data-state="suspected"] .dot { background: var(--da-warning, #f5a524); }
+.row[data-state="fixing"] .dot { background: var(--da-danger); }
+.row[data-state="resolved"] .dot { background: var(--da-link); }
+.note { grid-column: 1 / -1; color: var(--da-muted); font-size: 13px; line-height: 1.5; }
+.link { align-self: flex-start; margin-top: 14px; color: var(--da-link); font-size: 14px; font-weight: 600; }
+:global(html[data-device="phone"]) .main { padding: 28px var(--phone-pad, 16px) calc(32px + var(--phone-safe-bottom, 0px)); }
+:global(html[data-device="phone"]) .row { grid-template-columns: 1fr; }

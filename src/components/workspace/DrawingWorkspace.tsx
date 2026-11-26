@@ -1,4 +1,5 @@
 import { memo, startTransition, useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { OPEN_HELP_EVENT } from "@/src/lib/support/supportRules";
 import workspaceThemeStyles from "./workspaceTheme.module.css";
 import type { MutableRefObject } from "react";
 import { DrawingCanvas } from "./DrawingCanvas";
@@ -10758,6 +10759,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     ] },
     { label: "Help", items: [
       { label: "Ask the Assistant", onSelect: () => setIsAssistantOpen(true) },
+      // SPEC-0027 (Nov 26): the help bubble steps aside in the editor; this opens its "Talk to a person" over the editor.
+      { label: "Talk to a person", onSelect: () => window.dispatchEvent(new CustomEvent(OPEN_HELP_EVENT, { detail: "person" })) },
       { label: "Keyboard Shortcuts", onSelect: () => setIsShortcutsOpen(true) },
     ] },
   ], [addLayer, canRedoHistory, canUndoHistory, copyTimelineFrame, deleteActiveLayer, handleRedo, handleToggleOnion, handleUndo,

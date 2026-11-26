@@ -5,13 +5,19 @@ import { BackButton } from "@/src/components/ui/BackButton";
 import { CloseButton } from "@/src/components/ui/CloseButton";
 import { problemReportScreenLabel, type ProblemReportStatus, type ProblemReportSummary } from "@/src/lib/account/problemReports";
 import { PROBLEM_REPORTS_CHANGED_EVENT } from "@/src/lib/notifications/problemReportObserver";
+import { ticketAreaLabel } from "@/src/lib/support/supportRules";
+import { ServiceStatusPanel } from "./ServiceStatusPanel";
+import { TicketConversation } from "./TicketConversation";
 import styles from "./ProblemReportsScreen.module.css";
 
 // SPEC-0020 Phase 6: the owner's inbox of problem reports (newest first). Only buttons get boxes (Arthur);
 // the reports themselves are plain text with thin lines between them.
+// SPEC-0027 (Nov 26): each report is a ticket — "Answer" opens its conversation (reply = help bubble + email, private notes,
+// Claude's draft); New / Working / Done; and the app status switches (status page + banner) sit at the top.
 type Filter = ProblemReportStatus | "all";
-const FILTERS: { value: Filter; label: string }[] = [{ value: "new", label: "New" }, { value: "done", label: "Done" }, { value: "all", label: "All" }];
-const EMPTY: Record<Filter, string> = { new: "No new reports.", done: "No reports marked done yet.", all: "No reports yet." };
+const FILTERS: { value: Filter; label: string }[] = [{ value: "new", label: "New" }, { value: "working", label: "Working" }, { value: "done", label: "Done" }, { value: "all", label: "All" }];
+const EMPTY: Record<Filter, string> = { new: "No new reports.", working: "No tickets being worked on.", done: "No reports marked done yet.", all: "No reports yet." };
+const STATUS_LABEL: Record<ProblemReportStatus, string> = { new: "New", working: "Working", done: "Done" };
 const when = (time: number) => new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(time);
 const screenshotUrl = (id: string) => `/api/account/problem-reports/${encodeURIComponent(id)}/screenshot`;
 
@@ -22,6 +28,7 @@ export function ProblemReportsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [viewing, setViewing] = useState<ProblemReportSummary | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const load = useCallback(async (which: Filter) => {
     try {
@@ -80,6 +87,8 @@ export function ProblemReportsScreen() {
         <h1 className={styles.title}>Problem reports</h1>
         <p className={styles.lead}>{newCount === 0 ? "No new reports." : `${newCount} new report${newCount === 1 ? "" : "s"}.`} Only you can see this page.</p>
 
+        <ServiceStatusPanel />
+
         <div className={styles.segmented} role="group" aria-label="Show reports">
           {FILTERS.map((option) => (
             <button key={option.value} type="button" aria-pressed={filter === option.value} onClick={() => { setFilter(option.value); setReports(null); }}>{option.label}</button>
@@ -99,10 +108,13 @@ export function ProblemReportsScreen() {
                   <span className={styles.details}>
                     <time dateTime={new Date(report.createdAt).toISOString()}>{when(report.createdAt)}</time>
                     <span aria-hidden="true">·</span>
+                    <span>{ticketAreaLabel(report.area)}</span>
+                    <span aria-hidden="true">·</span>
                     <span>{problemReportScreenLabel(report.screen)}</span>
                     {report.appVersion && <><span aria-hidden="true">·</span><span>Version {report.appVersion}</span></>}
                     <span aria-hidden="true">·</span>
-                    <span className={report.status === "new" ? styles.statusNew : undefined}>{report.status === "new" ? "New" : "Done"}</span>
+                    <span className={report.status === "new" ? styles.statusNew : undefined}>{STATUS_LABEL[report.status]}</span>
+                    {report.userUnread && <><span aria-hidden="true">·</span><span>Reply not read yet</span></>}
                   </span>
                 </div>
                 <p className={styles.text}>{report.text}</p>
@@ -113,10 +125,20 @@ export function ProblemReportsScreen() {
                       <img src={screenshotUrl(report.id)} alt="" className={styles.thumb} loading="lazy" />
                     </button>
                   )}
-                  <button type="button" className={styles.button} disabled={busyId === report.id} onClick={() => void setStatus(report, report.status === "new" ? "done" : "new")}>
-                    {report.status === "new" ? "Mark done" : "Mark new"}
+                  <button type="button" className={styles.button} aria-expanded={openId === report.id} onClick={() => setOpenId(openId === report.id ? null : report.id)}>
+                    {openId === report.id ? "Close" : "Answer"}
+                  </button>
+                  {report.status !== "working" && (
+                    <button type="button" className={styles.button} disabled={busyId === report.id} onClick={() => void setStatus(report, "working")}>Mark working</button>
+                  )}
+                  <button type="button" className={styles.button} disabled={busyId === report.id} onClick={() => void setStatus(report, report.status === "done" ? "new" : "done")}>
+                    {report.status === "done" ? "Mark new" : "Mark done"}
                   </button>
                 </div>
+                {openId === report.id && (
+                  <TicketConversation reportId={report.id} reporter={report.userName || report.userEmail}
+                    onChanged={(status) => setReports((current) => (current ?? []).map((row) => row.id === report.id && (status === "new" || status === "working" || status === "done") ? { ...row, status } : row))} />
+                )}
               </li>
             ))}
           </ul>

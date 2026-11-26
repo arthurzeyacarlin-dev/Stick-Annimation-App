@@ -8,9 +8,12 @@ import {
   PROBLEM_REPORT_PICK_MAX_BYTES, PROBLEM_REPORT_PICK_TYPES, PROBLEM_REPORT_SCREENS, PROBLEM_REPORT_SCREENSHOT_MAX_BYTES,
   PROBLEM_REPORT_SCREENSHOT_MAX_SIDE, PROBLEM_REPORT_TEXT_MAX, type ProblemReportScreen,
 } from "@/src/lib/account/problemReports";
+import { TICKET_AREAS, type TicketArea } from "@/src/lib/support/supportRules";
 
 // SPEC-0020 Phase 6: "Report a Problem" (side menu → Support). What happened + where + an optional screenshot.
 // The screenshot is shrunk here (≤ 1600 px, JPEG) so it stays small; the server checks everything again.
+// SPEC-0027 (Nov 26): the form itself is shared with the help bubble's "Talk to a person" (ReportProblemForm below);
+// there it asks "What's it about?" instead of "Where were you?" (where is guessed from the page).
 const THANKS = "Thanks for letting us know. We'll look into it and work on a fix.";
 
 /** A first guess for "Where were you?" from the page the menu was opened on. */
@@ -19,6 +22,10 @@ function guessScreen(pathname: string): ProblemReportScreen {
   if (/^\/(account|plans|credits|settings)(\/|$)/.test(pathname)) return "account-plans";
   return "other";
 }
+
+/** The help bubble's "What's it about?" also gives the old "Where were you?" for the inbox. */
+const screenForArea = (area: TicketArea, pathname: string): ProblemReportScreen =>
+  area === "animator" ? "ai-animator" : area === "payments" ? "account-plans" : area === "saving" ? "open-project" : guessScreen(pathname);
 
 const dataUrlBytes = (url: string) => Math.floor((url.length - url.indexOf(",") - 1) * 3 / 4);
 
@@ -53,6 +60,38 @@ async function shrinkScreenshot(file: File): Promise<string> {
 }
 
 export function ReportProblemDialog({ onClose }: { onClose: () => void }) {
+  const titleId = useId();
+  const [sent, setSent] = useState(false);
+  // After sending, the thank-you line shows for a moment and then the window closes by itself.
+  useEffect(() => {
+    if (!sent) return;
+    const timer = window.setTimeout(onClose, 2600);
+    return () => window.clearTimeout(timer);
+  }, [sent, onClose]);
+
+  return (
+    <div onClick={onClose} className={chrome.modalScrim}>
+      <div role="dialog" aria-modal="true" aria-labelledby={titleId} className={`darkScroll ${chrome.modal} ${styles.dialog}`} onClick={(event) => event.stopPropagation()}>
+        <div className={chrome.modalHead}>
+          <div className={chrome.modalTitleGroup}>
+            <div className={chrome.sectionLabel}>Support</div>
+            <h2 id={titleId} className={chrome.modalTitle}>Report a Problem</h2>
+          </div>
+          <CloseButton label="Close report a problem" onClick={onClose} />
+        </div>
+        {sent ? <p role="status" className={styles.thanks}>{THANKS}</p> : <ReportProblemForm onSent={() => setSent(true)} />}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * What happened + where (menu) or what about (help bubble) + an optional screenshot. `areaPicker` = the help bubble's
+ * version. `onSent` gets the new ticket's id.
+ */
+export function ReportProblemForm({ onSent, areaPicker = false, submitLabel = "Send report", placeholder = "Tell us what you were doing and what went wrong." }: {
+  onSent: (id: string) => void; areaPicker?: boolean; submitLabel?: string; placeholder?: string;
+}) {
   const textId = useId();
   const screenId = useId();
   const fileId = useId();
@@ -61,19 +100,13 @@ export function ReportProblemDialog({ onClose }: { onClose: () => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState("");
   const [screen, setScreen] = useState<ProblemReportScreen>(() => typeof window === "undefined" ? "other" : guessScreen(window.location.pathname));
+  const [area, setArea] = useState<TicketArea | "">("");
   const [screenshot, setScreenshot] = useState<string | null>(null);
   const [pictureBusy, setPictureBusy] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
 
   useEffect(() => { textRef.current?.focus({ preventScroll: true }); }, []);
-  // After sending, the thank-you line shows for a moment and then the window closes by itself.
-  useEffect(() => {
-    if (!sent) return;
-    const timer = window.setTimeout(onClose, 2600);
-    return () => window.clearTimeout(timer);
-  }, [sent, onClose]);
 
   const pickPicture = async (file: File | undefined) => {
     setError(null);
@@ -107,6 +140,10 @@ export function ReportProblemDialog({ onClose }: { onClose: () => void }) {
     event.preventDefault();
     if (sending || pictureBusy) return;
     setError(null);
+    if (areaPicker && !area) {
+      setError("Please choose what it's about.");
+      return;
+    }
     if (!text.trim()) {
       setError("Please tell us what happened.");
       textRef.current?.focus();
@@ -117,7 +154,7 @@ export function ReportProblemDialog({ onClose }: { onClose: () => void }) {
       const response = await fetch("/api/account/problem-reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, screen, screenshot }),
+        body: JSON.stringify(areaPicker && area ? { text, screen: screenForArea(area, window.location.pathname), area, screenshot } : { text, screen, screenshot }),
       });
       if (!response.ok) {
         const body = await response.json().catch(() => null) as { error?: unknown } | null;
@@ -125,7 +162,8 @@ export function ReportProblemDialog({ onClose }: { onClose: () => void }) {
         setSending(false);
         return;
       }
-      setSent(true);
+      const body = await response.json().catch(() => null) as { id?: unknown } | null;
+      onSent(typeof body?.id === "string" ? body.id : "");
     } catch {
       setError("Your report couldn't be sent. Check your internet and try again.");
     }
@@ -133,71 +171,67 @@ export function ReportProblemDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div onClick={onClose} className={chrome.modalScrim}>
-      <div role="dialog" aria-modal="true" aria-labelledby={`${textId}-title`} className={`darkScroll ${chrome.modal} ${styles.dialog}`} onClick={(event) => event.stopPropagation()}>
-        <div className={chrome.modalHead}>
-          <div className={chrome.modalTitleGroup}>
-            <div className={chrome.sectionLabel}>Support</div>
-            <h2 id={`${textId}-title`} className={chrome.modalTitle}>Report a Problem</h2>
-          </div>
-          <CloseButton label="Close report a problem" onClick={onClose} />
-        </div>
+    <form className={styles.form} onSubmit={(event) => void send(event)} noValidate>
+      <div className={styles.field}>
+        <label htmlFor={textId} className={styles.label}>What happened?</label>
+        <textarea
+          ref={textRef}
+          id={textId}
+          className={styles.textarea}
+          value={text}
+          maxLength={PROBLEM_REPORT_TEXT_MAX}
+          required
+          rows={6}
+          aria-describedby={counterId}
+          placeholder={placeholder}
+          onChange={(event) => setText(event.target.value)}
+        />
+        <span id={counterId} className={styles.counter}>{text.length.toLocaleString("en-US")} / {PROBLEM_REPORT_TEXT_MAX.toLocaleString("en-US")}</span>
+      </div>
 
-        {sent ? (
-          <p role="status" className={styles.thanks}>{THANKS}</p>
+      <div className={styles.field}>
+        {areaPicker ? (
+          <>
+            <label htmlFor={screenId} className={styles.label}>What&rsquo;s it about?</label>
+            <select id={screenId} className={styles.select} value={area} onChange={(event) => setArea(event.target.value as TicketArea)}>
+              <option value="" disabled>Choose one</option>
+              {TICKET_AREAS.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+            </select>
+          </>
         ) : (
-          <form className={styles.form} onSubmit={(event) => void send(event)} noValidate>
-            <div className={styles.field}>
-              <label htmlFor={textId} className={styles.label}>What happened?</label>
-              <textarea
-                ref={textRef}
-                id={textId}
-                className={styles.textarea}
-                value={text}
-                maxLength={PROBLEM_REPORT_TEXT_MAX}
-                required
-                rows={6}
-                aria-describedby={counterId}
-                placeholder="Tell us what you were doing and what went wrong."
-                onChange={(event) => setText(event.target.value)}
-              />
-              <span id={counterId} className={styles.counter}>{text.length.toLocaleString("en-US")} / {PROBLEM_REPORT_TEXT_MAX.toLocaleString("en-US")}</span>
-            </div>
-
-            <div className={styles.field}>
-              <label htmlFor={screenId} className={styles.label}>Where were you?</label>
-              <select id={screenId} className={styles.select} value={screen} onChange={(event) => setScreen(event.target.value as ProblemReportScreen)}>
-                {PROBLEM_REPORT_SCREENS.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
-              </select>
-            </div>
-
-            <div className={styles.field}>
-              <span className={styles.label}>Screenshot <span className={styles.optional}>(optional)</span></span>
-              <input ref={fileRef} id={fileId} type="file" tabIndex={-1} aria-label="Screenshot file" accept={PROBLEM_REPORT_PICK_TYPES.join(",")} className={styles.fileInput}
-                onChange={(event) => void pickPicture(event.target.files?.[0])} />
-              <div className={styles.pictureRow}>
-                <button type="button" className={styles.button} disabled={pictureBusy || sending} onClick={() => fileRef.current?.click()}>
-                  {pictureBusy ? "Getting the picture ready" : screenshot ? "Choose another picture" : "Add a screenshot"}
-                </button>
-                {screenshot && (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element -- a local data URL preview */}
-                    <img src={screenshot} alt="Screenshot to send" className={styles.preview} />
-                    <button type="button" className={styles.button} onClick={removePicture}>Remove</button>
-                  </>
-                )}
-              </div>
-              <small className={styles.hint}>PNG, JPEG or WebP, up to 4 MB.</small>
-            </div>
-
-            {error && <p role="alert" className={styles.error}>{error}</p>}
-
-            <div className={styles.actions}>
-              <button type="submit" className={`${styles.button} ${styles.primary}`} disabled={sending || pictureBusy}>{sending ? "Sending" : "Send report"}</button>
-            </div>
-          </form>
+          <>
+            <label htmlFor={screenId} className={styles.label}>Where were you?</label>
+            <select id={screenId} className={styles.select} value={screen} onChange={(event) => setScreen(event.target.value as ProblemReportScreen)}>
+              {PROBLEM_REPORT_SCREENS.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+            </select>
+          </>
         )}
       </div>
-    </div>
+
+      <div className={styles.field}>
+        <span className={styles.label}>Screenshot <span className={styles.optional}>(optional)</span></span>
+        <input ref={fileRef} id={fileId} type="file" tabIndex={-1} aria-label="Screenshot file" accept={PROBLEM_REPORT_PICK_TYPES.join(",")} className={styles.fileInput}
+          onChange={(event) => void pickPicture(event.target.files?.[0])} />
+        <div className={styles.pictureRow}>
+          <button type="button" className={styles.button} disabled={pictureBusy || sending} onClick={() => fileRef.current?.click()}>
+            {pictureBusy ? "Getting the picture ready" : screenshot ? "Choose another picture" : "Add a screenshot"}
+          </button>
+          {screenshot && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element -- a local data URL preview */}
+              <img src={screenshot} alt="Screenshot to send" className={styles.preview} />
+              <button type="button" className={styles.button} onClick={removePicture}>Remove</button>
+            </>
+          )}
+        </div>
+        <small className={styles.hint}>PNG, JPEG or WebP, up to 4 MB.</small>
+      </div>
+
+      {error && <p role="alert" className={styles.error}>{error}</p>}
+
+      <div className={styles.actions}>
+        <button type="submit" className={`${styles.button} ${styles.primary}`} disabled={sending || pictureBusy}>{sending ? "Sending" : submitLabel}</button>
+      </div>
+    </form>
   );
 }

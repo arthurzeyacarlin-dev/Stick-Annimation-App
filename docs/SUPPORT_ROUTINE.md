@@ -1,0 +1,35 @@
+# The support routine — Claude reads tickets on a schedule (SPEC-0027, Nov 26)
+
+The app has a small **ticket API** so a scheduled Claude routine can help Arthur answer beta users within an hour.
+It is **off** until the server has `DIAMOND_SUPPORT_API_KEY` (see `deploy/server-settings.example`). Setting the key and creating
+the routine is done by "Website pm" / Arthur after go-live, with Arthur's OK. The key never goes in git or chat: the routine reads
+it from its own secret setting.
+
+## What the routine can and cannot do
+- CAN: list tickets, read one (conversation + screenshot), add a private note, set New / Working / Done, post a **reply draft**,
+  set the app status (status page + banner).
+- CANNOT: send anything to a user. A draft shows on /reports as "Draft from Claude"; Arthur reads it and presses Send.
+
+## The calls (base = https://app.diamondanimator.com, header `Authorization: Bearer $DIAMOND_SUPPORT_API_KEY`)
+| What | Call |
+|---|---|
+| New tickets | `GET /api/support/tickets?status=new` (also `working`, `done`, `all`) |
+| One ticket | `GET /api/support/tickets/<id>` |
+| Its screenshot | `GET /api/support/tickets/<id>/screenshot` |
+| Private note | `POST /api/support/tickets/<id>` `{"action":"note","text":"..."}` |
+| Reply draft | `POST /api/support/tickets/<id>` `{"action":"draft","text":"..."}` |
+| Status | `POST /api/support/tickets/<id>` `{"action":"status","status":"working"}` |
+| App status | `POST /api/support/status` `{"area":"animator","state":"fixing","message":"Back in 20 minutes."}` (areas: signin, animator, saving, payments; states: fixing, resolved, ok) |
+| App status (read) | `GET /api/support/status` (no key needed) |
+
+A wrong or missing key gets the same `404 Not found` as a page that doesn't exist.
+
+## The routine's prompt (ready to paste, every 15 minutes)
+> Read ARTHUR_RULES.md first. You help Arthur (owner of Diamond Animator) answer beta users. Using the ticket API key in your
+> secret setting, list tickets with status `new`. For each: read it (and its screenshot if it has one). Add ONE private note:
+> what the person most likely hit, in plain words, and what to check. If the answer is simple and certain (how to use a feature,
+> where a button is), post a short, friendly reply DRAFT in plain words for a beginner (never promise a time, a refund or a
+> feature; never ask for passwords or card numbers). Then set the ticket to `working`. If several tickets describe the same broken
+> thing, say so at the top of each note (the app already shows "Checking reports" by itself when 3+ people report one area in
+> 30 minutes; set the app status only when Arthur asked you to). Never send anything to a user yourself, never change money,
+> accounts or projects. Finish with a 3-line summary.

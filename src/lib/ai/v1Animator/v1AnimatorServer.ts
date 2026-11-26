@@ -19,6 +19,7 @@ import { accountAiCreditGate } from "@/src/lib/account/aiCredits";
 import type { UsageEventRecorder } from "@/src/lib/usage-journal/usageJournalEvents";
 import { createV1UsageMeter } from "./v1UsageMeter";
 import { ownerAlert } from "@/src/lib/account/ownerAlerts";
+import { startLineWaitWatch } from "@/src/lib/support/supportService";
 
 // (Nov 25, many people at once) how many animations this machine makes at the same time: the server setting DIAMOND_ANIMATIONS_AT_ONCE
 // (read at every start; 1 when unset). The Mac (8 GB) stays at 1; a bigger server raises it once one real job has been measured there.
@@ -163,7 +164,7 @@ const usage = createV1UsageMeter({
 // reloads keeps the code it was created with: the old plan builder, the old answer fields) a dev server that still runs the old AI Animator
 // code SAYS SO in its log, once per code change. The runner itself is left alone (its running jobs and waiting cards live in it).
 const LOADED = Date.now();   // (this file is evaluated again after every change to the AI Animator's code)
-const g = globalThis as typeof globalThis & { diamondV1Animator?: V1Animator; diamondV1AnimatorCode?: number };
+const g = globalThis as typeof globalThis & { diamondV1Animator?: V1Animator; diamondV1AnimatorCode?: number; diamondV1LineWatch?: boolean };
 export const v1Animator = (): V1Animator => {
   // (Nov 14) a DEV server loads a change to the AI Animator's code by itself: as soon as nothing is being made and no card is waiting, the
   // runner is made again from the new code (everything it knows is on disk). While something runs it is left alone, and the log says so.
@@ -173,6 +174,8 @@ export const v1Animator = (): V1Animator => {
     else console.warn("[v1] the AI Animator's code changed while something is being made or a card is waiting: this server still runs the OLD code until that is done.");
   }
   if (!g.diamondV1Animator) { g.diamondV1Animator = createV1Animator({ config: () => v1EngineConfig(), books, luna, director, spawn: spawnEngine, usage, gate: true, ownerAlert, atOnce: animationsAtOnce }); g.diamondV1AnimatorCode = LOADED; }
+  // (Nov 26, SPEC-0027) the owner hears when anyone waits more than 3 minutes in line (it only reads the line; see supportService.ts)
+  if (!g.diamondV1LineWatch) { g.diamondV1LineWatch = true; startLineWaitWatch(() => g.diamondV1Animator?.lineWait?.()); }
   return g.diamondV1Animator;
 };
 

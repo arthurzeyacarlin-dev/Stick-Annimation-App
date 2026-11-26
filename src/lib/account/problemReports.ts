@@ -24,12 +24,13 @@ export const PROBLEM_REPORT_SCREENS = [
   { id: "other", label: "Other" },
 ] as const;
 export type ProblemReportScreen = (typeof PROBLEM_REPORT_SCREENS)[number]["id"];
-export type ProblemReportStatus = "new" | "done";
-export const PROBLEM_REPORT_STATUSES: readonly ProblemReportStatus[] = ["new", "done"];
+// SPEC-0027 (Nov 26): a ticket can also be "working" (Arthur or Claude is on it).
+export type ProblemReportStatus = "new" | "working" | "done";
+export const PROBLEM_REPORT_STATUSES: readonly ProblemReportStatus[] = ["new", "working", "done"];
 
 export const isProblemReportScreen = (value: unknown): value is ProblemReportScreen =>
   PROBLEM_REPORT_SCREENS.some((screen) => screen.id === value);
-export const isProblemReportStatus = (value: unknown): value is ProblemReportStatus => value === "new" || value === "done";
+export const isProblemReportStatus = (value: unknown): value is ProblemReportStatus => value === "new" || value === "working" || value === "done";
 export const problemReportScreenLabel = (screen: string) =>
   PROBLEM_REPORT_SCREENS.find((option) => option.id === screen)?.label ?? "Other";
 /** Report ids look like "pr_" + 32 letters/numbers. */
@@ -47,6 +48,10 @@ export type ProblemReportSummary = {
   hasScreenshot: boolean;
   status: ProblemReportStatus;
   appVersion: string | null;
+  /** SPEC-0027: what it is about, when it last changed, and whether the person has an unread reply from Arthur. */
+  area: string;
+  lastActivityAt: number;
+  userUnread: boolean;
 };
 
 export type ProblemReportInput = { screen: ProblemReportScreen; text: string; screenshot: string | null };

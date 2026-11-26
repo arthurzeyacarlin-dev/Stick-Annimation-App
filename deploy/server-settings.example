@@ -40,3 +40,10 @@ STRIPE_PUBLISHABLE_KEY=
 RESEND_API_KEY=
 ACCOUNT_MAIL_FROM=Diamond Animator <arthur@diamondanimator.com>
 DIAMOND_EMAIL_SITE_ID=RQs9Z2
+
+# --- support: help bubble, tickets, status page (SPEC-0027, Nov 26) ---
+# the ticket API's own secret key for the scheduled Claude routine (docs/SUPPORT_ROUTINE.md). At least 24 characters; make it
+# with `openssl rand -hex 32`. Empty = the ticket API is switched off (answers "not found"). Never in git, never in chat.
+DIAMOND_SUPPORT_API_KEY=
+# extra addresses for the instant ticket / outage / AI Animator line alerts, comma separated (the owner always gets them)
+SUPPORT_ALERT_TO=

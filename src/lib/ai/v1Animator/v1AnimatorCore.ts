@@ -1943,6 +1943,9 @@ export function createV1Animator(deps: V1CoreDeps) {
     dropStory,
     currentResult,
     busy: () => runningJobs.size > 0,
+    // (Nov 26, SPEC-0027, dad: tell the owner when anyone waits more than ~3 min) READ ONLY: how many wait in line and the longest wait.
+    // A waiting job's startedAtMs is when it joined the line (beginJob sets it again when it really starts).
+    lineWait: () => { const t = Date.now(); return { waiting: waiting.length, longestMs: waiting.reduce((m, j) => Math.max(m, t - (j.startedAtMs ?? t)), 0) }; },
     // (Nov 2 final round) the book's canvas picture limits for the panel (null = off, or no engine / book here)
     canvasLimits: () => { const config = deps.config(); if (!config) return null; try { return v1CanvasLimits(deps.books(config).book); } catch { return null; } },
     say: plain, // a server line from Luna's book by key (for the route's own answers)

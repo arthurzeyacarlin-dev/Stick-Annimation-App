@@ -1,5 +1,18 @@
 # Session Handoff
 
+## Nov 26 (08:46) — LIVE ON THE DIGITALOCEAN SERVER, NOTHING ON ARTHUR'S MAC — READ FIRST
+
+app.diamondanimator.com is served by the droplet `diamond-app` 45.55.215.235 (rented by dad's session "Diamond Animator live
+app setup", which also ran clone + server-setup + engine-sync + build). Cloudflare `app` = A record, DNS only; Caddy has its own
+certificate. Accounts + projects moved with `deploy/move-accounts.sh` (49 accounts, 70 project files). Arthur's rule: the Mac runs
+NOTHING for the app (he will replace the computer) — never start the app, store or tunnel on the Mac again; the Mac's old data
+copies are only the fallback. Keys reached the server through `deploy/send-keys.sh` (now reads the Mac settings with Next.js's own
+reader). Fixed on the way (uncommitted until Arthur's OK): engine-sync.sh `--stats` (openrsync), send-keys.sh reader,
+move-accounts.sh stops/starts the server app itself, mail sender = arthur@diamondanimator.com (same as the Mac). Open: dad's
+session's stranger walk-through (it reports to Arthur's session), dad's real payment + refund, the optional Stripe webhook secret,
+website sign-ups -> Klaviyo (needs Arthur's OK for website work). Arthur talks to his session, dad to his; message dad's session only
+when truly needed.
+
 ## Nov 25 (21:50) — MANY PEOPLE AT ONCE + SERVER KIT READY — READ FIRST
 
 Many people at once is built and proven (branch many-at-once-nov25): nobody is told "another animation is being made" because of

@@ -13,7 +13,7 @@ EXCLUDES=(--exclude='.env*' --exclude='*.env' --exclude='shared-keys*' --exclude
 ssh "$SERVER" 'mkdir -p /srv/diamond/engine/diamond-engine /srv/diamond/engine/ltx-effects/out && chown -R 1000:1000 /srv/diamond/engine'
 cd "$SRC"
 # The four folders the engine uses (traced Nov 25 with a free cached run + its own path links):
-rsync -az --info=stats1 "${EXCLUDES[@]}" ltx-effects kimodo kimodo-combo harness-phase4 "$SERVER":/srv/diamond/engine/
+rsync -az --stats "${EXCLUDES[@]}" ltx-effects kimodo kimodo-combo harness-phase4 "$SERVER":/srv/diamond/engine/
 # (Nov 25, many people at once) two engine files fixed for several animations at the same moment, kept OUTSIDE this public repo and
 # outside the Mac's live engine: kimodo/wan.py (the shared fal money file is written whole, never read half-written) and
 # ltx-effects/gate-picture/sitecustomize.py (a first picture counts only its own cost, never another person's). They replace the

@@ -10,8 +10,19 @@
 set -euo pipefail
 SERVER="${1:?usage: deploy/send-keys.sh root@<server address>}"
 R="${DIAMOND_REVIEW:-/Users/arthurcarlin/Projects/diamond-review}"
-ENVF="$R/money-main/.env.production.local"; L="$R/live-store"; FALF="$R/diamond-engine/.env.local"
-pick() { grep -E "^$1=" "$ENVF" 2>/dev/null | tail -1 | cut -d= -f2- || true; }
+L="$R/live-store"; FALF="$R/diamond-engine/.env.local"
+# (Nov 26) read the settings with Next.js's OWN reader (@next/env, production mode), so the server gets exactly the values the live
+# app on this Mac gets from `next start` (any file, any spacing, quotes or "export"). Nothing is printed: the values go into a
+# private temporary file that is deleted at the end.
+KF=$(mktemp); chmod 600 "$KF"; trap 'rm -f "$KF"' EXIT
+( cd "$R/money-main" && node -e '
+  const { loadEnvConfig } = require("@next/env");
+  const names = ["ANTHROPIC_API_KEY","OPENAI_API_KEY","STRIPE_SECRET_KEY","STRIPE_PUBLISHABLE_KEY","NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY","FAL_ADMIN_KEY"];
+  const before = Object.fromEntries(names.map((n) => [n, process.env[n]])); for (const n of names) delete process.env[n];
+  loadEnvConfig(process.cwd(), false, { info() {}, error() {} });
+  for (const n of names) { const v = (process.env[n] ?? "").trim(); if (v && !/[\n\r]/.test(v)) process.stdout.write(n + "=" + v + "\n"); }
+' > "$KF" ) || { echo "Could not read the Mac settings with Next.js's reader"; exit 1; }
+pick() { grep -E "^$1=" "$KF" | tail -1 | cut -d= -f2- || true; }
 lines=""; sent=""; missing=""
 for n in ANTHROPIC_API_KEY OPENAI_API_KEY STRIPE_SECRET_KEY STRIPE_PUBLISHABLE_KEY FAL_ADMIN_KEY; do
   v="$(pick "$n")"

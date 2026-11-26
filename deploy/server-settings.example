@@ -38,5 +38,5 @@ STRIPE_PUBLISHABLE_KEY=
 
 # --- email ---
 RESEND_API_KEY=
-ACCOUNT_MAIL_FROM=Diamond Animator <support@diamondanimator.com>
+ACCOUNT_MAIL_FROM=Diamond Animator <arthur@diamondanimator.com>
 DIAMOND_EMAIL_SITE_ID=RQs9Z2

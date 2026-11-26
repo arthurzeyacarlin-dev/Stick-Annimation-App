@@ -12,9 +12,12 @@ T=$(mktemp -d); trap 'rm -rf "$T"' EXIT; mkdir -p "$T/spec0015-phase3"
 for f in "$A"/*.sqlite; do sqlite3 "$f" ".backup '$T/spec0015-phase3/$(basename "$f")'"; done   # a whole, safe copy of each database
 cp -p "$A/auth-secret" "$T/spec0015-phase3/"                                                    # so everyone stays signed in
 sqlite3 "$P/projects.sqlite" ".backup '$T/projects.sqlite'"
-ssh "$SERVER" 'mkdir -p /srv/diamond/data/spec0015-phase3 /srv/diamond/projects/files'
+# (Nov 26) the server's app and store are stopped while the accounts arrive, and the server's own leftover database side files
+# (-wal/-shm, from test sign-ups before the move) are removed so they can never be mixed into the real accounts.
+ssh "$SERVER" 'cd /srv/diamond-app 2>/dev/null && docker compose -f deploy/docker-compose.yml stop app store; mkdir -p /srv/diamond/data/spec0015-phase3 /srv/diamond/projects/files; rm -f /srv/diamond/data/spec0015-phase3/*.sqlite-wal /srv/diamond/data/spec0015-phase3/*.sqlite-shm /srv/diamond/projects/projects.sqlite-wal /srv/diamond/projects/projects.sqlite-shm'
 rsync -a "$T/spec0015-phase3/" "$SERVER":/srv/diamond/data/spec0015-phase3/
 rsync -a "$T/projects.sqlite" "$SERVER":/srv/diamond/projects/projects.sqlite
 rsync -a "$P/files/" "$SERVER":/srv/diamond/projects/files/
 ssh "$SERVER" 'chown -R 1000:1000 /srv/diamond/data /srv/diamond/projects && echo "On the server: $(ls /srv/diamond/data/spec0015-phase3 | wc -l) account files, $(find /srv/diamond/projects/files -type f | wc -l) project files"'
 echo "On the Mac:    $(ls "$T/spec0015-phase3" | wc -l) account files, $(find "$P/files" -type f | wc -l) project files"
+ssh "$SERVER" 'cd /srv/diamond-app 2>/dev/null && docker compose -f deploy/docker-compose.yml up -d app store caddy >/dev/null 2>&1 && echo "Server app started again (with the front door)"'

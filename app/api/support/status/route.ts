@@ -4,12 +4,15 @@ import { isOwnerEmail } from "@/src/lib/account/owner";
 import { setServiceStatus } from "@/src/lib/account/problemReportStore";
 import { bannerFor, isSetServiceState, isSupportArea, SERVICE_MESSAGE_MAX } from "@/src/lib/support/supportRules";
 import { currentServiceStatus } from "@/src/lib/support/supportService";
-import { hasSupportApiKey, json, notFound, readObject } from "@/src/lib/support/supportHttp";
+import { json, notFound, readObject } from "@/src/lib/support/supportHttp";
 
 // SPEC-0027 (Nov 26): the app status (Sign-in, AI Animator, Saving, Payments).
 //   GET  — for everyone, signed in or not (the /status page and the banner): { statuses, banner }
-//   POST — the owner (signed in, from the app) or the Claude routine (ticket API key):
+//   POST — the OWNER only (signed in, from the app):
 //          { area: "signin" | "animator" | "saving" | "payments", state: "fixing" | "resolved" | "ok", message? }
+// (Nov 26, dad: "security measures in place") the ticket API key (the Claude routine) can NOT set the public status: a ticket
+// that tricks the routine could otherwise show a false outage to everyone. The app sets "Checking reports" by itself on the
+// count rule (3+ different people in 30 min), and Arthur sets the banner himself on /reports.
 export const runtime = "nodejs";
 
 export async function GET() {
@@ -22,8 +25,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let by: string | null = hasSupportApiKey(request) ? "Claude" : null;
-  if (!by && isTrustedAccountRequest(request)) {
+  let by: string | null = null;
+  if (isTrustedAccountRequest(request)) {
     const session = await getServerAccountSession().catch(() => null);
     if (session && isOwnerEmail(session.user.email)) by = "owner";
   }

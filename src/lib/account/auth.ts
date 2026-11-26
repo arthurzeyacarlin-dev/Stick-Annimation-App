@@ -78,6 +78,8 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       beforeDelete: async (user) => {
+        // SPEC-0029: their testimonial goes too - FIRST, so a failure here stops the deletion before anything is removed
+        (await import("./testimonialStore")).deleteTestimonialsForUser(user.id);
         // Nov 20 (the money system): the plan is stopped and the refund made FIRST. If Stripe can't be reached, nothing is
         // deleted, so nobody is ever charged for an account that's gone.
         const { closeBillingForDeletion, BillingError } = await import("./stripeBilling");

@@ -166,6 +166,7 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
                     {problemReports.owner && (
                       <Link href="/reports" className={styles.popLink}><ReportsIcon />{`Problem reports${problemReports.newCount > 0 ? ` (${problemReports.newCount} new)` : ""}`}</Link>
                     )}
+                    {problemReports.owner && <Link href="/testimonials" className={styles.popLink}><ReportsIcon />Testimonials</Link>}
                   </div>
                   <button type="button" className={styles.logout} onClick={() => void logOut()} disabled={logoutBusy}><LogoutIcon />{logoutBusy ? "Logging out…" : "Log out"}</button>
                   {logoutError && <div role="alert" className={styles.popError}>{logoutError}</div>}
@@ -196,6 +197,7 @@ export function AppHeader({ page, onExport, bellView = "home", back }: { page: "
           {problemReports.owner && (
             <Link href="/reports" className={styles.drawerItem}><span>Problem reports{problemReports.newCount > 0 ? ` (${problemReports.newCount} new)` : ""}</span><Chevron /></Link>
           )}
+          {problemReports.owner && <Link href="/testimonials" className={styles.drawerItem}><span>Testimonials</span><Chevron /></Link>}
         </section>
       </aside>
 

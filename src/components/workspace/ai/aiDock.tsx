@@ -15,6 +15,7 @@ import { V1_ANIMATOR_UI_ENABLED } from "@/src/lib/ai/v1Animator/v1AnimatorContra
 import workspaceThemeStyles from "../workspaceTheme.module.css";
 import { noteLanded, takeAnimateStart } from "./aiStart";
 import { ShowcaseReel } from "@/src/components/auth/AuthShowcase";
+import { TestimonialAsk } from "@/src/components/testimonials/TestimonialAsk";
 
 export type AiLayout = "panel" | "spot";
 const DOCK_EVENT = "diamond-ai-dock";
@@ -232,11 +233,41 @@ export function AiAnimatorDock({ layout, onPlay, onExport }: { layout: AiLayout;
   const [card, setCard] = useState(false);
   useEffect(() => { if (landed.at && landed.count <= 3) setCard(true); }, [landed.at, landed.count]);
   useEffect(() => { if (open) setCard(false); }, [open]);
+  // (SPEC-0029, dad Nov 26) the testimonial ask rides on this card; its X counts as one skip. Phones have no card, so there
+  // a small card shows only when the ask is due.
+  const askSkip = useRef<(() => void) | null>(null);
+  const [phoneAsk, setPhoneAsk] = useState(false);
+  useEffect(() => {
+    if (layout === "spot" || !landed.at || landed.count > 3) return;
+    let alive = true;
+    fetch("/api/account/testimonials?ask=animation", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body: { ask?: boolean } | null) => { if (alive && body?.ask) setPhoneAsk(true); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [layout, landed.at, landed.count]);
 
   const words = statusWords(status);
   const pct = animatingPct(status);
   const working = Boolean(status?.busy);
-  if (!mounted || layout !== "spot") return <style>{aiDockStyles}</style>;
+  if (!mounted || layout !== "spot") return (
+    <>
+      <style>{aiDockStyles}</style>
+      {mounted && phoneAsk && createPortal(
+        <div className={workspaceThemeStyles.workspace} style={{ display: "contents" }}>
+          <div className="ai-landed" role="status" data-workspace-theme-exempt="">
+            <span className="ai-landed-check" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.6l4.6-5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
+            <div className="ai-landed-text">
+              <strong>It&apos;s yours.</strong>
+              <TestimonialAsk where="animation" checked skipRef={askSkip} onGone={() => setPhoneAsk(false)} />
+            </div>
+            <CloseButton label="Close" onClick={() => { askSkip.current?.(); setPhoneAsk(false); }} className="ai-landed-close" />
+          </div>
+        </div>,
+        document.body,
+      )}
+    </>
+  );
   return (
     <>
       <style>{aiDockStyles}</style>
@@ -274,8 +305,9 @@ export function AiAnimatorDock({ layout, onPlay, onExport }: { layout: AiLayout;
                   <button type="button" onClick={() => { setCard(false); openAiAnimator(); }}>Change it</button>
                   {onExport && <button type="button" onClick={() => { setCard(false); onExport(); }}>Export</button>}
                 </div>
+                <TestimonialAsk where="animation" skipRef={askSkip} />
               </div>
-              <CloseButton label="Close" onClick={() => setCard(false)} className="ai-landed-close" />
+              <CloseButton label="Close" onClick={() => { askSkip.current?.(); setCard(false); }} className="ai-landed-close" />
             </div>
           )}
         </div>,

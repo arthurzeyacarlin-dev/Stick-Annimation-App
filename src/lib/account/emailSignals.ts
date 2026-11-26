@@ -1,16 +1,24 @@
-// Email follow-up signals (dad, Nov 21; made exact Nov 23). The email service that sends Diamond Animator's follow-up emails
-// has to know three things about an account: its free trial started (and when), it picked a plan (then the trial emails
-// stop), and it was deleted (then every email stops). Nothing else is sent: only the email address and one of those facts.
-// It uses the email service's PUBLIC site ID (no secret key), set in DIAMOND_EMAIL_SITE_ID. Without that setting nothing is
-// sent at all. A problem here never breaks the app: it is tried once per account while the server runs, and the email
-// service ignores a repeat of the same signal.
+// Email follow-up signals (dad, Nov 21; made exact Nov 23; the whole year of emails Nov 26, SPEC-0030). The email service that
+// sends Diamond Animator's follow-up emails has to know a few facts about an account, so each person gets the right emails and
+// they stop at the right moment: the trial started, the first animation landed, a video was exported, a plan was picked, a
+// month was paid, a payment didn't go through, the plan was cancelled, the plan ended, the account was deleted.
+// Nothing else is sent: only the email address and one of those facts. It uses the email service's PUBLIC site ID (no secret
+// key), set in DIAMOND_EMAIL_SITE_ID. Without that setting nothing is sent at all. A problem here never breaks the app: each
+// fact is tried once while the server runs, and the email service ignores a repeat of the same fact (the same unique id).
 import type { AccountPlanStatus } from "./plans.ts";
 
-export type EmailSignal = "Started Trial" | "Started Plan" | "Deleted Account";
-/** What the signals need from an account's plan: which plan, whether it is locked (trial over), and when its trial started. */
-export type EmailSignalStatus = Pick<AccountPlanStatus, "plan" | "locked" | "windowStart">;
+export type EmailSignal =
+  | "Started Trial" | "Made First Animation" | "Exported Video" | "Started Plan" | "Plan Paid"
+  | "Payment Failed" | "Cancelled Plan" | "Plan Ended" | "Deleted Account";
+/** What the signals need from an account's plan. Only plan, locked and windowStart are always there; the rest is a paid plan's. */
+export type EmailSignalStatus = Pick<AccountPlanStatus, "plan" | "locked" | "windowStart">
+  & Partial<Pick<AccountPlanStatus, "lockReason" | "billingStatus" | "paymentProblem" | "waitingForPayment" | "cancelAtPeriodEnd">>;
+/** Facts that are not in the plan status: the plan's own id (so someone who comes back counts again) and the first animation. */
+export type EmailSignalExtras = { subscriptionId?: string | null; madeFirstAnimation?: boolean };
+/** One fact to send: its name, the id that makes a repeat count once, and (for the trial) when it really happened. */
+export type DueSignal = { signal: EmailSignal; id: string; at?: number };
+
 const REVISION = "2025-01-15";
-const UNIQUE: Record<EmailSignal, string> = { "Started Trial": "trial", "Started Plan": "plan", "Deleted Account": "deleted" };
 const sent = new Set<string>();
 
 /** Test and made-up addresses never go to the email service: the reserved test domains (example.com/.org/.net and anything
@@ -18,21 +26,44 @@ const sent = new Set<string>();
 export const isRealEmail = (email: string) =>
   /^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email) && !/[@.](example\.(com|org|net)|test|invalid|localhost|local|example)$/i.test(email);
 
-/** Which signals this account's plan calls for: a trial that is still running says "Started Trial"; a paid plan says only
- *  "Started Plan"; a trial that is over says nothing (no "your trial has started" weeks late). */
-export const signalsFor = (status: EmailSignalStatus): EmailSignal[] =>
-  status.plan !== "trial" ? ["Started Plan"] : status.locked ? [] : ["Started Trial"];
+/** Which facts this account's plan calls for, each with its once-only id.
+ *  Trial still running: "Started Trial" (a trial that is over says nothing: no "your trial has started" weeks late).
+ *  Paid plan: "Started Plan" (once per plan); "Plan Paid" once per paid month; "Payment Failed" once per month it fails;
+ *  "Cancelled Plan" once per plan when it is set to end; "Plan Ended" once per plan when it really ran out.
+ *  Any account: "Made First Animation" once. */
+export function dueSignals(ownerId: string, status: EmailSignalStatus, extras: EmailSignalExtras = {}): DueSignal[] {
+  const due: DueSignal[] = [];
+  if (status.plan === "trial") {
+    if (!status.locked) due.push({ signal: "Started Trial", id: `trial-${ownerId}`, at: status.windowStart });
+  } else {
+    const plan = extras.subscriptionId ? `${ownerId}-${extras.subscriptionId}` : ownerId;
+    const month = `${ownerId}-${status.windowStart}`;
+    due.push({ signal: "Started Plan", id: `plan-${plan}` });
+    if (status.locked && status.lockReason === "plan_ended") due.push({ signal: "Plan Ended", id: `ended-${plan}` });
+    else {
+      if (status.paymentProblem || status.billingStatus === "past_due") due.push({ signal: "Payment Failed", id: `failed-${month}` });
+      else if (status.billingStatus === "active" && !status.waitingForPayment) due.push({ signal: "Plan Paid", id: `paid-${month}` });
+      if (status.cancelAtPeriodEnd) due.push({ signal: "Cancelled Plan", id: `cancelled-${plan}` });
+    }
+  }
+  if (extras.madeFirstAnimation) due.push({ signal: "Made First Animation", id: `first-animation-${ownerId}` });
+  return due;
+}
+
+/** The names only (kept for the tests and anyone who just wants to know which facts apply). */
+export const signalsFor = (status: EmailSignalStatus, extras: EmailSignalExtras = {}): EmailSignal[] =>
+  dueSignals("_", status, extras).map((due) => due.signal);
 
 /** `at` = when it really happened (the trial's real start), so the follow-up emails count their days from the right moment. */
-export function emailSignalBody(email: string, ownerId: string, signal: EmailSignal, at?: number) {
+export function emailSignalBody(email: string, uniqueId: string, signal: EmailSignal, at?: number) {
   return {
     data: {
       type: "event",
       attributes: {
         properties: {},
         ...(at != null && Number.isFinite(at) ? { time: new Date(at).toISOString() } : {}),
-        // The same id for the same account and signal: a repeat is not counted twice.
-        unique_id: `${UNIQUE[signal]}-${ownerId}`,
+        // The same id for the same fact: a repeat is not counted twice.
+        unique_id: uniqueId,
         metric: { data: { type: "metric", attributes: { name: signal } } },
         profile: { data: { type: "profile", attributes: { email } } },
       },
@@ -40,32 +71,38 @@ export function emailSignalBody(email: string, ownerId: string, signal: EmailSig
   };
 }
 
-/** Sends the signals not sent yet for this account. Never waits, never throws. Returns the ones it started sending. */
-function send(ownerId: string, email: string | null | undefined, signals: EmailSignal[], at: number | undefined, fetcher: typeof fetch): EmailSignal[] {
+/** Sends the facts not sent yet. Never waits, never throws. Returns the ones it started sending. */
+function send(email: string | null | undefined, signals: DueSignal[], fetcher: typeof fetch): EmailSignal[] {
   const siteId = process.env.DIAMOND_EMAIL_SITE_ID?.trim();
   if (!siteId || !email || !isRealEmail(email)) return [];
-  const due = signals.filter((signal) => !sent.has(`${signal}:${ownerId}`));
-  for (const signal of due) {
-    const key = `${signal}:${ownerId}`;
-    sent.add(key);
+  const due = signals.filter((one) => !sent.has(one.id));
+  for (const one of due) {
+    sent.add(one.id);
     void Promise.resolve()
       .then(() => fetcher(`https://a.klaviyo.com/client/events?company_id=${encodeURIComponent(siteId)}`, {
         method: "POST",
         headers: { "Content-Type": "application/vnd.api+json", Accept: "application/vnd.api+json", revision: REVISION },
-        body: JSON.stringify(emailSignalBody(email, ownerId, signal, signal === "Started Trial" ? at : undefined)),
+        body: JSON.stringify(emailSignalBody(email, one.id, one.signal, one.at)),
       }))
-      .then((res) => { if (!res.ok) sent.delete(key); }, () => { sent.delete(key); });
+      .then((res) => { if (!res.ok) sent.delete(one.id); }, () => { sent.delete(one.id); });
   }
-  return due;
+  return due.map((one) => one.signal);
 }
 
 /** Sends what is new for this account's plan. Never waits, never throws. Returns the signals it started sending. */
-export const sendEmailSignals = (ownerId: string, email: string | null | undefined, status: EmailSignalStatus, fetcher: typeof fetch = fetch): EmailSignal[] =>
-  send(ownerId, email, signalsFor(status), status.windowStart, fetcher);
+export function sendEmailSignals(ownerId: string, email: string | null | undefined, status: EmailSignalStatus,
+  extras: EmailSignalExtras = {}, fetcher: typeof fetch = fetch): EmailSignal[] {
+  try { return send(email, dueSignals(ownerId, status, extras), fetcher); } catch { return []; }
+}
+
+/** A video (MP4 or GIF) was really saved: tells the email service once per account. Never waits, never throws. */
+export function sendExportedVideoSignal(ownerId: string, email: string | null | undefined, fetcher: typeof fetch = fetch): EmailSignal[] {
+  try { return send(email, [{ signal: "Exported Video", id: `export-${ownerId}` }], fetcher); } catch { return []; }
+}
 
 /** The account was deleted: tells the email service once, so its emails stop. Never waits, never throws. */
 export function sendAccountDeletedSignal(ownerId: string, email: string | null | undefined, fetcher: typeof fetch = fetch): EmailSignal[] {
-  try { return send(ownerId, email, ["Deleted Account"], undefined, fetcher); } catch { return []; }
+  try { return send(email, [{ signal: "Deleted Account", id: `deleted-${ownerId}` }], fetcher); } catch { return []; }
 }
 
 /** For tests. */

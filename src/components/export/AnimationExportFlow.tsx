@@ -5,6 +5,7 @@ import { CanonicalProjectPlayer, type CanonicalProjectPlayerHandle } from "../pr
 import { listProjectCollection, type ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
 import { createAccountProjectSourceReader } from "@/src/lib/account/projectClient";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
+import { TestimonialAsk } from "@/src/components/testimonials/TestimonialAsk";
 import {
   exportCollectionEntryIdentityMatches,
   formatExportDuration,
@@ -129,6 +130,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
   const [message, setMessage] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const downloadedRef = useRef(false);
+  const [videoDone, setVideoDone] = useState(false);   // (SPEC-0029) a video or GIF was really made: the testimonial ask may follow
   const selectionRef = useRef(createExportSelection(snapshot));
   const stage = snapshot.project.document.logicalStage;
   const fps = snapshot.project.document.fps;
@@ -318,8 +320,11 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
       const result = format === "video" ? await exportVideo(abort.signal) : format === "gif" ? await exportGif(abort.signal) : await exportPictures(abort.signal);
       if (result === "cancelled") { setRunState("idle"); setProgress(null); return; }
       setRunState("done");
+      if (format !== "pictures") setVideoDone(true);
       setProgress(null);
       setMessage(downloadedRef.current ? `Downloaded “${result}” — it's in your Downloads folder.` : `Saved “${result}”.`);
+      // Follow-up emails (SPEC-0030): a finished video or GIF is a happy moment. Tells the server once; never waits, never fails the export.
+      if (format === "video" || format === "gif") void fetch("/api/account/email-signal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ signal: "Exported Video" }) }).catch(() => undefined);
     } catch (error) {
       setProgress(null);
       if (isAbort(error)) { setRunState("cancelled"); setMessage("Export stopped. Nothing was saved."); }
@@ -452,6 +457,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
               </div>
             </div> : null}
             {message ? <div role={runState === "failed" ? "alert" : "status"} className={runState === "done" ? styles.resultSuccess : runState === "failed" ? styles.resultError : styles.resultNote}>{message}</div> : null}
+            {videoDone && <TestimonialAsk where="export" />}
 
             <div className={styles.actions}>
               {runState === "working" || runState === "cancelling"

@@ -295,6 +295,11 @@ export function getCreditUseByKind(ownerId: string, now = Date.now()) {
   return rows;
 }
 
+/** Follow-up emails (read only): whether this account was ever charged for a new animation (its first one landed). */
+export function hasMadeAnimation(ownerId: string): boolean {
+  return Boolean(database().prepare("SELECT 1 FROM account_credit_use_v1 WHERE owner_id = ? AND kind IN ('animation', 'simple', 'big') LIMIT 1").get(ownerId));
+}
+
 /** Plan credits used in the current window (deleting an account refunds the rest of what was paid). */
 export function planCreditsUsedNow(ownerId: string, now = Date.now()) {
   const record = readAccountPlanRecord(ownerId, now);

@@ -6,7 +6,8 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "r
 import { useAccountSession } from "./AccountSessionProvider";
 import { AccountAvatarContent } from "./AccountAvatar";
 import { useAccountPlan } from "./useAccountPlan";
-import { ACCOUNT_PROFILE_IMAGE_MAX_CHARS } from "@/src/lib/account/accountConfig";
+import { pictureToDataUrl } from "@/src/lib/account/profilePicture";
+import { OwnTestimonial } from "@/src/components/testimonials/OwnTestimonial";
 import styles from "./AccountProfileScreen.module.css";
 import { BackButton } from "@/src/components/ui/BackButton";
 import { creditsText, dollarsText } from "@/src/lib/account/credits";
@@ -16,8 +17,6 @@ import { creditsText, dollarsText } from "@/src/lib/account/credits";
 // their own Settings page (SPEC-0020 Phase 3).
 
 type Status = { kind: "ok" | "error"; text: string } | null;
-
-const PICTURE_SIZE = 256;
 
 async function postAuth(path: string, body: unknown) {
   return (await postAuthWithMessage(path, body))?.code ?? null;
@@ -46,26 +45,6 @@ function deletePreviewWords(preview: DeletePreview): string | null {
     : "";
   const packs = preview.packRefundCents > 0 ? ` Your unused pack credits give back ${dollarsText(preview.packRefundCents)} more.` : "";
   return `${plan}${packs} Refunds reach your card in about 5 to 10 days.`.trim();
-}
-
-/** Center-crops and shrinks a picture to a small square JPEG, so it stays light to save and show. */
-async function pictureToDataUrl(file: File): Promise<string> {
-  const bitmap = await createImageBitmap(file);
-  const side = Math.min(bitmap.width, bitmap.height);
-  const canvas = document.createElement("canvas");
-  canvas.width = PICTURE_SIZE;
-  canvas.height = PICTURE_SIZE;
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("picture_unreadable");
-  context.fillStyle = "#232328";
-  context.fillRect(0, 0, PICTURE_SIZE, PICTURE_SIZE);
-  context.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, PICTURE_SIZE, PICTURE_SIZE);
-  bitmap.close();
-  for (const quality of [0.86, 0.72, 0.58]) {
-    const url = canvas.toDataURL("image/jpeg", quality);
-    if (url.length <= ACCOUNT_PROFILE_IMAGE_MAX_CHARS) return url;
-  }
-  throw new Error("picture_too_large");
 }
 
 export function AccountProfileScreen() {
@@ -211,6 +190,7 @@ export function AccountProfileScreen() {
           </form>
           <div className={styles.label}>Email<span className={styles.readOnly}>{account.email}</span></div>
           {profileStatus && <p role={profileStatus.kind === "error" ? "alert" : "status"} className={profileStatus.kind === "error" ? styles.error : styles.ok}>{profileStatus.text}</p>}
+          <OwnTestimonial />
         </section>
 
         <section className={styles.card} aria-labelledby="plan-heading">

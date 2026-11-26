@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAccountRequest } from "@/src/lib/account/access";
 import { getAccountPlanStatus } from "@/src/lib/account/aiCredits";
-import { sendEmailSignals } from "@/src/lib/account/emailSignals";
+import { sendAccountEmailSignals, startEmailSignalSweeper } from "@/src/lib/account/emailSignalsServer";
 import { billingFacts, billingMode, ensureBillingPublicKey, startBillingSweeper, syncWithStripe } from "@/src/lib/account/stripeBilling";
 
 // This account's plan, credits and trial days (the credits counter, the AI Dashboard, the Plans screen).
@@ -18,8 +18,10 @@ export async function GET(request: Request) {
   startBillingSweeper();
   try {
     const status = getAccountPlanStatus(ownerId);
-    // Follow-up emails (dad, Nov 21): tell the email service once that the trial started / a plan was picked. Never waits.
-    sendEmailSignals(ownerId, access.session.user.email, status);
+    // Follow-up emails (dad, Nov 21; SPEC-0030): tell the email service each new fact once (trial, first animation, plan,
+    // paid month, payment problem, cancelled, ended). Never waits. The 6-hourly check covers accounts that don't open the app.
+    sendAccountEmailSignals(ownerId, access.session.user.email, status);
+    startEmailSignalSweeper();
     return NextResponse.json({ schema: "diamond-account-plan/v1", status, billing: { mode: billingMode(), cardKey: await ensureBillingPublicKey(), ...billingFacts(ownerId) } },
       { headers: { "Cache-Control": "no-store" } });
   } catch {

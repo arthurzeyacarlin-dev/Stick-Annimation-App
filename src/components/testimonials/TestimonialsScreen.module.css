@@ -1,0 +1,15 @@
+/* SPEC-0029: the few extra pieces of the owner's Testimonials page (the rest reuses the Problem reports page's look). */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.body { display: flex; align-items: flex-start; gap: 14px; }
+.photo { flex: 0 0 auto; width: 56px; height: 56px; border-radius: 50%; object-fit: cover; display: grid; place-items: center;
+  background: var(--da-page); color: var(--da-text-2); font-size: 20px; font-weight: 700; border: 1px solid var(--da-line); }
+.words { display: grid; gap: 4px; min-width: 0; }
+.stars { color: #ffc531; font-size: 15px; letter-spacing: 2px; }
+.ok { color: var(--da-success); font-size: 12.5px; }
+.private { color: var(--da-muted); font-size: 12.5px; }
+.nameField { display: inline-flex; align-items: center; gap: 8px; color: var(--da-muted); font-size: 13px; }
+.nameField input { height: 36px; width: 180px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--da-border); background: var(--da-page);
+  color: var(--da-text); font: inherit; font-size: 13px; }
+.nameField input:focus { outline: 2px solid var(--da-focus); outline-offset: 0; }
+:global(html[data-device="phone"]) .nameField input { height: 44px; font-size: 16px; width: 100%; }
+:global(html[data-device="phone"]) .nameField { width: 100%; }

@@ -16,6 +16,12 @@ Dad's decisions (10:58): the beta free trial stays WITHOUT a card (kids can't ea
 - BEFORE ADS START: a repeat-trial abuse check (several trial accounts from one device / internet address) + a simple owner
   report of suspicious repeat sign-ups ("new email, new 14 days").
 - AFTER LAUNCH: A/B test a card-required trial.
+Dad's decision (11:15, "yes, build it" 11:17): UNDER 13 = A PARENT'S ACCOUNT (COPPA, SPEC-0031). Sign-up asks the birth year;
+under 13 -> "Ask a parent", the parent signs up with their own email + agrees; only "13plus"/"parent" is stored; emails only to
+13+/parents; old accounts asked once. Built in worktree stoic-varahamihira-000939 (Website pm merges + deploys).
+- **BEFORE ADS START: LAWYER REVIEW** of the children's rules, the Privacy Policy and the Terms (no lawyer has checked them).
+- Dad's call later: what to do with old accounts that answered "under 13" (kept, blocked; COPPA wants a child's data deleted
+  if no parent takes over within a reasonable time).
 - AFTER LAUNCH (marketing): an ad funnel / sales page.
 
 ## DAD'S PRE-LAUNCH TEST LIST (Nov 26 11:32 — dad's session runs it first, then dad as a first-time user)

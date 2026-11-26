@@ -16,7 +16,7 @@ const sections: LegalSection[] = [
         <li><strong>We don&rsquo;t sell your personal information.</strong> We don&rsquo;t use your content to train AI models.</li>
         <li>A few trusted companies help us run the service (hosting, database, AI, email, payments). What each one does is listed below.</li>
         <li>When you create an account, your email address goes to our email service so we can send you emails about your free trial and tips. Every one of those emails has an unsubscribe link.</li>
-        <li>Children under 13 need a parent or guardian&rsquo;s consent.</li>
+        <li>Children under 13 use Diamond Animator through a parent or guardian&rsquo;s account, made with the parent&rsquo;s own email. We never send marketing emails to children and never feature them.</li>
         <li>You can ask to see, fix, download or delete your data at any time: <SupportEmail />.</li>
       </ul>
     ),
@@ -34,6 +34,7 @@ const sections: LegalSection[] = [
         <h3>Information you give us</h3>
         <ul>
           <li><strong>Account details:</strong> your name, email address, sign-in details, profile picture if you add one, and your plan.</li>
+          <li><strong>Your age group:</strong> when you sign up we ask your birth year, only to know whether you are 13 or older. We keep only the answer (&ldquo;13 or older&rdquo; or &ldquo;a parent&rsquo;s account&rdquo;), never the birth year itself.</li>
           <li><strong>Your content:</strong> drawings, timelines, projects and the videos you export.</li>
           <li><strong>AI messages:</strong> what you type to the AI Animator and Help Assistant, and the replies.</li>
           <li><strong>Messages to us:</strong> support emails, feedback and problem reports.</li>
@@ -175,11 +176,18 @@ const sections: LegalSection[] = [
     id: "children",
     title: "Children",
     content: (
-      <p>
-        Diamond Animator may be used by children under 13 only with a parent or guardian&rsquo;s consent, and the account&rsquo;s email address
-        should be the parent&rsquo;s, so our emails go to the parent. We follow the US Children&rsquo;s Online Privacy Protection Act (COPPA).
-        Parents can ask to review or delete their child&rsquo;s information at any time: <SupportEmail />.
-      </p>
+      <>
+        <p>We follow the US Children&rsquo;s Online Privacy Protection Act (COPPA). Here is how it works:</p>
+        <ul>
+          <li><strong>Sign-up asks your birth year.</strong> If you are under 13, we don&rsquo;t make an account with your email. Instead we ask you to get a parent or guardian.</li>
+          <li><strong>The parent makes the account</strong> with their own email address and agrees: &ldquo;I&rsquo;m the parent or guardian and I agree for my child to use Diamond Animator.&rdquo; The child then uses that account.</li>
+          <li><strong>We keep only an age group</strong> (&ldquo;13 or older&rdquo; or &ldquo;a parent&rsquo;s account&rdquo;), never a birth year, and we don&rsquo;t ask for the child&rsquo;s name, email or other contact details.</li>
+          <li><strong>Emails go to the parent.</strong> Our tips and follow-up emails go only to people who are 13 or older and to parents, never to a child.</li>
+          <li><strong>Children are never featured.</strong> Only people who say they are 13 or older can have their words or photo shown on our website or in ads.</li>
+          <li><strong>Accounts made before this rule</strong> are asked once whether the person is 13 or older. If they are under 13, we stop our emails to that address and ask a parent to make their own account.</li>
+        </ul>
+        <p>Parents can ask to review, change or delete their child&rsquo;s information, or stop its use, at any time: <SupportEmail />.</p>
+      </>
     ),
   },
   {
@@ -191,5 +199,5 @@ const sections: LegalSection[] = [
 ];
 
 export default function PrivacyPage() {
-  return <LegalPage title="Privacy Policy" intro="What we collect, why we collect it, who helps us, and how you stay in control." updated="November 23, 2026" sections={sections} other={{ href: "/terms", label: "Terms of Service" }} />;
+  return <LegalPage title="Privacy Policy" intro="What we collect, why we collect it, who helps us, and how you stay in control." updated="November 26, 2026" sections={sections} other={{ href: "/terms", label: "Terms of Service" }} />;
 }

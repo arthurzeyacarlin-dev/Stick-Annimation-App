@@ -6,6 +6,7 @@ import { ACCOUNT_PLANS, CYCLE_WORD, PAID_PLAN_IDS, PLAN_CYCLE, type BillingInter
 import { PaymentDialog } from "@/src/components/account/PaymentDialog";
 import { AuthShowcase } from "./AuthShowcase";
 import { creditsText } from "@/src/lib/account/credits";
+import { birthYearChoices, isUnder13, needsBirthMonth } from "@/src/lib/account/ageCheck";
 import styles from "./AuthScreen.module.css";
 
 // The new first screen (redesign Phase 1, Arthur 2026-10-26): a polished welcome with one card for Create account,
@@ -21,11 +22,29 @@ const PLAN_LINE: Record<PlanChoice, string> = {
 };
 const money = (value: number) => (Number.isInteger(value) ? `$${value}` : `$${value.toFixed(2)}`);
 const RETURNING_KEY = "diamond.returningUser.v1";
+// SPEC-0031 (COPPA): after an "under 13" answer this browser goes straight to "Ask a parent" for a day, so the answer can't
+// just be changed by going back. Only the time is kept (no birth year).
+const UNDER13_KEY = "diamond.askParent.v1";
+const UNDER13_MS = 24 * 60 * 60 * 1000;
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+type AgeStep = "ask" | "adult" | "kid" | "parent";
+const startAgeStep = (): AgeStep => {
+  try { if (Date.now() - Number(window.localStorage.getItem(UNDER13_KEY) ?? 0) < UNDER13_MS) return "kid"; } catch { /* storage blocked */ }
+  return "ask";
+};
 
 export function AuthScreen() {
   const [mode, setMode] = useState<Mode>("signup");
   // Someone who has logged in on this browser before starts on Log in (quicker); a newcomer starts on Create account.
   useEffect(() => { try { if (window.localStorage.getItem(RETURNING_KEY)) setMode("login"); } catch { /* storage blocked */ } }, []);
+  // SPEC-0031 (dad, Nov 26): Create account first asks the birth year (a plain question). 13 or older -> the same form as
+  // before; under 13 -> "Ask a parent", and the parent signs up with their own email and agrees.
+  const [age, setAge] = useState<AgeStep>("ask");
+  useEffect(() => { setAge(startAgeStep()); }, []);
+  const [birthYear, setBirthYear] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [parentAgree, setParentAgree] = useState(false);
+  const yearRef = useRef<HTMLSelectElement | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,9 +59,24 @@ export function AuthScreen() {
   const [plan, setPlan] = useState<PlanChoice>("trial");
   const [interval, setInterval] = useState<BillingInterval>(PLAN_CYCLE);
 
-  useEffect(() => { firstFieldRef.current?.focus({ preventScroll: true }); }, [mode]);
+  useEffect(() => { (mode === "signup" && age === "ask" ? yearRef : firstFieldRef).current?.focus({ preventScroll: true }); }, [mode, age]);
 
-  const switchMode = (next: Mode) => { setMode(next); setError(null); setResetSent(false); setShowPassword(false); };
+  const switchMode = (next: Mode) => {
+    setMode(next); setError(null); setResetSent(false); setShowPassword(false);
+    if (next === "signup") { setAge(startAgeStep()); setBirthYear(""); setBirthMonth(""); setParentAgree(false); }
+  };
+
+  const year = Number(birthYear);
+  const askMonth = !!birthYear && needsBirthMonth(year);
+  const answerAge = (event: FormEvent) => {
+    event.preventDefault();
+    if (!birthYear || (askMonth && !birthMonth)) return;
+    setError(null);
+    if (isUnder13(year, Number(birthMonth) || null)) {
+      try { window.localStorage.setItem(UNDER13_KEY, String(Date.now())); } catch { /* storage blocked */ }
+      setAge("kid");
+    } else setAge("adult");
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -60,12 +94,15 @@ export function AuthScreen() {
         return;
       }
       const endpoint = mode === "signup" ? "/api/auth/sign-up/email" : "/api/auth/sign-in/email";
-      const body = mode === "signup" ? { name: name.trim(), email: email.trim(), password } : { email: email.trim(), password, rememberMe: true };
+      // SPEC-0031: the sign-up says "13plus" or "parent" (never the birth year); the server refuses a sign-up without it.
+      if (mode === "signup" && age !== "adult" && age !== "parent") { setBusy(false); return; }
+      const body = mode === "signup" ? { name: name.trim(), email: email.trim(), password, ageAnswer: age === "parent" ? "parent" : "13plus" } : { email: email.trim(), password, rememberMe: true };
       const response = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!response.ok) {
         const code = String(((await response.json().catch(() => null)) as { code?: unknown } | null)?.code ?? "");
         setError(mode === "signup" && code.startsWith("USER_ALREADY_EXISTS") ? "That email already has an account. Log in instead."
           : code === "PASSWORD_TOO_SHORT" ? "Use a password with at least 8 characters."
+          : code === "AGE_CHECK_NEEDED" ? "Please start again and answer the birth year question."
           : mode === "signup" ? "We couldn't create that account. Check your details or try another email."
           : "That email and password don't match. New here? Create an account first.");
         setBusy(false);
@@ -89,8 +126,10 @@ export function AuthScreen() {
     setPaying(true);
   };
 
-  const heading = mode === "signup" ? "Create your account" : mode === "login" ? "Welcome back" : "Reset your password";
-  const lead = mode === "signup" ? "Free for 14 days. No card needed." : mode === "login" ? "Log in to pick up where you left off." : "We'll email you a link to choose a new password.";
+  const parentForm = mode === "signup" && age === "parent";
+  const heading = parentForm ? "Parent or guardian: create the account" : mode === "signup" ? "Create your account" : mode === "login" ? "Welcome back" : "Reset your password";
+  const lead = parentForm ? "Use your own email. Your child then uses this account. Free for 14 days, no card needed."
+    : mode === "signup" ? "Free for 14 days. No card needed." : mode === "login" ? "Log in to pick up where you left off." : "We'll email you a link to choose a new password.";
   const action = mode === "signup" ? (busy ? "Creating your account…" : "Create account") : mode === "login" ? (busy ? "Logging in…" : "Log in") : (busy ? "Sending…" : "Send reset link");
 
   return (
@@ -145,6 +184,50 @@ export function AuthScreen() {
           <p className={styles.fine}>{plan === "trial" ? "No card needed. Choose a plan any time in Plans." : "You pay right here, securely. Cancel any time in Plans."}</p>
         </div>
       </section>
+      ) : mode === "signup" && age === "ask" ? (
+      <section className={styles.card} aria-labelledby="age-heading">
+        <div className={styles.cardHead}>
+          <h2 id="age-heading">Create your account</h2>
+          <p>Free for 14 days. No card needed.</p>
+        </div>
+        <form className={styles.form} onSubmit={answerAge}>
+          <label className={styles.field}>
+            <span>What year were you born?</span>
+            <select ref={yearRef} name="birth-year" required value={birthYear} onChange={(event) => { setBirthYear(event.target.value); setBirthMonth(""); }}>
+              <option value="" disabled>Choose a year</option>
+              {birthYearChoices().map((choice) => <option key={choice} value={choice}>{choice}</option>)}
+            </select>
+          </label>
+          {askMonth && (
+            <label className={styles.field}>
+              <span>And the month?</span>
+              <select name="birth-month" required value={birthMonth} onChange={(event) => setBirthMonth(event.target.value)}>
+                <option value="" disabled>Choose a month</option>
+                {MONTHS.map((month, index) => <option key={month} value={index + 1}>{month}</option>)}
+              </select>
+            </label>
+          )}
+          <button type="submit" className={styles.primary} disabled={!birthYear || (askMonth && !birthMonth)}>Continue</button>
+        </form>
+        <div className={styles.cardFoot}>
+          <p className={styles.fine}>Already have an account? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Log in</button></p>
+          <p className={styles.fine}>Making an account for your child? <button type="button" className={styles.inlineLink} onClick={() => setAge("parent")}>Parents start here</button></p>
+        </div>
+      </section>
+      ) : mode === "signup" && age === "kid" ? (
+      <section className={styles.card} aria-labelledby="kid-heading">
+        <div className={styles.cardHead}>
+          <h2 id="kid-heading">Ask a parent to create your account</h2>
+          <p>A parent or guardian makes the account with their own email. Then you use it to animate.</p>
+        </div>
+        <div className={styles.form}>
+          <button type="button" className={styles.primary} onClick={() => setAge("parent")}>I&apos;m the parent or guardian</button>
+        </div>
+        <div className={styles.cardFoot}>
+          <p className={styles.fine}>Already have an account? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Log in</button></p>
+          <p className={styles.fine}>Read how we look after children&apos;s information in our <a className={styles.inlineLink} href="/privacy#children" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+        </div>
+      </section>
       ) : (
       <section className={styles.card} aria-labelledby="auth-heading">
         <div className={styles.cardHead}>
@@ -162,12 +245,12 @@ export function AuthScreen() {
           <form className={styles.form} onSubmit={submit} method="post" action="#" autoComplete="on">
             {mode === "signup" && (
               <label className={styles.field}>
-                <span>Name</span>
+                <span>{parentForm ? "Your name (the parent or guardian)" : "Name"}</span>
                 <input ref={firstFieldRef} id="auth-name" name="name" required autoComplete="name" placeholder="Your name" value={name} onChange={(event) => setName(event.target.value)} />
               </label>
             )}
             <label className={styles.field}>
-              <span>Email</span>
+              <span>{parentForm ? "Your email (the parent's own)" : "Email"}</span>
               <input ref={mode === "signup" ? undefined : firstFieldRef} id="auth-email" name="email" required type="email" inputMode="email" autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} />
             </label>
             {mode !== "forgot" && (
@@ -186,14 +269,20 @@ export function AuthScreen() {
                 </span>
               </div>
             )}
+            {parentForm && (
+              <label className={styles.agree}>
+                <input type="checkbox" name="parent-consent" required checked={parentAgree} onChange={(event) => setParentAgree(event.target.checked)} />
+                <span>I&apos;m the parent or guardian and I agree for my child to use Diamond Animator. I agree to the <a className={styles.inlineLink} href="/terms" target="_blank" rel="noopener">Terms of Service</a> and <a className={styles.inlineLink} href="/privacy#children" target="_blank" rel="noopener">Privacy Policy</a>.</span>
+              </label>
+            )}
             {error && <p className={styles.error} role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5v.01" /></svg>{error}</p>}
-            <button type="submit" className={styles.primary} disabled={busy}>{action}</button>
+            <button type="submit" className={styles.primary} disabled={busy || (parentForm && !parentAgree)}>{action}</button>
           </form>
         )}
                 <div className={styles.cardFoot}>
           {mode === "signup" && <p className={styles.fine}>Already have an account? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Log in</button></p>}
-          {mode === "signup" && <p className={styles.fine}>By creating an account you agree to the <a className={styles.inlineLink} href="/terms" target="_blank" rel="noopener">Terms of Service</a> and <a className={styles.inlineLink} href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>}
-          {mode === "signup" && <p className={styles.fine}>We&apos;ll email you tips during your free trial. Unsubscribe any time.</p>}
+          {mode === "signup" && !parentForm && <p className={styles.fine}>By creating an account you agree to the <a className={styles.inlineLink} href="/terms" target="_blank" rel="noopener">Terms of Service</a> and <a className={styles.inlineLink} href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>}
+          {mode === "signup" && <p className={styles.fine}>We&apos;ll email {parentForm ? "you (the parent)" : "you"} tips during your free trial. Unsubscribe any time.</p>}
           {mode === "login" && <p className={styles.fine}>New to Diamond Animator? <button type="button" className={styles.inlineLink} onClick={() => switchMode("signup")}>Create an account</button></p>}
           {mode === "forgot" && !resetSent && <p className={styles.fine}>Remembered it? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Back to log in</button></p>}
         </div>

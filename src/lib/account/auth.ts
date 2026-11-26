@@ -72,6 +72,11 @@ export const auth = betterAuth({
         input: false,
         returned: true,
       },
+      // SPEC-0031 (dad, Nov 26 - COPPA): one word per account, never the birth year: "13plus", "parent" or "under13"
+      // (see ageCheck.ts). The browser can't set or change it: a sign-up's answer is checked in databaseHooks below, an old
+      // account answers once through /api/account/age. Empty = an account made before the rule (asked on its next visit).
+      ageGroup: { type: "string", required: false, input: false, returned: true },
+      ageCheckedAt: { type: "date", required: false, input: false, returned: false },
     },
     // SPEC-0020 Phase 1: "Delete my account" (password required). Projects are marked deleted like the library's
     // Delete, and the account's saved chats, notifications, preferences and recovery copies are removed first.
@@ -107,6 +112,21 @@ export const auth = betterAuth({
   // SPEC-0020 Phase 1: a profile picture must be a small image (resized in the browser); anything else is refused.
   databaseHooks: {
     user: {
+      // SPEC-0031: a sign-up must say "13plus" or "parent" (an under-13 never signs up with their own email). Anything else
+      // is refused before the account exists. Accounts made outside the sign-up page (none today) are simply asked later.
+      create: {
+        before: async (data, context) => {
+          if (context?.path !== "/sign-up/email") return { data };
+          const { isSignUpAgeGroup } = await import("./ageCheck");
+          // Sent as "ageAnswer" (not the column's name), because the browser may never write the column itself.
+          const ageGroup = (context.body as { ageAnswer?: unknown } | undefined)?.ageAnswer;
+          if (!isSignUpAgeGroup(ageGroup)) {
+            const { APIError } = await import("better-auth/api");
+            throw new APIError("BAD_REQUEST", { message: "Please answer the birth year question first.", code: "AGE_CHECK_NEEDED" });
+          }
+          return { data: { ...data, ageGroup, ageCheckedAt: new Date() } };
+        },
+      },
       update: {
         before: async (data) => {
           if (data.image != null && !isAccountProfileImage(data.image)) return false;

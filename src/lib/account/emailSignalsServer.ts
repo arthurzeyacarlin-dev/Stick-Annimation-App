@@ -5,12 +5,15 @@ import "server-only";
 import { getAccountPlanStatus, hasMadeAnimation, listBillingOwners, readAccountBillingIds } from "./aiCredits";
 import type { AccountPlanStatus } from "./plans";
 import { sendEmailSignals } from "./emailSignals";
+import { mayGetEmails } from "./ageCheck";
 
 const SWEEP_EVERY_MS = 6 * 60 * 60 * 1000;
 const cache = globalThis as typeof globalThis & { diamondEmailSignalSweeper?: boolean };
 
-/** Sends this account's new facts (the plan status is passed in when the caller already has it). Never waits, never throws. */
-export function sendAccountEmailSignals(ownerId: string, email: string | null | undefined, status?: AccountPlanStatus) {
+/** Sends this account's new facts (the plan status is passed in when the caller already has it). Never waits, never throws.
+ *  SPEC-0031 (COPPA): only for accounts that said 13 or older, or a parent's account - never an under-13 or an unanswered one. */
+export function sendAccountEmailSignals(ownerId: string, email: string | null | undefined, ageGroup: unknown, status?: AccountPlanStatus) {
+  if (!mayGetEmails(ageGroup)) return;
   try {
     sendEmailSignals(ownerId, email, status ?? getAccountPlanStatus(ownerId), {
       subscriptionId: readAccountBillingIds(ownerId).subscriptionId,
@@ -30,7 +33,7 @@ export function startEmailSignalSweeper() {
       for (const ownerId of listBillingOwners()) {
         try {
           const user = await context.internalAdapter.findUserById(ownerId);
-          if (user?.email) sendAccountEmailSignals(ownerId, user.email);
+          if (user?.email) sendAccountEmailSignals(ownerId, user.email, (user as { ageGroup?: unknown }).ageGroup);
         } catch { /* next account */ }
         await new Promise((done) => setTimeout(done, 200));
       }

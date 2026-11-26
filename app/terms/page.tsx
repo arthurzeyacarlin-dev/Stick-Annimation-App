@@ -30,7 +30,7 @@ const sections: LegalSection[] = [
     content: (
       <>
         <ul>
-          <li><strong>Under 13:</strong> a parent or legal guardian must create the account with their own email address, give consent, and handle payment.</li>
+          <li><strong>Under 13:</strong> you can&rsquo;t make an account yourself. A parent or legal guardian creates the account with their own email address, agrees (&ldquo;I&rsquo;m the parent or guardian and I agree for my child to use Diamond Animator&rdquo;) and handles payment; the child then uses that account. Sign-up asks your birth year to check this.</li>
           <li><strong>13 to 17 (or under the age of adulthood where you live):</strong> you may use the Service only with the permission of a parent or guardian, who must agree to these Terms and handle payment.</li>
           <li><strong>Adults</strong> can sign up on their own.</li>
         </ul>
@@ -200,5 +200,5 @@ const sections: LegalSection[] = [
 ];
 
 export default function TermsPage() {
-  return <LegalPage title="Terms of Service" intro="The rules for using Diamond Animator, in plain English. If you’re a kid, please read them with a parent." updated="November 23, 2026" sections={sections} other={{ href: "/privacy", label: "Privacy Policy" }} />;
+  return <LegalPage title="Terms of Service" intro="The rules for using Diamond Animator, in plain English. If you’re a kid, please read them with a parent." updated="November 26, 2026" sections={sections} other={{ href: "/privacy", label: "Privacy Policy" }} />;
 }

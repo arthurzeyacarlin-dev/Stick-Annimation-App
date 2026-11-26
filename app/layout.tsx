@@ -22,6 +22,8 @@ import { PhoneTabBar } from "@/src/components/phone/PhoneTabBar";
 import { isOwnerEmail } from "@/src/lib/account/owner";
 import { HelpBubble } from "@/src/components/support/HelpBubble";
 import { StatusBanner } from "@/src/components/support/StatusBanner";
+import { AgeGate } from "@/src/components/account/AgeGate";
+import { ageAllowed } from "@/src/lib/account/ageCheck";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,6 +57,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerAccountSession();
+  // SPEC-0031 (COPPA): a signed-in account with no age answer is asked once; an "under 13" one gets the parent hand-off.
+  // The owner's account is never locked: it is asked too, but its "No" leads to the parent's consent (see AgeGate).
+  const owner = !!session && isOwnerEmail(session.user.email);
+  const ageGate = !session || ageAllowed(session.user.ageGroup) ? null : session.user.ageGroup === "under13" && !owner ? "under13" : "ask";
+  const inApp = !!session && !ageGate;
   // One look for everyone: dark with Diamond blue.
   const appearance = parseAppearanceCookie(null); // always the one look; older saved choices are ignored
   return (
@@ -71,19 +78,19 @@ export default async function RootLayout({
       >
         <AccountSessionProvider user={session ? toAccountPublicUser(session) : null}>
           {session && <AppearanceSync />}
-          <NotificationCenterProvider owner={!!session && isOwnerEmail(session.user.email)}>
+          <NotificationCenterProvider owner={owner}>
             <ChunkReloadGuard />
             {/* SPEC-0027 (Nov 26): "We're fixing X" / "Resolved" on every page, signed in or not. */}
             <StatusBanner />
-            {children}
+            <AgeGate gate={ageGate} owner={owner}>{children}</AgeGate>
             <PageLoadingMark />
             <ChoicePills />
             {/* The guided tour (it was left out by the redesign; Arthur 2026-10-26 put it back). */}
             <IconNames />
-            {session && <LearnMode />}
-            {session && <PhoneTabBar />}
+            {inApp && <LearnMode />}
+            {inApp && <PhoneTabBar />}
             {/* SPEC-0027: the help bubble (AI Help first, then "Talk to a person") on every signed-in page. */}
-            {session && <HelpBubble />}
+            {inApp && <HelpBubble />}
           </NotificationCenterProvider>
         </AccountSessionProvider>
       </body>

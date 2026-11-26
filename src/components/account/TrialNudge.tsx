@@ -20,7 +20,10 @@ import styles from "./TrialNudge.module.css";
 // while no card is open: "Your beta price is reserved... It disappears when your free trial ends in N days. Lock it in".
 // Closing the bar hides it for this visit (this tab); it comes back next time, stronger in the last 3 days.
 const SEEN_KEY = "trial-nudges";
-const HIDDEN_ON = ["/plans", "/status", "/testimonials", "/reset-password", "/reports"];
+const HIDDEN_ON = ["/status", "/testimonials", "/reset-password", "/reports"];
+// (Nov 26, dad: the beta lock-in "bold and upfront") on Home and Plans the beta bar is a wide banner at the top; elsewhere it
+// stays the slim bar; in the editor it steps aside (it covered the timeline's controls). Only the bar, never the trial cards.
+const TOP_BANNER_ON = new Set(["/", "/plans"]);
 const READ_EVERY_MS = 5 * 60_000;
 const BAR_CLOSED_KEY = "diamond.betaBar.closed";
 type Seen = { schema: "trial-nudges/v1"; seen: TrialNudgeStage[] };
@@ -72,6 +75,8 @@ export function TrialNudge() {
   }, [status, shown]);
 
   if (!status || HIDDEN_ON.some((path) => pathname.startsWith(path))) return null;
+  // the trial cards are never shown on Plans (that page already is the answer); only the beta banner is
+  if (pathname.startsWith("/plans") && shown) return null;
   const trialOn = status.plan === "trial" && !status.locked;
   const trialEndsAt = status.trialEndsAt ?? status.windowEnd;
   if (!shown) {
@@ -80,7 +85,7 @@ export function TrialNudge() {
     const beta = betaReservedCopy(trialEndsAt);
     const closeBar = () => { try { window.sessionStorage.setItem(BAR_CLOSED_KEY, "1"); } catch { /* this page only */ } setBarClosed(true); };
     return (
-      <aside className={styles.bar} role="status" data-urgent={beta.urgent || undefined}>
+      <aside className={styles.bar} role="status" data-urgent={beta.urgent || undefined} data-place={TOP_BANNER_ON.has(pathname) ? "top" : undefined}>
         <p className={styles.barText}><span className={styles.diamond} aria-hidden="true">◆</span><strong>{beta.title}</strong> {beta.text}</p>
         <Link href={`/plans?code=${encodeURIComponent(saved.code)}`} prefetch={false} className={styles.primary}>{beta.button}</Link>
         <CloseButton label="Close this message" onClick={closeBar} />

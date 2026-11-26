@@ -37,3 +37,14 @@
 :global(html[data-device="phone"]) .barText { flex: 1 1 calc(100% - 50px); font-size: 14px; }
 :global(html[data-device="phone"]) .bar .primary { flex: 1; min-height: 44px; font-size: 15px; }
 :global(html[data-device="tablet"]) .bar { bottom: calc(12px + var(--phone-tabbar-space, 72px)); }
+/* (Nov 26, dad's test) the editor: the bar steps aside (it covered the timeline's FPS / play controls), like the help bubble */
+:global(html[data-home-view="animationWorkspace"]) .bar { display: none; }
+/* (Nov 26, dad: "bold and upfront") Home + Plans on a computer: a wide banner at the top, under the header, same words */
+:global(html:not([data-device="phone"]):not([data-device="tablet"])) .bar[data-place="top"] {
+  top: calc(var(--da-header-height, 60px) + 10px); bottom: auto; left: 50%; transform: translateX(-50%);
+  width: min(1100px, calc(100vw - 48px)); max-width: none; gap: 16px; padding: 12px 12px 12px 20px; border-width: 2px; border-radius: 14px; }
+:global(html:not([data-device="phone"]):not([data-device="tablet"])) .bar[data-place="top"] .barText { flex: 1; font-size: 16px; color: var(--da-text); }
+:global(html:not([data-device="phone"]):not([data-device="tablet"])) .bar[data-place="top"] .barText strong { font-size: 16.5px; }
+:global(html:not([data-device="phone"]):not([data-device="tablet"])) .bar[data-place="top"] .primary { min-height: 42px; padding: 0 20px; font-size: 15px; }
+/* the page moves down while the top banner shows, so the banner never covers the page's first line */
+:global(html:not([data-device="phone"]):not([data-device="tablet"]) body):has(.bar[data-place="top"]) :global(main) { padding-top: 96px; }

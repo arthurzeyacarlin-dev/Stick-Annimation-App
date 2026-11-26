@@ -2,7 +2,8 @@ import { createHash, randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { appendFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync, statfsSync } from "node:fs";
 import { join } from "node:path";
-import { AI_ACTION_CREDITS, FREE_PLAN_CHANGES } from "../../account/plans.ts";
+import { AI_ACTION_CREDITS, FREE_PLAN_CHANGES, gatePictureEstimate } from "../../account/plans.ts";
+import { changedStepRange, handFixPlace, type V1HandFix } from "./v1HandFix.ts";
 import { priceOf, storyLeftAfter, type V1Price } from "./v1Price.ts";
 import type { EngineBlockResult } from "../engineBlocks/engineBlocksContract.ts";
 import type {
@@ -104,7 +105,7 @@ export type V1TurnRequest = { ownerId: string; projectId: string; animationId: s
   queued?: boolean; // (Nov 20) the app's own "add the next part" turn of a long story: never saved as his chat line
   effort?: V1Effort | null }; // (Nov 2 final round) the chat's Effort button, as sent (the Sonnet brain resolves auto by the book's rule)
 export type V1TurnOutcome =
-  | { ok: true; turn: V1LunaTurn; animation: V1AnimationSnapshot | null; started: boolean; gate?: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: "first" | "new"; freeChangesLeft?: number; edit?: boolean } }   // (Nov 22) exact = the animator's own words, when the lines are the briefs
+  | { ok: true; turn: V1LunaTurn; animation: V1AnimationSnapshot | null; started: boolean; gate?: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: "first" | "new"; pictureOffer?: { credits: number; reused: number } | null; freeChangesLeft?: number; edit?: boolean; handFix?: V1HandFix }; handFix?: V1HandFix }   // (Nov 22) exact = the animator's own words, when the lines are the briefs
   | { ok: false; status: number; error: string };
 export type V1ActionOutcome =
   | { ok: true; animation: V1AnimationSnapshot }
@@ -1369,7 +1370,7 @@ export function createV1Animator(deps: V1CoreDeps) {
   // the lines of only the steps that will really be made (the animator reads those steps' own words), and Animate starts that run unchanged.
   // (Nov 20, money) `price` = what the card shows and the account must be able to pay; the job is charged ctx.price when it has one
   // (a long story: its first part's share), else `price`.
-  type Gated = { anim: Animation; isNew: boolean; kind: Job["kind"]; plan: V1Plan; edits: V1EditOp[] | null; ctx: Parameters<typeof startJob>[4]; still: boolean; price: V1Price; newThings?: string };
+  type Gated = { anim: Animation; isNew: boolean; kind: Job["kind"]; plan: V1Plan; edits: V1EditOp[] | null; ctx: Parameters<typeof startJob>[4]; still: boolean; price: V1Price; newThings?: string ; handFix?: V1HandFix | null };
   const gated = new Map<string, Gated>();
   // (Nov 13, Arthur: "the gate should TALK to me about what will be animated" - and whatever it says is what is made) ONE rule for a new
   // animation and for an edit: a card line = the step's own sentence, as Sonnet wrote it, with its seconds - exactly what the animator is
@@ -1389,14 +1390,17 @@ export function createV1Animator(deps: V1CoreDeps) {
     const colourOp = g.edits?.find((op): op is Extract<V1EditOp, { op: "colour" }> => op.op === "colour");
     const colour = colourOp ? colourOp.colour : g.isNew && g.plan.noFigure !== true ? g.plan.colour : null;   // (Nov 14, live: a bare red square on a ball's card) his colour only when he is in it   // (Nov 11) the card shows the exact colour as a swatch (Nov 11 night: a new animation's always - it is never asked, so it is always shown)
     const picture = gatePictureKind(g);
-    if (picture) ensureGatePicture(g);   // (Nov 22, Arthur: "the image needs to come faster") drawn from the moment the card exists
+    // (Dad, Nov 26 15:57: "approve the plan text first, then see the image, then generate the video from the image") the first picture is
+    // never drawn by itself: the text plan comes first (changed as often as wanted), and the picture is drawn when the text is approved
+    // (gatePicture) - the same engine run as before, reused by Animate. Animate comes after the picture (confirm checks it).
+    const pictureOffer = picture ? gatePictureEstimate(picture, Boolean(g.newThings?.trim())) : null;
     // (Nov 22, Arthur: "I don't want to read a book ... a quick summary, easy to understand, with all the details needed") each step's
     // line on the card is Sonnet's own short brief of it (written with the step, never sent to the animator), with its seconds; the exact
     // words the animator gets stay one tap away (exact). A line without a brief stays as it was.
     const briefOf = new Map((turn.kimodoSteps ?? []).map((s, i) => [String(s.text ?? "").trim(), String(turn.stepBriefs?.[i] ?? "").trim()] as const));
     let briefed = false;
     const short = lines.map((l) => { const m = /^([\s\S]*) \((\d+(?:\.\d+)?) s\)$/.exec(l); const b = m ? briefOf.get(m[1].trim()) : ""; if (!m || !b) return l; briefed = true; return `${b} (${m[2]} s)`; });
-    return { ok: true as const, turn, animation: g.isNew ? null : snapshot(g.anim), started: false, gate: { credits: g.price.credits, lines: [...short, ...(turn.lookBriefs ?? [])], ...(briefed ? { exact: lines } : {}), notDrawn: [], colour, ...(picture ? { picture } : {}), freeChangesLeft: freeTurnsLeft(g.anim.ownerId, g.anim.projectId), ...(g.isNew ? {} : { edit: true }) } };   // (Nov 14, Arthur: a card always means "I can make exactly this" - nothing on it is "not drawn")
+    return { ok: true as const, turn, animation: g.isNew ? null : snapshot(g.anim), started: false, gate: { credits: g.price.credits, lines: [...short, ...(turn.lookBriefs ?? [])], ...(briefed ? { exact: lines } : {}), notDrawn: [], colour, ...(picture ? { picture, pictureOffer } : {}), freeChangesLeft: freeTurnsLeft(g.anim.ownerId, g.anim.projectId), ...(g.isNew ? {} : { edit: true }), ...(g.handFix ? { handFix: g.handFix } : {}) } };   // (Nov 14, Arthur: a card always means "I can make exactly this" - nothing on it is "not drawn")
   };
   // (Nov 19 eve, Arthur: "one flowing system ... for any length" - measured: a part written before the part before it existed began with three
   // logs already stacked, then they vanished) THE NEXT PART OF A LONG STORY IS WRITTEN FROM THE REAL LAST PICTURE: the moment a part is done,
@@ -1437,6 +1441,9 @@ export function createV1Animator(deps: V1CoreDeps) {
     if (!g) return { ok: false, status: 409, error: "That plan is no longer waiting. Please send your message again - nothing was charged." };
     if (!g.isNew && busyWith(g.anim)) return { ok: false, status: 409, error: plain("edit_while_running") };   // (Nov 25) only HIS animation being made can wait; anyone else's never blocks
     const pic = gatePics.get(g);
+    // (dad, Nov 26 15:57: "approve the plan text first, then see the image, then generate the video from the image") a plan that has a first
+    // picture is animated only from that picture: approved text -> picture -> Animate. (A plan with nothing to picture animates at once.)
+    if (!pic && gatePictureKind(g)) return { ok: false, status: 409, error: "First approve the plan and look at the first picture, then press Animate - nothing was charged." };
     if (pic && !pic.state.done) return { ok: false, status: 409, error: "The first picture is still being drawn. Press Animate when it shows - nothing was charged." };
     const runShort = creditsShortFor(ownerId, g.price.credits, pic ? pic.state.id : null, projectId);   // (Nov 26) its own picture and planning are in this price
     if (runShort) return { ok: false, status: 402, error: runShort };
@@ -1765,7 +1772,13 @@ export function createV1Animator(deps: V1CoreDeps) {
       // animated its look never changes: a colour / look / style order, or a look put on a saved step, is never run - he is told plainly
       const lookOrder = engineOps.some((op) => op.op === "colour" || op.op === "style" || op.op === "look")
         || (said.kimodoSteps ?? []).some((s) => (s.step ?? 0) > 0 && typeof s.look === "string" && s.look.trim() !== "");
-      if (lookOrder) return keep({ ok: true, turn: { intent: "clarify", say: LOOKS_STAY }, animation: snapshot(anim), started: false });
+      if (lookOrder) {
+        // (dad + Arthur, Nov 26) a look can't be changed by the AI, but it can be fixed by hand, for free: WHERE (the steps Sonnet named)
+        const saved = base.plan.blocks.flatMap((b) => b.steps ?? []);
+        const named = (said.kimodoSteps ?? []).map((st) => (st.step ?? 0) - 1).filter((k) => k >= 0 && k < saved.length);
+        const handFix: V1HandFix | null = named.length ? { ...handFixPlace(saved, Math.min(...named), Math.max(...named), anim.fps ?? engineFps), recommend: "hand", remake: null } : null;
+        return keep({ ok: true, turn: { intent: "clarify", say: LOOKS_STAY }, animation: snapshot(anim), started: false, ...(handFix ? { handFix } : {}) });
+      }
       if (busyWith(anim)) return told("edit_while_running");   // (Nov 25) another person's animation never blocks an edit: it waits in line if the machine is full
       const editShort = request.queued ? null : creditsShortFor(request.ownerId, AI_ACTION_CREDITS.chat);   // (the exact price is checked below, once it is known)
       if (editShort) return { ok: false, status: 402, error: editShort };
@@ -1788,6 +1801,12 @@ export function createV1Animator(deps: V1CoreDeps) {
       const remakeAll = !!namedSteps?.length && savedSteps.length > 0 && !keepsAll && savedSteps.length <= REMAKE_ALL_MAX_STEPS
         && savedSteps.reduce((t, st) => t + (Number(st.seconds) || 0), 0) <= REMAKE_ALL_MAX_S && !savedSteps.some((st) => typeof st.look === "string" && st.look.trim() !== "");
       const editSteps = remakeAll ? namedSteps!.map((st) => ({ ...st, changed: true })) : namedSteps;
+      // (dad + Arthur, Nov 26) a change of the moves of an animation that exists: the card offers BOTH ways - fix it yourself (where, from the
+      // plan's own timings) or make it again (exactly what is made: the whole animation, or only these steps). Adding at the end has no
+      // hand fix (it is new animation). Recommended: make it again (the moves change).
+      const changedRange = changedStepRange(savedSteps, namedSteps);
+      const editHandFix: V1HandFix | null = changedRange ? { ...handFixPlace(savedSteps, changedRange[0], changedRange[1], anim.fps ?? engineFps), recommend: "remake",
+        remake: { whole: remakeAll, firstStep: changedRange[0] + 1, lastStep: changedRange[1] + 1, seconds: Math.round(savedSteps.reduce((t, st) => t + (Number(st.seconds) || 0), 0) * 10) / 10 } } : null;
       const jobPrev = remakeAll ? null : prevDir;
       const editStill = typeof said.still === "boolean" ? said.still : said.kimodoSteps?.length ? false : base.still === true;
       const editS = (editSteps ?? []).reduce((t, s) => t + s.seconds, 0) || planSeconds(base.plan);   // (Nov 13) the job's time limit follows the animation's own length
@@ -1814,7 +1833,7 @@ export function createV1Animator(deps: V1CoreDeps) {
       const payShort = creditsShortFor(request.ownerId, editPrice.credits);   // (Nov 11) never a card the account cannot pay for
       if (payShort) return { ok: false, status: 402, error: payShort };
       if (deps.gate) {   // (Nov 11) an edit waits at the gate too; the card lists only the steps that will really be made again
-        return keep(hold(`${request.ownerId}|${request.projectId}`, { anim, isNew: false, kind: "edit", plan: camPlan, edits: engineOps, ctx: { ...ctx, basePlan: camPlan, prevDir: jobPrev, steps: editSteps, askedS: editS, ...(remakeAll ? { remakeAll: true } : {}) }, still: editStill, price: editPrice, ...(said.newThings ? { newThings: said.newThings } : {}) }, said, [...gateLines(editSteps), ...(remakeAll ? [REMAKE_ALL_LINE] : truth), ...(newLook ? [serverWord(book, "new_take_look")] : [])]));
+        return keep(hold(`${request.ownerId}|${request.projectId}`, { anim, isNew: false, kind: "edit", handFix: editHandFix, plan: camPlan, edits: engineOps, ctx: { ...ctx, basePlan: camPlan, prevDir: jobPrev, steps: editSteps, askedS: editS, ...(remakeAll ? { remakeAll: true } : {}) }, still: editStill, price: editPrice, ...(said.newThings ? { newThings: said.newThings } : {}) }, said, [...gateLines(editSteps), ...(remakeAll ? [REMAKE_ALL_LINE] : truth), ...(newLook ? [serverWord(book, "new_take_look")] : [])]));
       }
       startJob(anim, "edit", camPlan, engineOps, { ...ctx, basePlan: camPlan, prevDir: jobPrev, steps: editSteps, askedS: editS, price: editPrice, ...(remakeAll ? { remakeAll: true } : {}) }, editStill);   // (Nov 5, live: "now make him run and do a backflip" on a drawing stayed ONE picture) new moves = an animation
       said = { ...said, say: editLength(said.say, engineOps, base.plan, partSeconds ?? {}, request.message, book) };   // (Nov 2 app round) ONE length line

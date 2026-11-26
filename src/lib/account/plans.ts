@@ -27,10 +27,10 @@ export const LOW_CREDITS_SHARE = 0.1;
 export type PlanInfo = { label: string; credits: number; price: string; monthlyUsd: number; yearlyUsd: number; about: string };
 // Dad, Nov 17 (website live Nov 20). monthlyUsd = the price of one cycle. (Dad, Nov 26: the free trial has 300 credits, was 150.)
 export const ACCOUNT_PLANS: Record<AccountPlanId, PlanInfo> = {
-  trial: { label: "Free trial", credits: 300, price: "Free for 14 days", monthlyUsd: 0, yearlyUsd: 0, about: "Enough for 4 animations, each 10 seconds long (71 credits each, planning included): 40 seconds of animation in total" },
-  starter: { label: "Basic", credits: 470, price: `$9.99 a ${CYCLE_WORD}`, monthlyUsd: 9.99, yearlyUsd: 99, about: "Enough for 6 animations, each 10 seconds long (71 credits each, planning included): 1 minute of animation in total" },
-  creator: { label: "Pro", credits: 1200, price: `$24.99 a ${CYCLE_WORD}`, monthlyUsd: 24.99, yearlyUsd: 249, about: "Enough for 16 animations, each 10 seconds long (71 credits each, planning included): 2 minutes 40 seconds of animation in total" },
-  studio: { label: "Creator", credits: 2400, price: `$49.99 a ${CYCLE_WORD}`, monthlyUsd: 49.99, yearlyUsd: 499, about: "Enough for 33 animations, each 10 seconds long (71 credits each, planning included): 5 minutes 30 seconds of animation in total" },
+  trial: { label: "Free trial", credits: 300, price: "Free for 14 days", monthlyUsd: 0, yearlyUsd: 0, about: "Enough for 3 animations, each 10 seconds long (86 credits each, planning included): 30 seconds of animation in total" },
+  starter: { label: "Basic", credits: 470, price: `$9.99 a ${CYCLE_WORD}`, monthlyUsd: 9.99, yearlyUsd: 99, about: "Enough for 5 animations, each 10 seconds long (86 credits each, planning included): 50 seconds of animation in total" },
+  creator: { label: "Pro", credits: 1200, price: `$24.99 a ${CYCLE_WORD}`, monthlyUsd: 24.99, yearlyUsd: 249, about: "Enough for 13 animations, each 10 seconds long (86 credits each, planning included): 2 minutes 10 seconds of animation in total" },
+  studio: { label: "Creator", credits: 2400, price: `$49.99 a ${CYCLE_WORD}`, monthlyUsd: 49.99, yearlyUsd: 499, about: "Enough for 27 animations, each 10 seconds long (86 credits each, planning included): 4 minutes 30 seconds of animation in total" },
 };
 
 /** What the AI really costs, in credits (1 credit = 1 cent). One table, so a provider price change is one edit. */
@@ -92,13 +92,23 @@ export const ANIMATOR_KINDS: readonly AiActionKind[] = AI_ACTION_KINDS.filter((k
 export const newAnimationCredits = (seconds: number) =>
   Math.ceil(CREDIT_RATES.perSecond * (Math.max(0, Number(seconds) || 0) + CREDIT_RATES.sceneSeconds + CREDIT_RATES.endSeconds));
 /** (Dad, Nov 26) PLANNING IS INCLUDED in the animation's price: one flat amount on the Animate (or edit) card covers Sonnet's plan
- *  answers and the first pictures before Animate - the first plan plus FREE_PLAN_CHANGES changes. 15 credits: measured on the Sonnet
- *  ledger (Nov 19-26, 360 answers), a warm answer costs 9 credits on average (median 8, 9 in 10 under 14), so a first plan plus most
- *  of a typical change; the cold load of Sonnet's rulebook is never charged to anyone (we pay it). */
-export const PLANNING_CREDITS = AI_ACTION_CREDITS.chat;
-export const FREE_PLAN_CHANGES = 3;
-/** A change after the free ones is charged its warm real cost, never more than this (shown on the card before it is sent). */
+ *  answers before Animate - the first plan plus FREE_PLAN_CHANGES text changes (dad + Arthur, 15:54: "let them edit the plan as much as
+ *  they want"). Chosen from the Sonnet ledger (Nov 19-26, 360 answers: a warm answer costs 8.8 credits on average, median 8, 9 in 10 under
+ *  14): 4 free changes + 30 is the smallest pair that keeps someone who always uses all of them profitable even if every answer were as
+ *  slow as the slowest 1 in 10 (beta price above $0), and 39% at full price on average (5 + 25 lost money in that slow case). The cold
+ *  load of Sonnet's rulebook is never charged to anyone (we pay it). */
+export const PLANNING_CREDITS = 30;
+export const FREE_PLAN_CHANGES = 4;
+/** A text change after the free ones is charged its warm real cost, never more than this (shown on the card before it is sent). */
 export const PAID_CHANGE_MAX_CREDITS = 20;
+/** (Dad + Arthur, Nov 26 15:54) the first picture is OPTIONAL, drawn only when asked. It is the real start of the H3 run: a new animation's
+ *  3-second scene (Animate reuses it, so it is never paid twice), plus - when the story brings things in later, or for an edit that brings
+ *  new things - one still of those things (extra: added to the Animate price, or charged if the plan is changed instead). */
+export function gatePictureEstimate(kind: "first" | "new", laterThings: boolean): { credits: number; reused: number } {
+  const clip = Math.ceil(CREDIT_RATES.perSecond * CREDIT_RATES.sceneSeconds);
+  if (kind === "new") return { credits: clip, reused: 0 };
+  return laterThings ? { credits: 2 * clip, reused: clip } : { credits: clip, reused: clip };
+}
 /** What a new animation of `seconds` costs on its card, planning included. 10 s = 71 credits. */
 export const animationPriceCredits = (seconds: number) => newAnimationCredits(seconds) + PLANNING_CREDITS;
 export const SHORT_ANIMATION_CREDITS = animationPriceCredits(10);

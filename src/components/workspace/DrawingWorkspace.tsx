@@ -9978,6 +9978,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return { frameIndex: currentFrameIndexRef.current, layerId: layer.id, layerName: layer.name, fps: timelineFps, spans };
     },
     goToFrame: (frameIndex) => switchToFrame(frameIndex),
+    // (dad + Arthur, Nov 26) the AI chat's "Take me there": that frame, the Eraser, Onion skin on (the person then fixes it by hand)
+    openForHandFix: (frameIndex) => { switchToFrame(frameIndex); activateDrawingTool("Eraser"); setIsOnionEnabled(true); },
     // (the same clamp as the timeline's fps box)
     setFps: (nextFps) => setTimelineFps(Math.max(1, Math.min(60, Math.round(nextFps)))),
     // (V1 AI Animator, Nov 2: a finished animation never interrupts the user — playing is paused for the placement, then resumed)

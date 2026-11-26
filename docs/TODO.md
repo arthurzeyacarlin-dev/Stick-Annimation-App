@@ -1,6 +1,9 @@
 # TODO
 
-## Money leaks + email confirm (SPEC-0033, dad Nov 26) — built, waits for dad's walkthrough to end
+## Money leaks + email confirm (SPEC-0033, dad Nov 26)
+
+- [x] **TEXT-PICTURE-ANIMATE** — built Nov 26 (dad 15:57): text plan -> first picture -> Animate, 4 free text changes, planning 30; waits for Arthur's OK in Website pm.
+- [x] **EDIT-TWO-CHOICES** — built Nov 26 (dad + Arthur 16:07-16:09): fix it yourself (where + Take me there) or remake (exactly what, its price). — built, waits for dad's walkthrough to end
 
 - [x] **SWITCH-FAIR-REFUND** — built: a switch gives back only the unused share (paid x unused / credits paid for, minus that share of the fee).
 - [x] **WAITING-PICTURE-HELD** — built: a waiting gate picture holds its real cost and counts toward the daily + trial limits (making unchanged).

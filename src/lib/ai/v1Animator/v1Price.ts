@@ -1,7 +1,7 @@
 // THE AI ANIMATOR'S PRICE (Nov 20, dad's credits plan): what the gate card shows, what is held while the run is made, and
 // exactly what is charged when it is done - never more. 1 credit = 1 cent of real AI cost (plans.ts CREDIT_RATES).
 // Plain numbers in, credits out: nothing here reads or changes how an animation is made.
-import { AI_ACTION_CREDITS, CREDIT_RATES, newAnimationCredits, type AiActionKind } from "../../account/plans.ts";
+import { CREDIT_RATES, newAnimationCredits, PLANNING_CREDITS, type AiActionKind } from "../../account/plans.ts";
 
 export type V1Price = { credits: number; kind: Extract<AiActionKind, "animation" | "addon" | "edit" | "look"> };
 
@@ -36,7 +36,7 @@ const seconds = (value: number | undefined) => Math.max(0, Number(value) || 0);
 /** The credits of one AI Animator run, and which line of the AI Dashboard it goes on. */
 export function priceOf(input: V1PriceInput): V1Price {
   const rate = CREDIT_RATES.perSecond;
-  const chat = input.chat === false ? 0 : AI_ACTION_CREDITS.chat;
+  const chat = input.chat === false ? 0 : PLANNING_CREDITS;   // (dad, Nov 26) the card's planning amount (plans.ts)
   if (input.newSeconds !== undefined) {
     return { credits: newAnimationCredits(seconds(input.newSeconds)) + chat, kind: "animation" };   // (Nov 26) the same function the app's texts use
   }

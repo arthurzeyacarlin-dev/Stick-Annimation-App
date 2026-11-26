@@ -31,6 +31,8 @@ export type EngineDrawingBridge = {
   place: (source: SceneForPage, placement: AnimatorScenePlacement) => boolean;
   info: () => EngineDrawingInfo | null;
   goToFrame: (frameIndex: number) => void;
+  // (dad + Arthur, Nov 26) "Take me there": open this frame (0-based) with the Eraser and Onion skin on, for a fix by hand
+  openForHandFix?: (frameIndex: number) => void;
   pageMap: () => PageToCanvasMap | null;
   // (Nov 14, V1 AI Animator: "trees getting cut off") the page's own shape right now [width, height] (any unit): a new animation is made in it
   pageSize?: () => [number, number] | null;

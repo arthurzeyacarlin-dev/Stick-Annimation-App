@@ -221,6 +221,8 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
             // (Nov 11, Arthur) no cancel X while animating: the gate card is where the user says no; a cancel left H3 paid for and the user not
             onAnimate={(lineId) => void controllerRef.current?.animate(lineId)}
             onChangePlan={() => composerRef.current?.focus()}
+            onShowPicture={(lineId) => controllerRef.current?.showGatePicture(lineId)}
+            onTakeMeThere={(frameIndex) => bridgeRef.current.openForHandFix?.(frameIndex)}
             onAnswer={(answers) => {   // (Nov 11) the question card: an FPS answer sets the project's FPS now; all answers go back as one message
               const fps = answers.map((a) => /(\d{1,2})\s*fps/i.exec(a)).find(Boolean); if (fps) bridgeRef.current.setFps?.(Number(fps[1]));
               void controllerRef.current?.send(answers.join(". "));

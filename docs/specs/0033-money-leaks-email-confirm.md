@@ -78,3 +78,25 @@ Of (a) 1 free + 15, (b) 3 free + 20, (c) 1 free + 20, (d) 3 free TEXT changes + 
 cost, (e) 1 free + 15 + pictures charged: only (d) and (e) keep heavy planners profitable (heavy beta >= $0, heavy full >= 30%,
 typical full >= 45%). (d) is the smaller change: chosen. The card says before a change is sent: "A change draws a new first
 picture: this one costs N credits." Free plan answers still hold their real cost until that project's Animate.
+
+## TEXT PLAN -> FIRST PICTURE -> ANIMATE (dad + Arthur 15:54, dad 15:57) — branch claude/optional-preview-nov26, on main 895d8f0
+- Step 1, the text plan: no picture is made. The card shows the FULL price up front (planning + any still of later / new things) and one
+  button "Looks right: show me the first picture" + "Change it". Line: "The first picture is the start of your animation: it's included
+  in the price above" (+ how much of it draws later things, when there are any). The first plan + 4 text changes are free, then warm
+  cost (max 20), said first. Planning amount 30 (10-second animation = 86): 4 + 30 keeps heavy planners above $0 at the beta price even
+  if every answer were as slow as the slowest 1 in 10 (5 + 25 did not).
+- Step 2, the first picture: the same engine run as before (H3_GATE_PICTURE), reused by Animate. Then "Animate · N credits" and "Change
+  the plan". A change now throws the picture away (charged its real cost, said first) and goes back to step 1; nothing is redrawn until
+  the new text is approved. The server refuses Animate before the picture (confirm). A plan with nothing to picture animates at once.
+- Verified: the picture runner only runs when the app asks (sitecustomize.py, H3_GATE_PICTURE); the animation run is unchanged and its
+  scene is cached by its words, so Animate reuses the picture's scene; the still of later / new things is never used by Animate.
+
+## Editing an animation that exists: two ways (dad + Arthur 16:07, OK 16:09) — same branch
+- A change of the moves: the edit card shows "Two ways to make this change": **Fix it yourself, free** (where, from the plan's own step
+  timings: "Step 6: about 10.5-13 s, frames about 253-312", how: Take me there opens that frame with the Eraser and Onion skin on; Eraser /
+  Brush, frame by frame) and **Remake ...: N credits** saying exactly what is made ("the whole 15-second animation again", or "steps 4-6
+  again, the rest stays") from the real price. Recommended: remake (the moves change). The main button reads "Remake · N credits".
+- A look the AI can't change (it is refused as before): the reply comes with the same "Fix it yourself, free" card (recommended).
+- Adding at the end ("what happens next") is unchanged: no hand fix, priced by the new seconds only.
+- Not changed: how edits are made (short animations are still remade whole, longer ones only the changed steps), Sonnet's words/book.
+- The frame numbers come from the plan's step seconds at the timeline's fps; H3 follows them closely but not to the picture: said "about".

@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     const out = await withV1Live(isV1LiveKey(body.liveKey) ? body.liveKey : null, who.ownerId, () => v1Animator().turn({ ownerId: who.ownerId, projectId: projectId!, animationId, message, recentConversation, canvas, sheet, ground: body.ground === true, effort, ...(Number(body.projectFps) > 0 && Number(body.projectFps) <= 120 ? { projectFps: Number(body.projectFps) } : {}),
       ...(Array.isArray(body.page) && body.page.length === 2 && body.page.every((v: unknown) => Number.isFinite(Number(v)) && Number(v) > 0) ? { page: [Number(body.page[0]), Number(body.page[1])] as [number, number] } : {}) }));   // (Nov 14) the page's own shape
     return out.ok
-      ? NextResponse.json({ turn: out.turn, animation: out.animation, started: out.started, ...(out.gate ? { gate: out.gate } : {}) }, { status: out.started ? 202 : 200 })
+      ? NextResponse.json({ turn: out.turn, animation: out.animation, started: out.started, ...(out.gate ? { gate: out.gate } : {}), ...(out.handFix ? { handFix: out.handFix } : {}) }, { status: out.started ? 202 : 200 })
       : NextResponse.json({ error: out.error }, { status: out.status });
   }
   if (body.action === "gatePicture") {   // (Nov 22) the gate card's first picture (the engine's own first step, stopped there)

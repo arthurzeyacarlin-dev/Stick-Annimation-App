@@ -7,7 +7,8 @@ import type { ComponentType, ReactNode } from "react";
 import { AssistantActivity, useReducedMotion } from "@/src/components/assistant/AssistantText";
 import { workspaceColors } from "../../workspaceTheme";
 import { creditsText } from "@/src/lib/account/credits";
-import { animatePrice, changeCostLine, FREE_FIX_LINE } from "./v1GatePrice";
+import { animatePrice, changeCostLine, FREE_FIX_LINE, pictureReadyNote, stepOneWords } from "./v1GatePrice";
+import { handFixWords, type V1HandFix } from "@/src/lib/ai/v1Animator/v1HandFix";
 import { V1_PANEL_WORDS, gentleBarPct, progressWords, undoRedoState, v1ReplyBlocks, v1WorkWord, type V1ReplySeg, type V1ChatLine, type V1GatePicture, type V1FrameDelta, type V1PanelState, type V1Progress, type V1ResultBlockMark } from "./v1AnimatorController.ts";
 
 // (Nov 17, Part 2) the changing words while he thinks (the server sends the book's list; these until it does). Never an "almost done" word:
@@ -33,6 +34,8 @@ type Props = {
   onCancel?: () => void;
   onAnimate?: (lineId: number) => void; // (Nov 11) the gate card's Animate
   onChangePlan?: () => void;
+  onShowPicture?: (lineId: number) => void;
+  onTakeMeThere?: (frameIndex: number, seconds: number) => void; // (dad + Arthur, Nov 26) the hand fix: open that frame with the Eraser // (dad + Arthur, Nov 26) the card's optional "Show the first picture" button
   onAnswer?: (answers: string[]) => void; // (Nov 11) a question card choice // (Nov 11) the gate card's Change it: the cursor goes to the message box
 };
 
@@ -122,6 +125,13 @@ export const v1ThreadStyles = `
   .v1-gate-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0; padding: 0 2px; font-size: 11.5px; color: var(--da-muted, #a3a3ab); font-variant-numeric: tabular-nums; }
   .v1-gate-meta .v1-swatch { width: 10px; height: 10px; border-radius: 50%; border-color: rgba(255,255,255,.45); }   /* a colour dot, never a box that reads as a checkbox */
   .v1-gate-note { margin: 0; padding: 0 2px; font-size: 11.5px; line-height: 1.45; color: var(--da-muted, #a3a3ab); }
+  /* (dad + Arthur, Nov 26) the two ways to change an animation that exists */
+  .v1-handfix { display: grid; gap: 8px; }
+  .v1-handfix-title { margin: 0; font-size: 12.5px; font-weight: 650; color: var(--da-text, #f2f2f4); }
+  .v1-handfix-way { display: grid; gap: 5px; padding: 9px 10px; border: 1px solid var(--da-border, #2a2a30); border-radius: 10px; font-size: 12px; line-height: 1.45; color: var(--da-muted, #a3a3ab); }
+  .v1-handfix-way strong { color: var(--da-text, #f2f2f4); font-size: 12.5px; }
+  .v1-handfix-way ol { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+  .v1-handfix-pick { margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: var(--da-accent, #2563eb); color: #fff; font-size: 10.5px; font-style: normal; font-weight: 600; }
   .v1-gate-exact { margin: 0; padding: 0 2px; font-size: 11.5px; color: var(--da-muted, #a3a3ab); }
   .v1-gate-exact summary { width: fit-content; cursor: pointer; list-style: none; border-radius: 6px; }
   .v1-gate-exact summary::-webkit-details-marker { display: none; }
@@ -386,16 +396,15 @@ function GatePictureBox({ picture }: { picture: V1GatePicture }) {
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
   }, [big]);
-  if (picture.state === "none") return null;
+  if (picture.state === "none" || picture.state === "offer") return null;   // (Nov 26) step 1 is the card's button, not a picture
   const isNew = picture.kind === "new";
   if (picture.state === "drawing") return <div className="v1-gate-pic v1-gate-pic-drawing" role="status"><span>{isNew ? "Drawing what's new…" : "Drawing everything in your animation…"}</span><small>{isNew ? "How the new things will look in your animation" : "Everything in your animation, in one picture"}</small></div>;
   if (picture.state === "failed") return <p className="v1-gate-not">The picture could not be drawn ({picture.why}). You can still animate.</p>;
   const say = isNew ? "This is how the new things will look. Once animated, their colours, sizes and shapes can't be changed."
     : "This is how everything will look. Once animated, colours, sizes and shapes can't be changed.";
   const alt = isNew ? "How the new things will look" : "Everything in your animation, in one picture";
-  const animate = Math.max(0, picture.animateCredits), changed = picture.credits;
-  // (dad, Nov 26) what the picture adds when animated is in the card's price; what a change costs (it replaces it) is under the buttons
-  const cost = changed <= 0 || animate <= 0 ? "" : `This picture adds ${creditsText(animate)} when you animate: it's in the price above.`;
+  // (dad + Arthur, Nov 26) exactly what it costs: the reused scene is never paid twice; a still of later / new things is in the price above
+  const cost = pictureReadyNote(picture) ?? "";
   return (
     <>
       <button type="button" className="v1-gate-pic" title="See it bigger" onClick={() => setBig(true)}><img src={picture.src} alt={alt} /><span className="v1-gate-pic-say">{say}</span></button>
@@ -411,7 +420,32 @@ function GatePictureBox({ picture }: { picture: V1GatePicture }) {
 // (Nov 22, Arthur: "a quick summary ... with all the details needed", "more professional and polished") a line "words (N s)" is a step;
 // "24 fps" is a fact; anything else is a note
 const STEP_LINE = /^([\s\S]*) \((\d+(?:\.\d+)?) s\)$/;
-function GateCard({ credits, lines, exact, notDrawn, colour, picture, freeChangesLeft, edit, busy, readOnly, onAnimate, onChange }: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: V1GatePicture; freeChangesLeft?: number; edit?: boolean; busy: boolean; readOnly: boolean; onAnimate: () => void; onChange: () => void }) {
+// (Dad + Arthur, Nov 26 16:07) TWO WAYS to change an animation that exists: fix it yourself on the timeline (free), with exactly where and
+// how, and a button that takes you there - or the AI makes it again, saying exactly what is made and what it costs. The recommended way
+// is marked: only the look changes -> fix it yourself; the moves change -> make it again.
+function HandFixBlock({ fix, price, readOnly, onTakeMeThere }: { fix: V1HandFix; price: number | null; readOnly: boolean; onTakeMeThere?: (frameIndex: number, seconds: number) => void }) {
+  const words = handFixWords(fix);
+  const mark = <em className="v1-handfix-pick">Recommended</em>;
+  return (
+    <div className="v1-handfix" data-v1-handfix="">
+      {fix.remake && price !== null && <p className="v1-handfix-title">Two ways to make this change</p>}
+      <div className="v1-handfix-way" data-v1-hand="">
+        <strong>Fix it yourself, free {fix.recommend === "hand" && mark}</strong>
+        <span>{words.where}</span>
+        <ol>{words.how.map((line, i) => <li key={i}>{line}</li>)}</ol>
+        <div className="v1-actions"><button type="button" data-v1-take-me-there="" disabled={readOnly} onClick={() => onTakeMeThere?.(Math.max(0, (fix.fromFrame ?? 1) - 1), fix.fromS)}>Take me there</button></div>
+      </div>
+      {fix.remake && price !== null && words.remake && <div className="v1-handfix-way" data-v1-remake="">
+        <strong>{fix.remake.whole ? "Remake the whole animation" : `Make ${fix.remake.firstStep === fix.remake.lastStep ? `step ${fix.remake.firstStep}` : `steps ${fix.remake.firstStep}–${fix.remake.lastStep}`} again`}: {creditsText(price)} {fix.recommend === "remake" && mark}</strong>
+        <span>{words.remake}</span>
+      </div>}
+    </div>
+  );
+}
+function GateCard({ credits, lines, exact, notDrawn, colour, picture, freeChangesLeft, edit, handFix, busy, readOnly, onAnimate, onChange, onPicture, onTakeMeThere }: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: V1GatePicture; freeChangesLeft?: number; edit?: boolean; handFix?: V1HandFix; busy: boolean; readOnly: boolean; onAnimate: () => void; onChange: () => void; onPicture?: () => void; onTakeMeThere?: (frameIndex: number, seconds: number) => void }) {
+  // (dad, Nov 26 15:57) step 1 = the text plan (approve it to see the first picture); step 2 = the picture + Animate. A plan with nothing to
+  // picture goes straight to Animate.
+  const stepOne = picture ? stepOneWords(picture) : null;
   const drawing = picture?.state === "drawing";
   const price = animatePrice(credits, picture);
   const changeLine = changeCostLine(freeChangesLeft, picture);
@@ -421,17 +455,24 @@ function GateCard({ credits, lines, exact, notDrawn, colour, picture, freeChange
   const total = Math.round(steps.reduce((t, s) => t + s.secs, 0) * 10) / 10;
   return (
     <div className="v1-card v1-versions v1-gate" data-v1-gate="" data-workspace-theme-exempt="">
-      <div className="v1-gate-head"><span>Ready to animate</span><span className="v1-gate-cost">{creditsText(price)}</span></div>
+      <div className="v1-gate-head"><span>{stepOne ? "Your plan" : "Ready to animate"}</span><span className="v1-gate-cost">{creditsText(price)}</span></div>
+      {handFix && <HandFixBlock fix={handFix} price={price} readOnly={readOnly} onTakeMeThere={onTakeMeThere} />}
       {picture && <GatePictureBox picture={picture} />}
       {steps.length > 0 && <ol className="v1-gate-steps">{steps.map((s, i) => <li key={i}><span className="v1-step-n" aria-hidden="true">{i + 1}</span><span>{s.text}</span><span className="v1-step-s">{s.secs} s</span></li>)}</ol>}
       {notes.map((n, i) => <p key={i} className="v1-gate-note">{n}</p>)}
       {(colour || total > 0 || facts.length > 0) && <p className="v1-gate-meta">{colour && <><span className="v1-swatch" style={{ background: colour }} aria-hidden="true" /><span>Colour</span></>}{total > 0 && <span>{total} seconds</span>}{facts.map((f) => <span key={f}>{f}</span>)}</p>}
       {exact && exact.length > 0 && <details className="v1-gate-exact"><summary>Exact steps for the animator</summary><ol>{exact.map((l, i) => <li key={i}>{l}</li>)}</ol></details>}
       {notDrawn.length > 0 && <p className="v1-gate-not">Not drawn: {notDrawn.join(", ")}</p>}
-      <div className="v1-actions" role="group" aria-label="Animate this plan">
-        <button type="button" title={drawing ? "The first picture is being drawn" : "Make this animation"} disabled={readOnly || busy || drawing} onClick={onAnimate} className="v1-primary"><PlayIcon />Animate · {creditsText(price)}</button>
-        <button type="button" title="Type what should be different" disabled={readOnly || busy} onClick={onChange}><PencilIcon size={14} />Change it</button>
-      </div>
+      {stepOne ? <>
+        <div className="v1-actions" role="group" aria-label="Approve this plan">
+          <button type="button" data-v1-show-picture="" title="Draw the first picture of this plan" disabled={readOnly || busy || drawing} onClick={onPicture} className="v1-primary">{stepOne.button}</button>
+          <button type="button" title="Type what should be different" disabled={readOnly || busy} onClick={onChange}><PencilIcon size={14} />Change it</button>
+        </div>
+        <p className="v1-gate-note" data-v1-picture-offer="">{stepOne.note}</p>
+      </> : <div className="v1-actions" role="group" aria-label="Animate this plan">
+        <button type="button" title="Make this animation" disabled={readOnly || busy} onClick={onAnimate} className="v1-primary"><PlayIcon />{handFix?.remake ? "Remake" : "Animate"} · {creditsText(price)}</button>
+        <button type="button" title="Type what should be different" disabled={readOnly || busy} onClick={onChange}><PencilIcon size={14} />{picture ? "Change the plan" : "Change it"}</button>
+      </div>}
       {changeLine && <p className="v1-gate-note" data-v1-change-cost="">{changeLine}</p>}
       {edit && <p className="v1-gate-note" data-v1-free-fix="">{FREE_FIX_LINE}</p>}
     </div>
@@ -481,7 +522,7 @@ function CopyButton({ text, end }: { text: string; end?: boolean }) {
   );
 }
 
-export function V1AnimatorThread({ state, readOnly, onRevealed, onUndo, onRedo, onCancel, onAnimate, onChangePlan, onAnswer }: Props) {
+export function V1AnimatorThread({ state, readOnly, onRevealed, onUndo, onRedo, onCancel, onAnimate, onChangePlan, onShowPicture, onTakeMeThere, onAnswer }: Props) {
   const latestResult = state.lines.reduce<number | null>((last, line) => line.kind === "result" ? line.id : last, null);
   // ("finishing" = the bar at 100% for a moment before the result appears; nothing to cancel any more)
   const animating = state.busy === "running" || state.busy === "cancelling" || state.busy === "finishing";
@@ -498,7 +539,8 @@ export function V1AnimatorThread({ state, readOnly, onRevealed, onUndo, onRedo, 
         if (line.kind === "work") return <WorkLine key={line.id} line={line} />;
         if (line.kind === "note") return <div className="ai-animator-message v1-note" role="status" key={line.id}>{line.text}</div>;
         if (line.kind === "question") return line.answered ? null : <QuestionCard key={line.id} questions={line.questions} busy={Boolean(state.busy)} readOnly={readOnly} onDone={(a) => onAnswer?.(a)} onOwn={() => onChangePlan?.()} />;
-        if (line.kind === "gate") return line.state === "waiting" ? <GateCard key={line.id} credits={line.credits} lines={line.lines} exact={line.exact} notDrawn={line.notDrawn} colour={line.colour} picture={line.picture} freeChangesLeft={line.freeChangesLeft} edit={line.edit} busy={Boolean(state.busy)} readOnly={readOnly} onAnimate={() => onAnimate?.(line.id)} onChange={() => onChangePlan?.()} /> : null;
+        if (line.kind === "handfix") return <div className="v1-card v1-versions v1-gate" key={line.id} data-workspace-theme-exempt=""><HandFixBlock fix={line.fix} price={null} readOnly={readOnly} onTakeMeThere={onTakeMeThere} /></div>;
+        if (line.kind === "gate") return line.state === "waiting" ? <GateCard key={line.id} credits={line.credits} lines={line.lines} exact={line.exact} notDrawn={line.notDrawn} colour={line.colour} picture={line.picture} freeChangesLeft={line.freeChangesLeft} edit={line.edit} handFix={line.handFix} onTakeMeThere={onTakeMeThere} onPicture={() => onShowPicture?.(line.id)} busy={Boolean(state.busy)} readOnly={readOnly} onAnimate={() => onAnimate?.(line.id)} onChange={() => onChangePlan?.()} /> : null;
         return <ResultLine key={line.id} line={line} isLatest={line.id === latestResult} state={state} readOnly={readOnly} onUndo={onUndo} onRedo={onRedo} />;
       })}
       {/* (Nov 2, Arthur: never interrupt the user — a version waiting for a busy canvas is placed by itself, no button) */}

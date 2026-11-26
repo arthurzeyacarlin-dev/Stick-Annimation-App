@@ -25,17 +25,17 @@ test("dad's prices (website, Nov 20; trial 300 since dad, Nov 26): Basic 470 / P
   assert.deepEqual(AI_ACTION_CREDITS, { chat: 15, assistant: 1, dictation: 1, drawing: 1 });
 });
 
-test("(Nov 26) a new animation's card: 4 a second + the 3-second scene + the 1-second ending (10 s = 56) + its planning (15) = 71", async () => {
+test("(Nov 26) a new animation's card: 4 a second + the 3-second scene + the 1-second ending (10 s = 56) + its planning (30: 4 free text changes) = 86", async () => {
   assert.equal(newAnimationCredits(10), 56);
   assert.equal(newAnimationCredits(120), 496);
-  assert.equal(SHORT_ANIMATION_CREDITS, 71, "dad, Nov 26: planning is included in the price");
+  assert.equal(SHORT_ANIMATION_CREDITS, 86, "dad, Nov 26: planning is included in the price");
   // the SAME number as the AI Animator's own price function (one formula: the texts can never drift from the card again)
   const { priceOf } = await import("../ai/v1Animator/v1Price.ts");
   assert.equal(priceOf({ newSeconds: 10, chat: false }).credits, newAnimationCredits(10));
   assert.equal(priceOf({ newSeconds: 7.3, chat: false }).credits, newAnimationCredits(7.3));
   assert.equal(priceOf({ newSeconds: 10 }).credits, SHORT_ANIMATION_CREDITS, "the card (planning in) = the number every text says");
-  // (Nov 26) honest: 71 a 10-second animation, planning included (the website's old "about 7 / 18 / 36" used 67)
-  assert.deepEqual([approxAnimations(470), approxAnimations(1200), approxAnimations(2400)], [7, 17, 34]);
+  // (Nov 26) honest: 86 a 10-second animation, planning included
+  assert.deepEqual([approxAnimations(470), approxAnimations(1200), approxAnimations(2400)], [5, 14, 28]);
 });
 
 test("a new trial has 300 credits and 14 days (dad, Nov 26; was 150)", () => {
@@ -188,7 +188,7 @@ test("the credits circle is full whenever you have at least your plan's credits 
 test("plans say exactly what the credits make: how many, how long each, credits each, total (Arthur, Nov 21)", async () => {
   const { planAnimationsText } = await import("./plans.ts");
   for (const id of ["trial", "starter", "creator", "studio"] as const) assert.equal(ACCOUNT_PLANS[id].about, planAnimationsText(ACCOUNT_PLANS[id].credits));
-  assert.equal(planAnimationsText(470), "Enough for 6 animations, each 10 seconds long (71 credits each, planning included): 1 minute of animation in total");
+  assert.equal(planAnimationsText(470), "Enough for 5 animations, each 10 seconds long (86 credits each, planning included): 50 seconds of animation in total");
   for (const id of ["trial", "starter", "creator", "studio"] as const) assert.doesNotMatch(ACCOUNT_PLANS[id].about, /short animations|about \d+ animations/i);
 });
 
@@ -210,4 +210,12 @@ test("(Nov 25, Arthur) a trial that ENDED and then chose a plan, weeks later, is
   assert.equal(after.lockReason, null);
   assert.equal(after.creditsLeft, 470);
   assert.deepEqual(checkAiCredit(after, 0, 67), { ok: true });
+});
+
+test("(dad + Arthur, Nov 26) the optional first picture's price comes from the real rates: a 3-second scene (reused by Animate) + a still of later things (extra)", async () => {
+  const { gatePictureEstimate, PLANNING_CREDITS, FREE_PLAN_CHANGES } = await import("./plans.ts");
+  assert.deepEqual(gatePictureEstimate("first", false), { credits: 12, reused: 12 }, "the scene only: all of it is the start of the animation");
+  assert.deepEqual(gatePictureEstimate("first", true), { credits: 24, reused: 12 }, "+ the still of things that come in later");
+  assert.deepEqual(gatePictureEstimate("new", true), { credits: 12, reused: 0 }, "an edit's new things: all extra");
+  assert.deepEqual([PLANNING_CREDITS, FREE_PLAN_CHANGES], [30, 4]);
 });

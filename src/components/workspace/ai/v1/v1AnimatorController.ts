@@ -1,4 +1,5 @@
 import type { V1AnimationSnapshot, V1CanvasLimits, V1CanvasPicture, V1ClearScope, V1Intent, V1SavedLine, V1Version } from "../../../../lib/ai/v1Animator/v1AnimatorContract.ts";
+import type { V1HandFix } from "../../../../lib/ai/v1Animator/v1HandFix.ts";
 import { v1GroundForDefault, type V1GroundLine, type V1GroundRule, type V1Thing } from "../../../../lib/ai/v1Animator/v1PageFit.ts";
 
 // AI ANIMATOR VERSION 1 — the panel's brain (Nov 1, PLAN_PARTB.md row B3). No React and no browser here, so the whole
@@ -81,13 +82,15 @@ export type V1ResultBlock = { n: number; id: string; sentence: string; mark: V1R
 // (Nov 22) the gate card's first picture: drawing -> ready (an H3 picture, its cost if he changes it instead) | none (nothing to show) | failed
 // kind: "first" = a new animation's first picture (everything in it); "new" = the new things an edit / added part brings in
 export type V1GatePictureKind = "first" | "new";
-export type V1GatePicture = ({ state: "drawing" } | { state: "ready"; src: string; credits: number; animateCredits: number } | { state: "none" } | { state: "failed"; why: string }) & { kind: V1GatePictureKind };
+// (dad + Arthur, Nov 26) "offer" = not drawn: the card shows a button with its price (credits; reused = the part Animate reuses)
+export type V1GatePicture = ({ state: "offer"; credits: number; reused: number } | { state: "drawing" } | { state: "ready"; src: string; credits: number; animateCredits: number } | { state: "none" } | { state: "failed"; why: string }) & { kind: V1GatePictureKind };
 export type V1ChatLine =
   | { id: number; kind: "user"; text: string }
   | { id: number; kind: "ai"; text: string; tone?: "error" }
   | { id: number; kind: "result"; version: number; summary: string; blocks: V1ResultBlock[]; labels: string[]; lengthS: number; edited: boolean; delta?: V1FrameDelta | null }
   | { id: number; kind: "note"; text: string }
-  | { id: number; kind: "gate"; credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; state: "waiting" | "started" | "replaced"; picture?: V1GatePicture; freeChangesLeft?: number; edit?: boolean }   // (Nov 22) exact = the animator's own words
+  | { id: number; kind: "handfix"; fix: V1HandFix }   // (dad + Arthur, Nov 26) a look the AI can't change: how to fix it by hand, free
+  | { id: number; kind: "gate"; credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; state: "waiting" | "started" | "replaced"; picture?: V1GatePicture; freeChangesLeft?: number; edit?: boolean; handFix?: V1HandFix }   // (Nov 22) exact = the animator's own words
   | { id: number; kind: "question"; questions: { text: string; options: string[] }[]; answered: boolean } // (Nov 11) the question card // (Nov 11) the card before a new animation is made
   | { id: number; kind: "work"; summary: string; steps: string[] }; // (Nov 17, Part 2) what he did, folded into ONE grey line ("Thought for 7 seconds, made the plan ›"); a click opens the steps
 
@@ -207,16 +210,26 @@ export function readV1Snapshot(body: unknown): V1AnimationSnapshot | null {
   const versions = candidate.versions.filter((v): v is V1Version => isObject(v) && typeof v.n === "number" && typeof v.status === "string");
   return { ...(candidate as V1AnimationSnapshot), versions };
 }
-export function readV1Turn(body: unknown): { say: string; intent: V1Intent | null; snapshot: V1AnimationSnapshot | null; clear: V1ClearScope | null; gate: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: V1GatePictureKind; freeChangesLeft?: number; edit?: boolean } | null; questions: { text: string; options: string[] }[] } | null {
+/** (dad + Arthur, Nov 26) the hand-fix place the server worked out (v1HandFix.ts), checked. */
+function readHandFix(value: unknown): V1HandFix | null {
+  if (!isObject(value)) return null;
+  const n = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
+  const fromS = n(value.fromS), toS = n(value.toS), firstStep = n(value.firstStep), lastStep = n(value.lastStep);
+  if (fromS === null || toS === null || firstStep === null || lastStep === null) return null;
+  const remake = isObject(value.remake) && typeof value.remake.whole === "boolean" ? { whole: value.remake.whole, firstStep: n(value.remake.firstStep) ?? firstStep, lastStep: n(value.remake.lastStep) ?? lastStep, seconds: n(value.remake.seconds) ?? toS } : null;
+  return { fromS, toS, fromFrame: n(value.fromFrame), toFrame: n(value.toFrame), firstStep, lastStep, recommend: value.recommend === "hand" ? "hand" : "remake", remake };
+}
+
+export function readV1Turn(body: unknown): { say: string; intent: V1Intent | null; snapshot: V1AnimationSnapshot | null; clear: V1ClearScope | null; gate: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: V1GatePictureKind; pictureOffer?: { credits: number; reused: number }; freeChangesLeft?: number; edit?: boolean; handFix?: V1HandFix } | null; questions: { text: string; options: string[] }[]; handFix: V1HandFix | null } | null {
   if (!isObject(body)) return null;
   const turn = isObject(body.turn) ? body.turn : body;
   if (typeof turn.say !== "string") return null;
   const clear = isObject(turn.clear) && (turn.clear.scope === "ai" || turn.clear.scope === "all") ? turn.clear.scope : null;
   // (Nov 13, live: every card of 9+ steps lost its last lines - "and finally takes a big bow" - to a cap of 8 here) the card shows EVERY line it is sent
   const strs = (v: unknown) => Array.isArray(v) ? v.filter((l): l is string => typeof l === "string" && l.trim() !== "") : [];
-  const gate = isObject(body.gate) && Number(body.gate.credits) > 0 ? { credits: Number(body.gate.credits), lines: strs(body.gate.lines), ...(Array.isArray(body.gate.exact) ? { exact: strs(body.gate.exact) } : {}), notDrawn: strs(body.gate.notDrawn), colour: typeof body.gate.colour === "string" && /^#[0-9a-f]{3,8}$/i.test(body.gate.colour) ? body.gate.colour : null, ...(body.gate.picture === "first" || body.gate.picture === "new" ? { picture: body.gate.picture as V1GatePictureKind } : body.gate.picture === true ? { picture: "first" as const } : {}) , ...(Number.isFinite(Number(body.gate.freeChangesLeft)) ? { freeChangesLeft: Math.max(0, Number(body.gate.freeChangesLeft)) } : {}), ...(body.gate.edit === true ? { edit: true } : {}) } : null;
+  const gate = isObject(body.gate) && Number(body.gate.credits) > 0 ? { credits: Number(body.gate.credits), lines: strs(body.gate.lines), ...(Array.isArray(body.gate.exact) ? { exact: strs(body.gate.exact) } : {}), notDrawn: strs(body.gate.notDrawn), colour: typeof body.gate.colour === "string" && /^#[0-9a-f]{3,8}$/i.test(body.gate.colour) ? body.gate.colour : null, ...(body.gate.picture === "first" || body.gate.picture === "new" ? { picture: body.gate.picture as V1GatePictureKind } : body.gate.picture === true ? { picture: "first" as const } : {}) , ...(isObject(body.gate.pictureOffer) && Number(body.gate.pictureOffer.credits) > 0 ? { pictureOffer: { credits: Number(body.gate.pictureOffer.credits), reused: Math.max(0, Number(body.gate.pictureOffer.reused) || 0) } } : {}), ...(Number.isFinite(Number(body.gate.freeChangesLeft)) ? { freeChangesLeft: Math.max(0, Number(body.gate.freeChangesLeft)) } : {}), ...(body.gate.edit === true ? { edit: true } : {}), ...(readHandFix(body.gate.handFix) ? { handFix: readHandFix(body.gate.handFix)! } : {}) } : null;
   const questions = (Array.isArray(turn.questions) ? turn.questions : []).filter(isObject).map((q) => ({ text: typeof q.text === "string" ? q.text : "", options: strs(q.options).slice(0, 4) })).filter((q) => q.text && q.options.length >= 2).slice(0, 3);
-  return { say: turn.say, intent: typeof turn.intent === "string" ? turn.intent as V1Intent : null, snapshot: readV1Snapshot(body.animation ?? body.snapshot ?? null), clear, gate, questions };
+  return { say: turn.say, intent: typeof turn.intent === "string" ? turn.intent as V1Intent : null, snapshot: readV1Snapshot(body.animation ?? body.snapshot ?? null), clear, gate, questions, handFix: readHandFix(body.handFix) };
 }
 // Version n's pictures from a server answer: only when `resultVersion` is n (the server sends the CURRENT version's).
 export function readV1Pictures(body: unknown, n: number): V1VersionPictures | null {
@@ -644,11 +657,12 @@ export class V1AnimatorController {
     this.set({ thinking: null });
     if (reply.say.trim()) this.push({ kind: "ai", text: reply.say }, !shownLive);
     if (reply.questions.length) this.push({ kind: "question", questions: reply.questions, answered: false });   // (Nov 11) the question card
+    if (reply.handFix && !reply.gate) this.push({ kind: "handfix", fix: reply.handFix });   // (dad + Arthur, Nov 26) a look: fix it by hand, free
     if (reply.gate) {   // (Nov 11) nothing is made or charged until Animate
       const gateId = this.nextId;
-      this.push({ kind: "gate", credits: reply.gate.credits, lines: reply.gate.lines, ...(reply.gate.exact?.length ? { exact: reply.gate.exact } : {}), notDrawn: reply.gate.notDrawn, colour: reply.gate.colour, state: "waiting", ...(reply.gate.picture ? { picture: { state: "drawing" as const, kind: reply.gate.picture } } : {}), ...(reply.gate.freeChangesLeft !== undefined ? { freeChangesLeft: reply.gate.freeChangesLeft } : {}), ...(reply.gate.edit ? { edit: true } : {}) });
+      this.push({ kind: "gate", credits: reply.gate.credits, lines: reply.gate.lines, ...(reply.gate.exact?.length ? { exact: reply.gate.exact } : {}), notDrawn: reply.gate.notDrawn, colour: reply.gate.colour, state: "waiting", ...(reply.gate.picture ? { picture: { state: "offer" as const, kind: reply.gate.picture, credits: reply.gate.pictureOffer?.credits ?? 0, reused: reply.gate.pictureOffer?.reused ?? 0 } } : {}), ...(reply.gate.freeChangesLeft !== undefined ? { freeChangesLeft: reply.gate.freeChangesLeft } : {}), ...(reply.gate.edit ? { edit: true } : {}), ...(reply.gate.handFix ? { handFix: reply.gate.handFix } : {}) });
       this.idle();
-      if (reply.gate.picture) void this.drawGatePicture(gateId, reply.gate.picture);   // (Nov 22) the first picture, shown on the card
+      void gateId;   // (dad + Arthur, Nov 26) the first picture is drawn only when asked (showGatePicture), never by itself
       return;
     }
     if (reply.clear) { await this.clearCanvas(reply.clear); return; }
@@ -865,6 +879,14 @@ export class V1AnimatorController {
   // (Nov 11) the gate card's Animate: the server starts the plan that is waiting (no second AI call); then exactly like a started animation
   // (Nov 22, Arthur: "are you sure you want it to look like this?") the gate card's first picture: the server draws it with the engine's own
   // first step (the picture the animation starts from); Animate waits for it. Shown once, only for a new animation with things in it.
+  /** (dad + Arthur, Nov 26) "Show the first picture (about N credits)": drawn only now, when asked. */
+  showGatePicture(lineId: number) {
+    const line = this.state.lines.find((l) => l.id === lineId && l.kind === "gate");
+    if (!line || line.kind !== "gate" || line.state !== "waiting" || !line.picture || line.picture.state === "drawing" || line.picture.state === "ready") return;
+    const kind = line.picture.kind;
+    this.set({ lines: this.state.lines.map((l) => l.id === lineId && l.kind === "gate" ? { ...l, picture: { state: "drawing" as const, kind } } : l) });
+    void this.drawGatePicture(lineId, kind);
+  }
   private async drawGatePicture(lineId: number, kind: V1GatePictureKind) {
     const put = (picture: V1GatePicture) => { if (!this.disposed) this.set({ lines: this.state.lines.map((l) => l.id === lineId && l.kind === "gate" ? { ...l, picture } : l) }); };
     try {

@@ -907,17 +907,78 @@ test("(dad, Nov 26) the plan card: ONE price on Animate (planning + the picture)
   assert.equal(animatePrice(55, { state: "ready", src: "x", credits: 24, animateCredits: 12, kind: "first" }), 67, "a picture's still is in the one price");
   assert.equal(animatePrice(55, { state: "ready", src: "x", credits: 12, animateCredits: 0, kind: "first" }), 55, "a first picture is included");
   assert.equal(animatePrice(55, { state: "drawing", kind: "first" }), 55);
-  assert.equal(changeCostLine(3), "Changing the plan is free: 3 changes left.");
+  assert.equal(changeCostLine(4), "Changing the plan is free: 4 changes left.");
   assert.equal(changeCostLine(1), "Changing the plan is free: 1 change left.");
   assert.equal(changeCostLine(0), "A change now costs what it really costs, never more than 20 credits.");
   assert.equal(changeCostLine(undefined), null);
   // (dad, Nov 26, option d) a first picture already drawn is replaced by a change: its exact cost is said BEFORE the change is sent
   assert.equal(changeCostLine(2, { state: "ready", src: "x", credits: 24, animateCredits: 0, kind: "first" }),
-    "Changing the plan is free: 2 changes left. A change draws a new first picture: this one costs 24 credits.");
+    "Changing the plan is free: 2 changes left. Changing it now throws this picture away: its 24 credits are charged, and you approve the new text plan before a new picture is drawn.");
+  assert.equal(changeCostLine(2, { state: "offer", credits: 24, reused: 12, kind: "first" }), "Changing the plan is free: 2 changes left.", "step 1: nothing drawn, nothing to throw away");
+  // (dad, Nov 26 15:57) step 1: approve the text plan to see the first picture; how the picture is paid, said exactly
+  const { stepOneWords, pictureReadyNote } = await import("./v1GatePrice.ts");
+  assert.deepEqual(stepOneWords({ state: "offer", credits: 12, reused: 12, kind: "first" }), { button: "Looks right: show me the first picture",
+    note: "The first picture is the start of your animation: it's included in the price above." });
+  assert.equal(stepOneWords({ state: "offer", credits: 24, reused: 12, kind: "first" })?.note,
+    "The first picture is the start of your animation: it's included in the price above (about 12 credits of that price draws the things that come in later).");
+  assert.equal(stepOneWords({ state: "offer", credits: 12, reused: 0, kind: "new" })?.note, "The first picture shows the new things before anything moves: its about 12 credits are included in the price above.");
+  assert.equal(stepOneWords({ state: "drawing", kind: "first" })?.button, "Drawing the first picture");
+  assert.equal(stepOneWords({ state: "ready", src: "x", credits: 12, animateCredits: 0, kind: "first" }), null, "step 2: the picture is there");
+  assert.equal(pictureReadyNote({ state: "ready", src: "x", credits: 12, animateCredits: 0, kind: "first" }), "It's the start of your animation: it's included in the Animate price, never paid twice.");
+  assert.match(pictureReadyNote({ state: "ready", src: "x", credits: 24, animateCredits: 12, kind: "first" }) ?? "", /The things that come in later add 12 credits: that's in the Animate price too/);
+  assert.equal(animatePrice(65, { state: "offer", credits: 24, reused: 12, kind: "first" }), 77, "the full price up front: the still of later things is counted already");
+  assert.equal(animatePrice(65, { state: "offer", credits: 12, reused: 12, kind: "first" }), 65);
+
   assert.equal(changeCostLine(2, { state: "drawing", kind: "first" }), "Changing the plan is free: 2 changes left.");
   assert.equal(FREE_FIX_LINE, "Small fix? Click the frame on the timeline and erase or draw it yourself: it's free.");
   const thread = readFileSync(resolvePath(dirname(fileURLToPath(import.meta.url)), "V1AnimatorThread.tsx"), "utf8");
-  assert.match(thread, /<PlayIcon \/>Animate · \{creditsText\(price\)\}/, "the price is ON the Animate button");
+  assert.match(thread, /<PlayIcon \/>\{handFix\?\.remake \? "Remake" : "Animate"\} · \{creditsText\(price\)\}/, "the price is ON the Animate (or Remake) button");
   assert.match(thread, /\{edit && <p className="v1-gate-note" data-v1-free-fix="">\{FREE_FIX_LINE\}<\/p>\}/, "shown on every edit card");
   assert.match(thread, /changeCostLine\(freeChangesLeft, picture\)/, "the card's change line knows the picture it would replace");
+  assert.match(thread, /data-v1-show-picture="" [^>]*onClick=\{onPicture\} className="v1-primary">\{stepOne\.button\}/, "step 1's one main button: show me the first picture");
+  const controller = readFileSync(resolvePath(dirname(fileURLToPath(import.meta.url)), "v1AnimatorController.ts"), "utf8");
+  assert.doesNotMatch(controller, /if \(reply\.gate\.picture\) void this\.drawGatePicture/, "never drawn by itself");
+});
+
+test("(dad + Arthur, Nov 26) the plan card as people see it: the optional picture button with its price, a drawn picture with its exact cost, an edit card", async () => {
+  const React = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { V1AnimatorThread, v1ThreadStyles } = await import("./V1AnimatorThread.tsx");
+  const Reply = ({ message }: { message: { content: string } }) => React.createElement("div", null, message.content);
+  const lines = ["He does three jumping jacks (3 s)", "He runs forward and does a front flip (3.5 s)", "A small brown dog walks in and sits beside him (2.5 s)"];
+  const card = (id: number, extra: Record<string, unknown>) => ({ id, kind: "gate", credits: 86, lines, notDrawn: [], colour: "#111111", state: "waiting", freeChangesLeft: 4, ...extra });
+  const render = (line: Record<string, unknown>) => renderToStaticMarkup(React.createElement(V1AnimatorThread, { state: { ...emptyV1PanelState(), lines: [line as never] }, Reply, readOnly: false,
+    onRevealed: () => {}, onUndo: () => {}, onRedo: () => {}, onCancel: () => {}, onAnimate: () => {}, onChangePlan: () => {}, onShowPicture: () => {} } as never));
+  const offered = render(card(1, { picture: { state: "offer", kind: "first", credits: 24, reused: 12 } }));
+  assert.match(offered, />Looks right: show me the first picture<\/button>/);
+  assert.match(offered, /The first picture is the start of your animation: it&#x27;s included in the price above/);
+  assert.match(offered, /98 credits/, "the full price up front (86 + the still of the dog)");
+  assert.doesNotMatch(offered, /Animate ·/, "no Animate before the picture");
+  assert.doesNotMatch(offered, /<img/, "nothing is drawn until the text is approved");
+  const png = "data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><rect width="320" height="180" fill="#fff"/><circle cx="110" cy="60" r="14" fill="none" stroke="#111" stroke-width="5"/><path d="M110 74v50M110 90l-22 18M110 90l22 18M110 124l-18 34M110 124l18 34" stroke="#111" stroke-width="5" fill="none"/><rect x="190" y="130" width="46" height="24" rx="8" fill="#8b5a2b"/><text x="160" y="172" font-size="10" fill="#888" text-anchor="middle">TEST PICTURE (not H3)</text></svg>');
+  const drawn = render(card(2, { picture: { state: "ready", kind: "first", src: png, credits: 24, animateCredits: 12 } }));
+  assert.match(drawn, /Animate · 98 credits/, "one price: the card + the still of the dog");
+  assert.match(drawn, /It&#x27;s the start of your animation \(included in the Animate price, never paid twice\)/);
+  assert.match(drawn, /throws this picture away: its 24 credits are charged, and you approve the new text plan before a new picture is drawn/);
+  assert.match(drawn, />Change the plan</);
+  const handFix = { fromS: 10.5, toS: 13, fromFrame: 253, toFrame: 312, firstStep: 6, lastStep: 6, recommend: "remake", remake: { whole: true, firstStep: 6, lastStep: 6, seconds: 15 } };
+  const edit = render(card(3, { credits: 98, edit: true, freeChangesLeft: 3, lines: ["He spins the nunchuck once and catches it (2.5 s)"], handFix }));
+  assert.match(edit, /Two ways to make this change/);
+  assert.match(edit, /Step 6: about 10\.5–13 s, frames about 253–312\./);
+  assert.match(edit, />Take me there<\/button>/);
+  assert.match(edit, /Remake the whole animation: 98 credits <em[^>]*>Recommended<\/em>/);
+  assert.match(edit, /this makes the whole 15-second animation again/);
+  assert.match(edit, /Remake · 98 credits/, "the edit's main button is the remake, with its price");
+  const lookFix = render({ id: 4, kind: "handfix", fix: { ...handFix, recommend: "hand", remake: null } });
+  assert.match(lookFix, /Fix it yourself, free <em[^>]*>Recommended<\/em>/);
+  assert.doesNotMatch(lookFix, /Remake/);
+  assert.match(edit, /erase or draw it yourself: it&#x27;s free/);
+  const dir = process.env.CARD_SNAPSHOT_DIR;
+  if (dir) {
+    const { writeFileSync, mkdirSync } = await import("node:fs");
+    mkdirSync(dir, { recursive: true });
+    const css = `<style>${["app/themes.css"].map((f) => readFileSync(resolvePath(ROOT, f), "utf8")).join("\n")}</style>`;
+    const box = (title: string, html: string) => `<section style="width:300px;margin:0 12px 24px 0;display:inline-block;vertical-align:top"><h3 style="font:600 13px system-ui;color:#9aa;margin:0 0 8px">${title}</h3><div class="ai-animator-v1">${html}</div></section>`;
+    writeFileSync(`${dir}/plan-card.html`, `<!doctype html><html data-theme="dark" data-accent="blue"><head><meta charset="utf-8">${css}<style>${v1ThreadStyles}</style></head><body style="background:#111113;padding:20px">${box("Step 1: the text plan", offered)}${box("Step 2: the first picture, then Animate", drawn)}${box("An edit: two ways", edit)}${box("A look the AI can't change", lookFix)}</body></html>`);
+  }
 });

@@ -1,5 +1,10 @@
 # Current State
 
+## Text plan -> first picture -> Animate (dad, 2026-11-26 15:57) — built, NOT live
+
+Branch `claude/optional-preview-nov26` on main 895d8f0: the picture is drawn only after the text plan is approved, Animate only after the
+picture; 4 free text changes; planning 30 credits (a 10-second animation = 86); edits offer fix-it-yourself or remake. See SPEC-0033's last section.
+
 ## SPEC-0033 — The 4 money leaks + email confirm: built and tested, NOT live (2026-11-26)
 
 Built in the copy `.claude/worktrees/money-leaks-nov26` (branch `claude/money-leaks-nov26`), waiting for dad's walkthrough to end; then
